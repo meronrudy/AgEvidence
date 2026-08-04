@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "athian.agevidence.evidence_gap.v1",
+  "title": "Athian AgEvidence Evidence Gap Receipt Payload",
+  "type": "object",
+  "required": [
+    "gap_type",
+    "requirement",
+    "description",
+    "severity",
+    "model_run_receipt"
+  ],
+  "properties": {
+    "gap_type": { "type": "string" },
+    "requirement": { "type": "string" },
+    "description": { "type": "string" },
+    "severity": { "type": "string" },
+    "source_context": { "type": "object" },
+    "resolution_status": { "type": "string" },
+    "model_run_receipt": { "type": "string" }
+  },
+  "additionalProperties": true
+}

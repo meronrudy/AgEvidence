@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "athian.agevidence.evidence_candidate.v1",
+  "title": "Athian AgEvidence Evidence Candidate Receipt Payload",
+  "type": "object",
+  "required": [
+    "candidate_id",
+    "candidate_type",
+    "claim_text",
+    "source_references",
+    "model_run_receipt",
+    "review_status"
+  ],
+  "properties": {
+    "candidate_id": { "type": "string" },
+    "candidate_type": { "type": "string" },
+    "claim_text": { "type": "string" },
+    "source_references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["document_id", "locator"],
+        "properties": {
+          "document_id": { "type": "string" },
+          "locator": { "type": "string" }
+        }
+      },
+      "minItems": 1
+    },
+    "model_confidence": { "type": "number" },
+    "model_run_receipt": { "type": "string" },
+    "review_status": { "type": "string" }
+  },
+  "additionalProperties": true
+}
