@@ -1,0 +1,15 @@
+[package]
+name = "baink-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+baink-core = { path = "../baink-core" }
+baink-schema = { path = "../baink-schema" }
+baink-canonical = { path = "../baink-canonical" }
+baink-crypto = { path = "../baink-crypto" }
+baink-bundle = { path = "../baink-bundle" }
+baink-verify = { path = "../baink-verify" }
+clap = { workspace = true }
+anyhow = { workspace = true }
+serde_json = { workspace = true }

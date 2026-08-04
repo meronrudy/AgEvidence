@@ -1,0 +1,13 @@
+[package]
+name = "baink-verify"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+baink-core = { path = "../baink-core" }
+baink-schema = { path = "../baink-schema" }
+baink-canonical = { path = "../baink-canonical" }
+baink-crypto = { path = "../baink-crypto" }
+baink-bundle = { path = "../baink-bundle" }
+serde = { workspace = true }
+thiserror = { workspace = true }
