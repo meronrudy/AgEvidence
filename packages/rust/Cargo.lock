@@ -71,6 +71,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f02882884d3e1bc524fb12c79f107f6ad0e1cfd498c536ffb494301740995dfe"
 
 [[package]]
+name = "baink-agevidence"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "baink-bundle"
 version = "0.1.0"
 dependencies = [
@@ -96,6 +105,7 @@ name = "baink-cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "baink-agevidence",
  "baink-bundle",
  "baink-canonical",
  "baink-core",

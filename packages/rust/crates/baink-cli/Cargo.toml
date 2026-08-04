@@ -10,6 +10,7 @@ baink-canonical = { path = "../baink-canonical" }
 baink-crypto = { path = "../baink-crypto" }
 baink-bundle = { path = "../baink-bundle" }
 baink-verify = { path = "../baink-verify" }
+baink-agevidence = { path = "../baink-agevidence" }
 clap = { workspace = true }
 anyhow = { workspace = true }
 serde_json = { workspace = true }

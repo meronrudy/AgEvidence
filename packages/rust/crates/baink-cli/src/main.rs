@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use baink_agevidence::{validate_payload, AgEvidenceSchema};
 use baink_bundle::{EvidenceBundle, InkReceipt};
 use baink_canonical::canonicalize;
 use baink_core::{HashAlgorithm, IssuerId, VerificationStatus};
@@ -96,6 +97,47 @@ enum Commands {
         /// Output format (e.g., markdown)
         #[arg(long, default_value = "markdown")]
         format: String,
+    },
+    /// Validate and issue AgEvidence domain payloads
+    Agevidence {
+        /// AgEvidence subcommand
+        #[command(subcommand)]
+        command: AgevidenceCommands,
+    },
+}
+
+#[derive(Subcommand)]
+enum AgevidenceCommands {
+    /// Validate an AgEvidence payload and emit JSON
+    Validate {
+        /// AgEvidence schema name or schema id
+        #[arg(long)]
+        schema: String,
+        /// Path to the payload JSON file
+        payload: PathBuf,
+    },
+    /// Validate and issue an AgEvidence receipt projection
+    Issue {
+        /// AgEvidence schema name or schema id
+        #[arg(long)]
+        schema: String,
+        /// Path to the payload JSON file
+        payload: PathBuf,
+        /// Issuer identifier
+        #[arg(long)]
+        issuer: String,
+        /// Signer key identifier
+        #[arg(long)]
+        signer: String,
+        /// Lifecycle state
+        #[arg(long, default_value = "sealed")]
+        lifecycle: String,
+        /// AVSA identifier
+        #[arg(long)]
+        avsa: Option<String>,
+        /// Parent digest
+        #[arg(long = "parent")]
+        parents: Vec<String>,
     },
 }
 
@@ -254,9 +296,57 @@ fn main() -> Result<()> {
                 println!("Unsupported format: {}", format);
             }
         }
+        Commands::Agevidence { command } => match command {
+            AgevidenceCommands::Validate { schema, payload } => {
+                let schema = AgEvidenceSchema::parse(&schema)
+                    .map_err(|error| anyhow::anyhow!(error.to_string()))?;
+                let payload = read_json_payload(&payload).context("Failed to read payload")?;
+                let validated = validate_payload(schema, &payload)
+                    .map_err(|error| anyhow::anyhow!(error.to_string()))?;
+                println!("{}", serde_json::to_string_pretty(&validated)?);
+            }
+            AgevidenceCommands::Issue {
+                schema,
+                payload,
+                issuer,
+                signer,
+                lifecycle,
+                avsa,
+                parents,
+            } => {
+                let schema = AgEvidenceSchema::parse(&schema)
+                    .map_err(|error| anyhow::anyhow!(error.to_string()))?;
+                if schema.requires_parent() && parents.is_empty() {
+                    return Err(anyhow::anyhow!(
+                        "schema {} requires at least one parent",
+                        schema.schema_id()
+                    ));
+                }
+                let payload = read_json_payload(&payload).context("Failed to read payload")?;
+                let _validated = validate_payload(schema, &payload)
+                    .map_err(|error| anyhow::anyhow!(error.to_string()))?;
+                let receipt = issue_projection(
+                    payload,
+                    issuer,
+                    schema.receipt_type().to_owned(),
+                    Some(schema.schema_id().to_owned()),
+                    lifecycle,
+                    avsa,
+                    Some(signer),
+                    parents,
+                )
+                .context("Failed to issue AgEvidence receipt projection")?;
+                println!("{}", serde_json::to_string_pretty(&receipt)?);
+            }
+        },
     }
 
     Ok(())
+}
+
+fn read_json_payload(path: &PathBuf) -> Result<Value> {
+    let payload_str = fs::read_to_string(path).context("Failed to read JSON payload file")?;
+    serde_json::from_str(&payload_str).context("Failed to parse JSON payload")
 }
 
 fn issue_projection(

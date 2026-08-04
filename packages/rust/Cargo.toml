@@ -6,6 +6,7 @@ members = [
     "crates/baink-crypto",
     "crates/baink-bundle",
     "crates/baink-verify",
+    "crates/baink-agevidence",
     "crates/baink-cli",
 ]
 resolver = "2"
