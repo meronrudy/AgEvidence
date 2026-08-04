@@ -27,6 +27,10 @@ pub enum AgEvidenceSchema {
     ArtifactAssembly,
     /// Reliance event receipt payload.
     RelianceEvent,
+    /// Country adapter commitment payload.
+    CountryAdapterCommitment,
+    /// Country compatibility determination payload.
+    CountryDetermination,
 }
 
 impl AgEvidenceSchema {
@@ -43,6 +47,12 @@ impl AgEvidenceSchema {
                 Ok(Self::ArtifactAssembly)
             }
             "reliance_event" | "athian.agevidence.reliance_event.v1" => Ok(Self::RelianceEvent),
+            "country_adapter_commitment" | "athian.agevidence.country_adapter_commitment.v1" => {
+                Ok(Self::CountryAdapterCommitment)
+            }
+            "country_determination" | "athian.country_determination.v1" => {
+                Ok(Self::CountryDetermination)
+            }
             other => Err(AgEvidenceError::UnknownSchema(other.to_owned())),
         }
     }
@@ -56,6 +66,8 @@ impl AgEvidenceSchema {
             Self::HumanReview => "athian.agevidence.human_review.v1",
             Self::ArtifactAssembly => "athian.agevidence.artifact_assembly.v1",
             Self::RelianceEvent => "athian.agevidence.reliance_event.v1",
+            Self::CountryAdapterCommitment => "athian.agevidence.country_adapter_commitment.v1",
+            Self::CountryDetermination => "athian.country_determination.v1",
         }
     }
 
@@ -68,12 +80,17 @@ impl AgEvidenceSchema {
             Self::HumanReview => "human_review_receipt",
             Self::ArtifactAssembly => "artifact_assembly_receipt",
             Self::RelianceEvent => "reliance_event_receipt",
+            Self::CountryAdapterCommitment => "country_adapter_commitment_receipt",
+            Self::CountryDetermination => "country_compatibility_determination_receipt",
         }
     }
 
     /// Return whether an issued receipt for this schema requires a parent.
     pub fn requires_parent(self) -> bool {
-        matches!(self, Self::HumanReview | Self::RelianceEvent)
+        matches!(
+            self,
+            Self::HumanReview | Self::RelianceEvent | Self::CountryDetermination
+        )
     }
 }
 
@@ -121,6 +138,8 @@ pub fn validate_payload(
         AgEvidenceSchema::HumanReview => validate_human_review(payload),
         AgEvidenceSchema::ArtifactAssembly => validate_artifact_assembly(payload),
         AgEvidenceSchema::RelianceEvent => validate_reliance_event(payload),
+        AgEvidenceSchema::CountryAdapterCommitment => validate_country_adapter_commitment(payload),
+        AgEvidenceSchema::CountryDetermination => validate_country_determination(payload),
     }
 }
 
@@ -170,7 +189,13 @@ pub fn validate_evidence_candidate(payload: &Value) -> Result<ValidatedPayload, 
 pub fn validate_evidence_gap(payload: &Value) -> Result<ValidatedPayload, AgEvidenceError> {
     let fields = require_fields(
         payload,
-        &["gap_type", "requirement", "description", "severity", "model_run_receipt"],
+        &[
+            "gap_type",
+            "requirement",
+            "description",
+            "severity",
+            "model_run_receipt",
+        ],
     )?;
     Ok(summary(AgEvidenceSchema::EvidenceGap, fields))
 }
@@ -197,7 +222,12 @@ pub fn validate_human_review(payload: &Value) -> Result<ValidatedPayload, AgEvid
 pub fn validate_artifact_assembly(payload: &Value) -> Result<ValidatedPayload, AgEvidenceError> {
     let fields = require_fields(
         payload,
-        &["artifact_digest", "product_code", "artifact_version", "declared_scope"],
+        &[
+            "artifact_digest",
+            "product_code",
+            "artifact_version",
+            "declared_scope",
+        ],
     )?;
     require_array(payload, "included_receipts")?;
     Ok(summary(AgEvidenceSchema::ArtifactAssembly, fields))
@@ -217,6 +247,56 @@ pub fn validate_reliance_event(payload: &Value) -> Result<ValidatedPayload, AgEv
         ],
     )?;
     Ok(summary(AgEvidenceSchema::RelianceEvent, fields))
+}
+
+/// Validate a country adapter commitment receipt payload.
+pub fn validate_country_adapter_commitment(
+    payload: &Value,
+) -> Result<ValidatedPayload, AgEvidenceError> {
+    let fields = require_fields(
+        payload,
+        &[
+            "adapter_id",
+            "adapter_version",
+            "country_code",
+            "method_id",
+            "method_version",
+            "eligibility_rules_digest",
+            "claim_policy_digest",
+            "verification_profile_digest",
+            "data_policy_digest",
+            "authority_declaration",
+        ],
+    )?;
+    require_array(payload, "artifact_profile_digests")?;
+    require_array(payload, "limitations")?;
+    Ok(summary(AgEvidenceSchema::CountryAdapterCommitment, fields))
+}
+
+/// Validate a country compatibility determination payload.
+pub fn validate_country_determination(
+    payload: &Value,
+) -> Result<ValidatedPayload, AgEvidenceError> {
+    let fields = require_fields(
+        payload,
+        &[
+            "contract",
+            "project_id",
+            "country_code",
+            "adapter_id",
+            "adapter_version",
+            "method_id",
+            "method_version",
+            "status",
+            "matched_context",
+            "authority",
+            "determination_role",
+            "evaluated_at",
+        ],
+    )?;
+    require_array(payload, "required_evidence")?;
+    require_array(payload, "limitations")?;
+    Ok(summary(AgEvidenceSchema::CountryDetermination, fields))
 }
 
 fn require_fields(
@@ -316,6 +396,42 @@ mod tests {
         };
 
         assert_eq!(schema.receipt_type(), "reliance_event_receipt");
+        assert!(schema.requires_parent());
+    }
+
+    #[test]
+    fn validates_country_adapter_commitment_payload() {
+        let payload = json!({
+            "adapter_id": "athian-country-ca-beef-v1",
+            "adapter_version": "v1",
+            "country_code": "CA",
+            "method_id": "CA-FED-REME-BC",
+            "method_version": "v1.0",
+            "eligibility_rules_digest": "sha256:eligibility",
+            "claim_policy_digest": "sha256:claim",
+            "verification_profile_digest": "sha256:verification",
+            "data_policy_digest": "sha256:data",
+            "artifact_profile_digests": ["sha256:artifact"],
+            "authority_declaration": "Athian compatibility implementation",
+            "limitations": ["Final authority remains external."]
+        });
+
+        let validated = match validate_country_adapter_commitment(&payload) {
+            Ok(value) => value,
+            Err(error) => panic!("{}", error),
+        };
+
+        assert_eq!(validated.receipt_type, "country_adapter_commitment_receipt");
+        assert!(!validated.parent_required);
+    }
+
+    #[test]
+    fn country_determination_requires_parent() {
+        let schema = match AgEvidenceSchema::parse("country_determination") {
+            Ok(value) => value,
+            Err(error) => panic!("{}", error),
+        };
+
         assert!(schema.requires_parent());
     }
 }

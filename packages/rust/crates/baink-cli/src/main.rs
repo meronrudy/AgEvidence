@@ -180,7 +180,8 @@ fn main() -> Result<()> {
             signer,
             parents,
         } => {
-            let payload_str = fs::read_to_string(&payload).context("Failed to read payload file")?;
+            let payload_str =
+                fs::read_to_string(&payload).context("Failed to read payload file")?;
             let value: Value =
                 serde_json::from_str(&payload_str).context("Failed to parse payload JSON")?;
             let receipt = issue_projection(
@@ -225,7 +226,8 @@ fn main() -> Result<()> {
             }
         }
         Commands::Graph { payload } => {
-            let payload_str = fs::read_to_string(&payload).context("Failed to read graph payload")?;
+            let payload_str =
+                fs::read_to_string(&payload).context("Failed to read graph payload")?;
             let value: Value =
                 serde_json::from_str(&payload_str).context("Failed to parse graph payload JSON")?;
             let graph = graph_projection(&value);
@@ -373,9 +375,20 @@ fn issue_projection(
     let body_hash = hash_bytes(canonical.as_bytes(), HashAlgorithm::Sha256);
     let schema_id = schema.unwrap_or_else(|| format!("athian.{}.v1", receipt_type));
     let schema_hash = hash_bytes(schema_id.as_bytes(), HashAlgorithm::Sha256);
-    let evidence_hash = hash_bytes(format!("evidence:{}", body_hash.value).as_bytes(), HashAlgorithm::Sha256);
+    let evidence_hash = hash_bytes(
+        format!("evidence:{}", body_hash.value).as_bytes(),
+        HashAlgorithm::Sha256,
+    );
     let policy_hash = hash_bytes(b"athian.ink.trust-policy.demo.v1", HashAlgorithm::Sha256);
-    let trace_hash = hash_bytes(format!("trace:{}:{}", avsa.unwrap_or_else(|| receipt_type.clone()), body_hash.value).as_bytes(), HashAlgorithm::Sha256);
+    let trace_hash = hash_bytes(
+        format!(
+            "trace:{}:{}",
+            avsa.unwrap_or_else(|| receipt_type.clone()),
+            body_hash.value
+        )
+        .as_bytes(),
+        HashAlgorithm::Sha256,
+    );
     let signer_key_id = signer.unwrap_or_else(|| "did:key:athian-demo".into());
 
     Ok(json!({

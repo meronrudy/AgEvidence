@@ -10,14 +10,25 @@ It validates normalized agricultural evidence payloads before the existing BAINK
 - Validate evidence candidate and gap payloads.
 - Validate append-only human review payloads.
 - Validate premium artifact assembly and reliance event payloads.
+- Validate country adapter commitment and country compatibility determination payloads.
 - Report the receipt type and parent requirements expected by the Rails and `ink_receipts` scaffold.
 
 ## Non-responsibilities
 
 - Qwen, vLLM, SGLang, FastAPI, HTTP, or GPU execution.
 - Scientific approval, VVB determination, AVSA issuance, or legal certification.
+- National methodology interpretation or country-specific rule execution.
 - Bundle ZIP assembly or public-key verification, which remain in the existing bundle and verifier crates.
 
 ## Scaffold notes
 
 The current crate intentionally performs lightweight structural validation. Production completion should replace the field checks with JSON-schema driven validation while preserving the public API exposed here.
+
+## Test
+
+```bash
+cargo test -p baink-agevidence
+cargo run -q -p baink-cli -- agevidence validate --schema country_adapter_commitment path/to/payload.json
+```
+
+The CLI command should emit a JSON summary with `schema_id`, `receipt_type`, required fields, and parent requirements.
