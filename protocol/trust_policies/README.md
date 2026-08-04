@@ -8,4 +8,8 @@ Production completion should add machine-readable policy files for:
 - candidate receipt parent requirements;
 - append-only human review;
 - artifact assembly;
+- country adapter commitment receipts;
+- country compatibility determinations;
 - external reliance events.
+
+Offline verification should report cryptographic status separately from external institutional checks. Registry or government endpoint unavailability should produce an external `indeterminate` result, not a cryptographic failure.

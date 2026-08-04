@@ -1,0 +1,13 @@
+claim_policy:
+  id: ca-federal-offset-and-scope3-v1
+  version: v1
+  evaluates:
+    - contractual right
+    - inventory boundary
+    - supply-chain relationship
+    - registry or program status
+    - claim period
+    - geographic scope
+    - exclusive/shared status
+  invariants:
+    - funding_share_is_not_claim_authority

@@ -1,0 +1,32 @@
+version: athian.agevidence.vocabulary.subjects.v1
+subjects:
+  agricultural_project:
+    label: Agricultural project
+  person:
+    label: Person
+  producer_organization:
+    label: Producer organization
+  farm:
+    label: Farm
+  property:
+    label: Property
+  land_parcel:
+    label: Land parcel
+  herd:
+    label: Herd
+  animal_cohort:
+    label: Animal cohort
+  intervention_provider:
+    label: Intervention provider
+  processor:
+    label: Processor
+  cooperative:
+    label: Cooperative
+  verifier:
+    label: Verifier
+  buyer:
+    label: Buyer
+  registry:
+    label: Registry
+  country_authority:
+    label: Country authority

@@ -1,0 +1,17 @@
+version: athian.agevidence.vocabulary.decision_states.v1
+cryptographic_validity:
+  - valid
+  - invalid
+  - indeterminate
+method_compatibility:
+  - eligible
+  - eligible_with_conditions
+  - outside_current_method
+  - method_extension_required
+  - insufficient_evidence
+  - unassigned
+institutional_reliance:
+  - accepted
+  - relied_on
+  - rejected
+  - needs_more_evidence

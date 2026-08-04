@@ -1,0 +1,28 @@
+version: athian.agevidence.vocabulary.evidence_types.v1
+evidence_types:
+  evidence.feed_invoice:
+    label: Feed invoice
+  evidence.ration_log:
+    label: Ration log
+  evidence.product_authorization:
+    label: Product authorization
+  evidence.animal_cohort:
+    label: Animal cohort
+  evidence.baseline_performance:
+    label: Baseline performance
+  evidence.baseline_ration:
+    label: Baseline ration
+  evidence.intervention_delivery:
+    label: Intervention delivery
+  evidence.feed_record:
+    label: Feed record
+  evidence.weight_record:
+    label: Weight record
+  evidence.land_registry:
+    label: Land registry
+  evidence.remote_sensing:
+    label: Remote sensing
+  evidence.calculation_report:
+    label: Calculation report
+  evidence.verification_readiness_report:
+    label: Verification readiness report

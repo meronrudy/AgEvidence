@@ -1,0 +1,38 @@
+adapter:
+  id: athian-country-br-low-carbon-beef-v1
+  version: v1
+  status: scaffold
+  country_code: BR
+global_contract:
+  receipt_envelope: ink.receipt.v2
+  agricultural_vocabulary: athian.agevidence.v1
+  verifier_contract: ink.verify.v1
+method:
+  id: BR-LOW-CARBON-BEEF-FINANCE
+  version: v0.1
+  authority: Brazil low-carbon beef and finance workflow
+applicability:
+  required_context:
+    species:
+      - species.beef_cattle
+    production_system:
+      - production.pasture_based
+      - production.confined_feeding
+  excluded_context:
+    species:
+      - species.dairy_cattle
+    production_system: []
+required_evidence:
+  - evidence.animal_cohort
+  - evidence.land_registry
+  - evidence.remote_sensing
+claim_policy:
+  profile: br-low-carbon-beef-claims-v1
+verification_profile:
+  profile: br-low-carbon-beef-verification-v1
+data_policy:
+  profile: br-controlled-evidence-v1
+artifact_profiles:
+  - br-finance-readiness-v1
+limitations:
+  - Placeholder scaffold; finance and country authority reliance remains external.

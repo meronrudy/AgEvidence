@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "athian.country_adapter_manifest.v1",
+  "title": "AgEvidence Country Adapter Manifest",
+  "type": "object",
+  "required": [
+    "adapter",
+    "global_contract",
+    "method",
+    "applicability",
+    "required_evidence",
+    "claim_policy",
+    "verification_profile",
+    "data_policy",
+    "artifact_profiles",
+    "limitations"
+  ],
+  "properties": {
+    "adapter": {
+      "type": "object",
+      "required": ["id", "version", "status", "country_code"],
+      "properties": {
+        "id": { "type": "string" },
+        "version": { "type": "string" },
+        "status": { "enum": ["scaffold", "active", "superseded", "retired"] },
+        "country_code": { "type": "string" }
+      }
+    },
+    "global_contract": {
+      "type": "object",
+      "required": ["receipt_envelope", "agricultural_vocabulary", "verifier_contract"],
+      "properties": {
+        "receipt_envelope": { "const": "ink.receipt.v2" },
+        "agricultural_vocabulary": { "const": "athian.agevidence.v1" },
+        "verifier_contract": { "const": "ink.verify.v1" }
+      }
+    },
+    "method": {
+      "type": "object",
+      "required": ["id", "version", "authority"],
+      "properties": {
+        "id": { "type": "string" },
+        "version": { "type": "string" },
+        "authority": { "type": "string" }
+      }
+    },
+    "applicability": {
+      "type": "object",
+      "required": ["required_context", "excluded_context"],
+      "properties": {
+        "required_context": { "type": "object" },
+        "excluded_context": { "type": "object" }
+      }
+    },
+    "required_evidence": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "claim_policy": {
+      "type": "object",
+      "required": ["profile"],
+      "properties": {
+        "profile": { "type": "string" }
+      }
+    },
+    "verification_profile": {
+      "type": "object",
+      "required": ["profile"],
+      "properties": {
+        "profile": { "type": "string" }
+      }
+    },
+    "data_policy": {
+      "type": "object",
+      "required": ["profile"],
+      "properties": {
+        "profile": { "type": "string" }
+      }
+    },
+    "artifact_profiles": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": false
+}

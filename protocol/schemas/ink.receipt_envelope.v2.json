@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ink.receipt.v2",
+  "title": "Global INK Receipt Envelope",
+  "type": "object",
+  "required": [
+    "receipt_id",
+    "schema_id",
+    "schema_digest",
+    "receipt_type",
+    "lifecycle",
+    "issuer",
+    "subject",
+    "event_time",
+    "recorded_time",
+    "parents",
+    "source_commitments",
+    "payload",
+    "authority",
+    "policy_references",
+    "limitations",
+    "body_digest",
+    "signature"
+  ],
+  "properties": {
+    "receipt_id": { "type": "string" },
+    "schema_id": { "type": "string" },
+    "schema_digest": { "type": "string" },
+    "receipt_type": { "type": "string" },
+    "lifecycle": { "type": "string" },
+    "issuer": {
+      "type": "object",
+      "required": ["id", "role"],
+      "properties": {
+        "id": { "type": "string" },
+        "role": { "type": "string" }
+      }
+    },
+    "subject": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": { "type": "string" },
+        "id": { "type": "string" }
+      }
+    },
+    "event_time": { "type": "string" },
+    "recorded_time": { "type": "string" },
+    "parents": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "source_commitments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["document_id", "digest", "controlled_uri"],
+        "properties": {
+          "document_id": { "type": "string" },
+          "digest": { "type": "string" },
+          "controlled_uri": { "type": "string" }
+        }
+      }
+    },
+    "payload": { "type": "object" },
+    "authority": {
+      "type": "object",
+      "required": ["decision_role", "authority_scope", "does_not_assert"],
+      "properties": {
+        "decision_role": { "type": "string" },
+        "authority_scope": { "type": "string" },
+        "does_not_assert": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "policy_references": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "body_digest": { "type": "string" },
+    "signature": {
+      "type": "object",
+      "required": ["algorithm", "key_id", "value"],
+      "properties": {
+        "algorithm": { "type": "string" },
+        "key_id": { "type": "string" },
+        "value": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,8 @@
+verification_profile:
+  id: au-livestock-pilot-verification-v1
+  version: v1
+  required_review:
+    - product authorization
+    - feeding period support
+    - materiality assessment
+    - parent receipt completeness

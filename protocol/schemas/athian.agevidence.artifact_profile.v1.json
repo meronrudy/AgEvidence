@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "athian.agevidence.artifact_profile.v1",
+  "title": "AgEvidence Artifact Profile",
+  "type": "object",
+  "required": ["profile", "required_receipts", "required_documents", "verification"],
+  "properties": {
+    "profile": {
+      "type": "object",
+      "required": ["id", "audience"],
+      "properties": {
+        "id": { "type": "string" },
+        "audience": { "type": "string" }
+      }
+    },
+    "required_receipts": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "required_documents": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "verification": {
+      "type": "object",
+      "required": ["local_verifier_required"],
+      "properties": {
+        "local_verifier_required": { "type": "boolean" },
+        "missing_parent_failure": { "type": "boolean" },
+        "tamper_test_required": { "type": "boolean" }
+      }
+    }
+  },
+  "additionalProperties": true
+}

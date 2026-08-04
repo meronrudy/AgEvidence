@@ -1,0 +1,27 @@
+profile:
+  id: ca-federal-submission-v1
+  audience: federal_offset_program
+required_receipts:
+  - authority_receipt
+  - rights_receipt
+  - intervention_receipt
+  - observation_receipt
+  - measurement_receipt
+  - model_execution_receipt
+  - human_review_receipt
+  - verification_determination_receipt
+  - country_compatibility_determination_receipt
+required_documents:
+  - animal_cohort_manifest
+  - baseline_performance_records
+  - baseline_ration_records
+  - intervention_delivery_records
+  - feed_records
+  - calculation_report
+  - verification_readiness_report
+verification:
+  local_verifier_required: true
+  missing_parent_failure: true
+  tamper_test_required: true
+limitations:
+  - Final acceptance remains with the applicable program authority.

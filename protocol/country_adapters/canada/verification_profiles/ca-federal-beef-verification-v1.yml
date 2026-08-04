@@ -1,0 +1,9 @@
+verification_profile:
+  id: ca-federal-beef-verification-v1
+  version: v1
+  required_review:
+    - evidence sampling
+    - materiality assessment
+    - parent receipt completeness
+  limitations:
+    - VVB acceptance is recorded separately as institutional reliance.

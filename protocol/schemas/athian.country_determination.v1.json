@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "athian.country_determination.v1",
+  "title": "Country Compatibility Determination",
+  "type": "object",
+  "required": [
+    "contract",
+    "project_id",
+    "country_code",
+    "adapter_id",
+    "adapter_version",
+    "method_id",
+    "method_version",
+    "status",
+    "matched_context",
+    "excluded_contexts",
+    "required_evidence",
+    "missing_evidence",
+    "unresolved_conflicts",
+    "authority",
+    "determination_role",
+    "limitations",
+    "evaluated_at"
+  ],
+  "properties": {
+    "contract": { "const": "athian.country_determination.v1" },
+    "project_id": { "type": "string" },
+    "country_code": { "type": "string" },
+    "adapter_id": { "type": "string" },
+    "adapter_version": { "type": "string" },
+    "method_id": { "type": "string" },
+    "method_version": { "type": "string" },
+    "status": {
+      "enum": [
+        "eligible",
+        "eligible_with_conditions",
+        "outside_current_method",
+        "method_extension_required",
+        "insufficient_evidence",
+        "unassigned"
+      ]
+    },
+    "matched_context": { "type": "object" },
+    "excluded_contexts": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "required_evidence": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "missing_evidence": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "unresolved_conflicts": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "authority": { "type": "string" },
+    "determination_role": { "type": "string" },
+    "policy_extensions": { "type": "object" },
+    "registry_mapping": { "type": "object" },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "evaluated_at": { "type": "string" }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,19 @@
+profile:
+  id: au-pilot-readiness-v1
+  audience: government_industry_pilot
+required_receipts:
+  - authority_receipt
+  - intervention_receipt
+  - measurement_receipt
+  - model_execution_receipt
+  - human_review_receipt
+  - country_compatibility_determination_receipt
+required_documents:
+  - animal_cohort_manifest
+  - intervention_delivery_records
+  - product_authorization_records
+  - verification_readiness_report
+verification:
+  local_verifier_required: true
+  missing_parent_failure: true
+  tamper_test_required: true

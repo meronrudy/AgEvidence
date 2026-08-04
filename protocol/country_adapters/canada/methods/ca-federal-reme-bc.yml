@@ -1,0 +1,12 @@
+method:
+  id: CA-FED-REME-BC
+  version: v1.0
+  label: Canada federal beef methane compatibility scaffold
+  authority: Government of Canada federal offset system
+  method_scope:
+    species:
+      - species.beef_cattle
+    production_system:
+      - production.confined_feeding
+  limitations:
+    - Synthetic scaffold; not a government determination.

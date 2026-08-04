@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ink.verify.v1",
+  "title": "Country-Neutral Verification Result",
+  "type": "object",
+  "required": ["cryptographic_status", "external_status", "external_checks"],
+  "properties": {
+    "cryptographic_status": {
+      "enum": ["valid", "invalid", "indeterminate"]
+    },
+    "external_status": {
+      "enum": ["valid", "invalid", "indeterminate"]
+    },
+    "external_checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "reason"],
+        "properties": {
+          "type": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}
