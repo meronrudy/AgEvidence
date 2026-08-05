@@ -1,0 +1,648 @@
+openapi: 3.1.0
+info:
+  title: Athian AgEvidence Developer OS API
+  version: 1.0.0
+  summary: Source records, evidence events, model runs, quotes, artifact orders, and result callbacks.
+  description: >
+    Scaffold API for the AgEvidence developer operating system. Rails is an
+    orchestration and projection layer. Source records and operational events
+    become append-only evidence projections, while receipt issuance and
+    verification stay behind the ink_receipts and Rust trust boundary.
+servers:
+  - url: http://localhost:3000
+    description: Local Rails scaffold
+tags:
+  - name: Developer
+  - name: Pricing
+  - name: Artifact Orders
+  - name: Integrations
+paths:
+  /v1/developer/projects:
+    post:
+      tags: [Developer]
+      summary: Create a sandbox developer project.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectRequest"
+      responses:
+        "201":
+          description: Project created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeveloperProject"
+  /v1/developer/projects/{project_id}:
+    get:
+      tags: [Developer]
+      summary: Retrieve a developer project evidence map.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: Project evidence map.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeveloperProjectDetail"
+  /v1/developer/projects/{project_id}/source_records:
+    get:
+      tags: [Developer]
+      summary: List controlled source references for a project.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: Source record list.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [source_records]
+                properties:
+                  source_records:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SourceRecord"
+    post:
+      tags: [Developer]
+      summary: Submit a controlled source reference through the event inbox.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSourceRecordRequest"
+      responses:
+        "201":
+          description: Source record accepted and projected through the inbox.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SourceRecord"
+  /v1/developer/projects/{project_id}/model_runs:
+    post:
+      tags: [Developer]
+      summary: Run fixture-backed evidence extraction for a project.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                adapter_id:
+                  type: string
+                  default: qwen3.5-4b-reference
+      responses:
+        "201":
+          description: Model run with review-required candidates and gaps.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelRun"
+  /v1/developer/projects/{project_id}/model_runs/{id}:
+    get:
+      tags: [Developer]
+      summary: Retrieve a model run.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Model run.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelRun"
+  /v1/developer/candidates/{id}:
+    get:
+      tags: [Developer]
+      summary: Retrieve an evidence candidate.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Candidate detail.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvidenceCandidate"
+    patch:
+      tags: [Developer]
+      summary: Append a human review decision.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewDecisionRequest"
+      responses:
+        "200":
+          description: Updated candidate projection.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvidenceCandidate"
+  /v1/pricing/products:
+    get:
+      tags: [Pricing]
+      summary: List AgEvidence artifact products.
+      responses:
+        "200":
+          description: Product price book.
+  /v1/pricing/products/{code}:
+    get:
+      tags: [Pricing]
+      summary: Retrieve one product.
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Product detail.
+  /v1/pricing/quotes:
+    post:
+      tags: [Pricing]
+      summary: Create a versioned sandbox quote.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateQuoteRequest"
+      responses:
+        "201":
+          description: Quote created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PricingQuote"
+  /v1/pricing/quotes/{quote_id}:
+    get:
+      tags: [Pricing]
+      summary: Retrieve a quote.
+      parameters:
+        - name: quote_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Quote detail.
+  /v1/artifact-orders:
+    post:
+      tags: [Artifact Orders]
+      summary: Create an artifact order from an accepted or pending quote.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateArtifactOrderRequest"
+      responses:
+        "201":
+          description: Artifact order created.
+  /v1/artifact-orders/{order_id}:
+    get:
+      tags: [Artifact Orders]
+      summary: Retrieve an artifact order.
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Artifact order detail.
+  /v1/artifact-orders/{order_id}/checkout:
+    post:
+      tags: [Artifact Orders]
+      summary: Complete sandbox checkout for an artifact order.
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Sandbox checkout completed.
+  /v1/developer/projects/{project_id}/artifacts:
+    post:
+      tags: [Developer]
+      summary: Request artifact assembly metadata for a project.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_code:
+                  type: string
+                quote_id:
+                  type: string
+                order_id:
+                  type: string
+                sandbox_checkout:
+                  type: boolean
+                scope:
+                  type: object
+      responses:
+        "201":
+          description: Artifact assembled.
+        "202":
+          description: Order accepted and awaiting sandbox checkout.
+  /v1/developer/projects/{project_id}/artifacts/{artifact_id}:
+    get:
+      tags: [Developer]
+      summary: Retrieve artifact metadata.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - name: artifact_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Artifact metadata.
+  /v1/developer/projects/{project_id}/artifacts/{artifact_id}/download:
+    get:
+      tags: [Developer]
+      summary: Retrieve artifact download metadata and local verifier command.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - name: artifact_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Download metadata.
+  /v1/integrations/events:
+    post:
+      tags: [Integrations]
+      summary: Accept a signed upstream evidence event.
+      parameters:
+        - $ref: "#/components/parameters/IntegrationSourceHeader"
+        - $ref: "#/components/parameters/IntegrationTimestampHeader"
+        - $ref: "#/components/parameters/IntegrationSignatureHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "202":
+          description: Event accepted asynchronously.
+  /v1/integrations/events/{event_id}:
+    get:
+      tags: [Integrations]
+      summary: Retrieve an integration event status.
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event status.
+  /v1/integrations/events/{event_id}/replay:
+    post:
+      tags: [Integrations]
+      summary: Replay a preserved event without creating a duplicate inbox row.
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Replay accepted.
+  /v1/integrations/operations/{operation_id}:
+    get:
+      tags: [Integrations]
+      summary: Retrieve an integration operation.
+      parameters:
+        - name: operation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Operation status.
+  /v1/integrations/webhook_endpoints:
+    get:
+      tags: [Integrations]
+      summary: List outbound webhook endpoints for an integration source.
+      parameters:
+        - $ref: "#/components/parameters/IntegrationSourceHeader"
+      responses:
+        "200":
+          description: Webhook endpoint list.
+    post:
+      tags: [Integrations]
+      summary: Register an outbound webhook endpoint.
+      parameters:
+        - $ref: "#/components/parameters/IntegrationSourceHeader"
+      responses:
+        "201":
+          description: Webhook endpoint registered.
+components:
+  parameters:
+    ProjectId:
+      name: project_id
+      in: path
+      required: true
+      schema:
+        type: string
+    IntegrationSourceHeader:
+      name: X-Athian-Integration-Source
+      in: header
+      required: true
+      schema:
+        type: string
+    IntegrationTimestampHeader:
+      name: X-Athian-Timestamp
+      in: header
+      required: true
+      schema:
+        type: string
+        format: date-time
+    IntegrationSignatureHeader:
+      name: X-Athian-Signature
+      in: header
+      required: true
+      schema:
+        type: string
+  schemas:
+    CreateProjectRequest:
+      type: object
+      required: [developer_account, project]
+      properties:
+        developer_account:
+          type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+            website:
+              type: string
+            funding_stage:
+              type: string
+            primary_segment:
+              type: string
+        project:
+          type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+            external_project_id:
+              type: string
+            project_type:
+              type: string
+              default: intervention
+            target_claim:
+              type: string
+            country_context:
+              type: object
+    DeveloperProject:
+      type: object
+      required: [id, name, integration_status]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        developer_account:
+          type: string
+        target_claim:
+          type: string
+        integration_status:
+          type: string
+        evidence_graph_root:
+          type: string
+    DeveloperProjectDetail:
+      allOf:
+        - $ref: "#/components/schemas/DeveloperProject"
+        - type: object
+          properties:
+            source_records:
+              type: array
+              items:
+                $ref: "#/components/schemas/SourceRecord"
+            model_runs:
+              type: array
+              items:
+                $ref: "#/components/schemas/ModelRun"
+            quotes:
+              type: array
+              items:
+                $ref: "#/components/schemas/PricingQuote"
+    CreateSourceRecordRequest:
+      type: object
+      required: [source_record]
+      properties:
+        source_record:
+          type: object
+          required: [document_id, evidence_type, controlled_uri, commitment]
+          properties:
+            document_id:
+              type: string
+            evidence_type:
+              type: string
+            evidence_class:
+              type: string
+              default: source_record
+            source_system:
+              type: string
+            controlled_uri:
+              type: string
+            commitment:
+              type: string
+              description: Namespace-prefixed source commitment such as source:demo-record.
+            disclosure_status:
+              type: string
+              enum: [public, selective, restricted, withheld]
+    SourceRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        document_id:
+          type: string
+        evidence_type:
+          type: string
+        controlled_uri:
+          type: string
+        commitment:
+          type: string
+        status:
+          type: string
+        event_id:
+          type: string
+        operation_id:
+          type: string
+    ModelRun:
+      type: object
+      properties:
+        id:
+          type: integer
+        adapter_id:
+          type: string
+        status:
+          type: string
+        candidates:
+          type: array
+          items:
+            $ref: "#/components/schemas/EvidenceCandidate"
+        gaps:
+          type: array
+          items:
+            $ref: "#/components/schemas/EvidenceGap"
+    EvidenceCandidate:
+      type: object
+      properties:
+        id:
+          type: integer
+        candidate_type:
+          type: string
+        claim_text:
+          type: string
+        source_references:
+          type: array
+          items:
+            type: object
+        model_confidence:
+          type: number
+        review_status:
+          type: string
+          enum: [review_required, accepted, rejected, needs_more_evidence, superseded]
+    EvidenceGap:
+      type: object
+      properties:
+        id:
+          type: integer
+        gap_type:
+          type: string
+        requirement:
+          type: string
+        severity:
+          type: string
+        resolution_status:
+          type: string
+    CreateReviewDecisionRequest:
+      type: object
+      required: [review_decision]
+      properties:
+        review_decision:
+          type: object
+          required: [decision]
+          properties:
+            reviewer_role:
+              type: string
+            decision:
+              type: string
+              enum: [accepted, rejected, needs_more_evidence, superseded]
+            reason:
+              type: string
+            policy_version:
+              type: string
+    CreateQuoteRequest:
+      type: object
+      required: [quote]
+      properties:
+        quote:
+          type: object
+          required: [project_id, product_code]
+          properties:
+            project_id:
+              type: string
+            product_code:
+              type: string
+            scope:
+              type: object
+              properties:
+                protocol_complexity:
+                  type: string
+                evidence_classes:
+                  type: integer
+                source_systems:
+                  type: integer
+                countries:
+                  type: integer
+                relying_parties:
+                  type: integer
+                selective_disclosure:
+                  type: boolean
+                turnaround_days:
+                  type: integer
+    PricingQuote:
+      type: object
+      properties:
+        quote_id:
+          type: string
+        product_code:
+          type: string
+        currency:
+          type: string
+        amount:
+          type: integer
+        pricing_version:
+          type: string
+        breakdown:
+          type: array
+          items:
+            type: object
+        status:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+    CreateArtifactOrderRequest:
+      type: object
+      required: [artifact_order]
+      properties:
+        artifact_order:
+          type: object
+          required: [quote_id]
+          properties:
+            quote_id:
+              type: string
+            artifact_scope:
+              type: object
