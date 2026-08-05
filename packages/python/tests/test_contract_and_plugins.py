@@ -3,7 +3,8 @@ from __future__ import annotations
 import inspect
 from pathlib import Path
 
-from agevidence import Client
+import agevidence
+from agevidence import AsyncClient, Client, RetryPolicy
 from agevidence.livestock import FeedAdditive, Herd, NLISIdentifier
 from agevidence.plugins import registry
 
@@ -15,6 +16,9 @@ def test_client_method_inventory_matches_openapi_paths():
         "/v1/developer/projects",
         "/v1/developer/projects/{project_id}/source_records",
         "/v1/developer/projects/{project_id}/model_runs",
+        "/v1/developer/projects/{project_id}/country_determinations",
+        "/v1/country_adapters",
+        "/v1/country_adapters/{adapter_id}",
         "/v1/developer/candidates/{id}",
         "/v1/pricing/products",
         "/v1/pricing/quotes",
@@ -42,9 +46,43 @@ def test_client_method_inventory_matches_openapi_paths():
         "get_event",
         "replay_event",
         "list_products",
+        "list_country_adapters",
+        "get_country_adapter",
+        "validate_country_adapter",
+        "list_country_determinations",
+        "create_country_determination",
         "register_webhook_endpoint",
     ]:
         assert method in methods
+
+    resource_names = {
+        "projects",
+        "source_records",
+        "model_runs",
+        "reviews",
+        "pricing",
+        "orders",
+        "artifacts",
+        "events",
+        "operations",
+        "country",
+        "campaign",
+    }
+    client = Client(base_url="http://testserver")
+    try:
+        for name in resource_names:
+            assert hasattr(client, name)
+    finally:
+        client.close()
+
+
+def test_v1_public_exports_and_typed_marker():
+    repo_root = Path(__file__).resolve().parents[3]
+
+    assert agevidence.__version__ == "0.1.0"
+    assert AsyncClient is not None
+    assert RetryPolicy(max_attempts=1).max_attempts == 1
+    assert (repo_root / "sdks" / "python" / "src" / "agevidence" / "py.typed").exists()
 
 
 def test_livestock_value_objects_are_lightweight_and_typed():
@@ -57,9 +95,11 @@ def test_livestock_value_objects_are_lightweight_and_typed():
     assert nlis.status == "unverified"
 
 
-def test_australian_plugins_are_placeholders_not_certifications():
+def test_australian_plugins_are_executable_but_not_certifications():
     plugins = {plugin.id: plugin for plugin in registry.all()}
 
-    assert plugins["au_nlis"].status == "placeholder"
+    assert plugins["au_nlis"].status == "executable"
+    assert plugins["au_nlis"].executable
     assert plugins["au_lpa"].country_code == "AU"
-    assert "placeholder" in plugins["au_mla"].description.lower()
+    assert plugins["au_mla"].status == "placeholder"
+    assert "pending a concrete source contract" in plugins["au_mla"].description.lower()

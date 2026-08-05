@@ -3,17 +3,15 @@
 from __future__ import annotations
 
 import json
-import sys
 from pathlib import Path
-from typing import Any
 
 import typer
-from rich.console import Console
-from rich.table import Table
 
-from .client import Client
+from .campaign_cli import register_campaign_cli
+from .cli_support import client_factory as _client
+from .cli_support import console, emit as _emit, handle_error as _handle_error
 from .config import SDKConfig
-from .errors import AgEvidenceError
+from .country_cli import register_country_cli
 from .events import load_event, project_4030_event_files, sign_hmac_event
 from .verification import Verifier
 
@@ -39,43 +37,8 @@ app.add_typer(artifact_app, name="artifact")
 app.add_typer(operation_app, name="operation")
 app.add_typer(event_app, name="event")
 app.add_typer(replay_app, name="replay")
-
-console = Console()
-
-
-def _client(base_url: str | None = None) -> Client:
-    return Client(base_url=base_url)
-
-
-def _payload(value: Any) -> Any:
-    if hasattr(value, "model_dump"):
-        return value.model_dump(mode="json", exclude_none=True)
-    return value
-
-
-def _emit(value: Any, output: str = "json") -> None:
-    payload = _payload(value)
-    if output == "json":
-        console.print_json(data=payload)
-        return
-
-    if isinstance(payload, dict):
-        table = Table(show_header=True, header_style="bold")
-        table.add_column("Field")
-        table.add_column("Value")
-        for key, item in payload.items():
-            table.add_row(str(key), json.dumps(item) if isinstance(item, (dict, list)) else str(item))
-        console.print(table)
-        return
-
-    console.print(payload)
-
-
-def _handle_error(exc: Exception) -> None:
-    if isinstance(exc, AgEvidenceError):
-        console.print(f"[red]{exc}[/red]", file=sys.stderr)
-        raise typer.Exit(code=1)
-    raise exc
+register_country_cli(app)
+register_campaign_cli(app)
 
 
 @app.command()
@@ -274,6 +237,9 @@ def replay_project_4030(
     fixture_root: Path | None = typer.Option(None, help="Override Project 4030 fixture directory."),
     source: str | None = typer.Option(None),
     secret: str | None = typer.Option(None),
+    campaign_account_id: str | None = typer.Option(None),
+    activation_id: str | None = typer.Option(None),
+    repository_sha: str | None = typer.Option("f4ec679c2dd6a2c40e3dced61c81e8f59f90a397"),
     output: str = typer.Option("json", "--format"),
 ) -> None:
     """Sign and replay the eight-event Project 4030 scenario."""
@@ -281,7 +247,7 @@ def replay_project_4030(
     config = SDKConfig.load()
     source_key = source or config.integration_source or "athian_salesforce_production"
     signing_secret = secret or config.integration_secret or "demo-integration-secret"
-    client = _client()
+    client = _client(campaign_account_id=campaign_account_id, activation_id=activation_id, repository_sha=repository_sha)
     results = []
     try:
         for path in project_4030_event_files(fixture_root):
@@ -293,7 +259,10 @@ def replay_project_4030(
                 signature=event["integrity"]["signature"],
             )
             results.append({"file": path.name, **submitted.model_dump(mode="json", exclude_none=True)})
-        _emit({"events": results}, output)
+        campaign_result = None
+        if campaign_account_id and activation_id:
+            campaign_result = client.campaign.complete_activation(campaign_account_id, activation_id).model_dump(mode="json", exclude_none=True)
+        _emit({"events": results, "campaign_activation": campaign_result}, output)
     except Exception as exc:
         _handle_error(exc)
 

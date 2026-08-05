@@ -92,3 +92,44 @@ def test_pricing_products_table_output(monkeypatch):
 
     assert result.exit_code == 0
     assert "products" in result.stdout
+
+
+def test_adapters_list_uses_local_runtime():
+    result = runner.invoke(app, ["adapters", "list"])
+
+    assert result.exit_code == 0
+    assert "athian-country-au-livestock-v1" in result.stdout
+    assert "athian-country-eu-common-v1" in result.stdout
+
+
+def test_identifier_normalize_command():
+    result = runner.invoke(app, ["identifiers", "normalize", "AU", "au_pic", "ABC123"])
+
+    assert result.exit_code == 0
+    assert '"valid_format": true' in result.stdout
+    assert '"identifier_system": "au_pic"' in result.stdout
+
+
+def test_source_normalize_command(tmp_path):
+    record = tmp_path / "record.json"
+    record.write_text(json.dumps({"document_id": "envd-1", "commitment": "sha256:envd-1"}))
+
+    result = runner.invoke(app, ["sources", "normalize", "AU", "au_envd", str(record)])
+
+    assert result.exit_code == 0
+    assert '"global_evidence_type": "evidence.feed_record"' in result.stdout
+
+
+def test_country_evaluate_uses_sdk(monkeypatch):
+    class FakeClient:
+        def create_country_determination(self, **kwargs):
+            assert kwargs["project_id"] == "project-1"
+            assert kwargs["adapter"] == "AU"
+            return {"adapter_id": "athian-country-au-livestock-v1", "country_code": "AU", "status": "eligible"}
+
+    monkeypatch.setattr("agevidence.country_cli._client", lambda: FakeClient())
+
+    result = runner.invoke(app, ["country", "evaluate", "project-1", "--adapter", "AU"])
+
+    assert result.exit_code == 0
+    assert '"country_code": "AU"' in result.stdout

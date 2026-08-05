@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from agevidence.adapters.registry import default_registry
+
 
 @dataclass(frozen=True, slots=True)
 class PluginMetadata:
@@ -16,6 +18,7 @@ class PluginMetadata:
     domain: str
     status: str
     description: str
+    executable: bool = False
 
 
 class PluginRegistry:
@@ -34,13 +37,35 @@ class PluginRegistry:
 
 registry = PluginRegistry()
 
+_AU_PLUGIN_DESCRIPTIONS = {
+    "au_nlis": ("livestock", "National Livestock Identification System identifier/source adapter."),
+    "au_lpa": ("livestock", "Livestock Production Assurance identifier/source adapter."),
+    "au_nfas": ("livestock", "National Feedlot Accreditation Scheme identifier/source adapter."),
+    "au_envd": ("livestock", "Electronic National Vendor Declaration source adapter."),
+    "au_pic": ("livestock", "Property Identification Code identifier adapter."),
+    "au_abn": ("business", "ABN/ACN identifier adapter."),
+    "au_cer": ("registry", "Clean Energy Regulator reference adapter."),
+    "au_satellite": ("satellite", "Remote sensing source adapter."),
+}
+
+for adapter in default_registry(load_entry_points=False).all():
+    executable = adapter.metadata.status in {"active", "pilot", "scaffold", "research"}
+    registry.register(
+        PluginMetadata(
+            adapter.metadata.id,
+            adapter.metadata.country_code,
+            adapter.metadata.domain,
+            adapter.metadata.status,
+            adapter.metadata.description,
+            executable,
+        )
+    )
+
+for plugin_id, (domain, description) in _AU_PLUGIN_DESCRIPTIONS.items():
+    registry.register(PluginMetadata(plugin_id, "AU", domain, "executable", description, True))
+
 for plugin in [
-    PluginMetadata("au_nlis", "AU", "livestock", "placeholder", "National Livestock Identification System adapter placeholder."),
-    PluginMetadata("au_lpa", "AU", "livestock", "placeholder", "Livestock Production Assurance adapter placeholder."),
-    PluginMetadata("au_nfas", "AU", "livestock", "placeholder", "National Feedlot Accreditation Scheme adapter placeholder."),
-    PluginMetadata("au_envd", "AU", "livestock", "placeholder", "Electronic National Vendor Declaration adapter placeholder."),
-    PluginMetadata("au_pic", "AU", "livestock", "placeholder", "Property Identification Code adapter placeholder."),
-    PluginMetadata("au_mla", "AU", "livestock", "placeholder", "Meat & Livestock Australia adapter placeholder."),
+    PluginMetadata("au_mla", "AU", "livestock", "placeholder", "Meat & Livestock Australia adapter placeholder pending a concrete source contract."),
     PluginMetadata("farm_management", None, "farm_management", "placeholder", "Farm management system adapter family placeholder."),
     PluginMetadata("soil_carbon", None, "soil", "placeholder", "Soil carbon adapter family placeholder."),
     PluginMetadata("satellite", None, "satellite", "placeholder", "Remote sensing adapter family placeholder."),

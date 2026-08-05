@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+import asyncio
 import json
+import shutil
+import subprocess
+import sys
 import time
 
 import httpx
 import pytest
 
-from agevidence import Client
+from agevidence import AsyncClient, Client
 from agevidence.errors import AgEvidenceError
+from agevidence.transport import RetryPolicy
 
 
 def transport_for(handler):
@@ -111,3 +116,140 @@ def test_get_retries_transient_http_error():
 
     assert client.get_operation("op_1").status == "succeeded"
     assert calls["count"] == 2
+
+
+def test_resource_namespaces_accept_paginated_envelopes_and_auth_headers():
+    seen = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append((request.url.path, dict(request.headers)))
+        if request.url.path == "/v1/country_adapters":
+            return json_response(
+                {
+                    "adapters": [
+                        {
+                            "adapter_id": "athian-country-au-livestock-v1",
+                            "country_code": "AU",
+                            "version": "v1",
+                            "status": "active",
+                        }
+                    ],
+                    "next_cursor": None,
+                }
+            )
+        raise AssertionError(request.url.path)
+
+    client = Client(base_url="http://testserver", api_token="token", transport=transport_for(handler))
+
+    adapters = client.country.list_adapters()
+
+    assert adapters[0].adapter_id == "athian-country-au-livestock-v1"
+    assert seen[0][1]["authorization"] == "Bearer token"
+
+
+def test_mutating_request_retries_only_with_idempotency_key():
+    calls = {"count": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls["count"] += 1
+        if calls["count"] == 1:
+            return json_response({"error": {"code": "TEMPORARY", "message": "retry later"}}, 503)
+        assert request.headers["idempotency-key"] == "idem-1"
+        return json_response({"quote_id": "quote_1", "product_code": "verification_readiness_cycle", "amount": 1, "status": "quoted"})
+
+    client = Client(
+        base_url="http://testserver",
+        transport=transport_for(handler),
+        retry_policy=RetryPolicy(max_attempts=2, backoff_seconds=0),
+    )
+
+    quote = client.pricing.create_quote(
+        project_id="42",
+        product_code="verification_readiness_cycle",
+        idempotency_key="idem-1",
+    )
+
+    assert quote.quote_id == "quote_1"
+    assert calls["count"] == 2
+
+
+def test_mutating_request_without_idempotency_key_does_not_retry_status():
+    calls = {"count": 0}
+
+    def handler(_request: httpx.Request) -> httpx.Response:
+        calls["count"] += 1
+        return json_response({"error": {"code": "TEMPORARY", "message": "retry later"}}, 503)
+
+    client = Client(
+        base_url="http://testserver",
+        transport=transport_for(handler),
+        retry_policy=RetryPolicy(max_attempts=2, backoff_seconds=0),
+    )
+
+    with pytest.raises(AgEvidenceError) as exc:
+        client.pricing.create_quote(project_id="42", product_code="verification_readiness_cycle")
+
+    assert exc.value.status_code == 503
+    assert calls["count"] == 1
+
+
+def test_async_client_mirrors_resource_namespace_and_headers():
+    seen = []
+
+    async def handler(request: httpx.Request) -> httpx.Response:
+        seen.append((request.url.path, dict(request.headers)))
+        return json_response(
+            {
+                "adapters": [
+                    {
+                        "adapter_id": "athian-country-au-livestock-v1",
+                        "country_code": "AU",
+                        "version": "v1",
+                        "status": "active",
+                    }
+                ]
+            }
+        )
+
+    async def run() -> None:
+        async with AsyncClient(base_url="http://testserver", api_token="token", transport=httpx.MockTransport(handler)) as client:
+            adapters = await client.country.list_adapters()
+            assert adapters[0].country_code == "AU"
+
+    asyncio.run(run())
+
+    assert seen[0][0] == "/v1/country_adapters"
+    assert seen[0][1]["authorization"] == "Bearer token"
+
+
+def test_package_build_install_and_cli_help_smoke(tmp_path):
+    pytest.importorskip("build")
+    repo_root = __import__("pathlib").Path(__file__).resolve().parents[3]
+    sdk_root = repo_root / "sdks" / "python"
+    dist_dir = tmp_path / "dist"
+    result = subprocess.run(
+        [sys.executable, "-m", "build", "--sdist", "--wheel", "--outdir", str(dist_dir)],
+        cwd=sdk_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+
+    venv_dir = tmp_path / "venv"
+    subprocess.run([sys.executable, "-m", "venv", str(venv_dir)], check=True)
+    python = venv_dir / ("Scripts/python.exe" if sys.platform == "win32" else "bin/python")
+    wheel = next(dist_dir.glob("*.whl"))
+    install = subprocess.run([str(python), "-m", "pip", "install", str(wheel)], capture_output=True, text=True, check=False)
+    assert install.returncode == 0, install.stderr
+    imported = subprocess.run(
+        [str(python), "-c", "import agevidence; print(agevidence.__version__)"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert imported.returncode == 0, imported.stderr
+    help_result = subprocess.run([str(python), "-m", "agevidence", "--help"], capture_output=True, text=True, check=False)
+    assert help_result.returncode == 0, help_result.stderr
+    shutil.rmtree(sdk_root / "build", ignore_errors=True)
+    shutil.rmtree(sdk_root / "src" / "agevidence.egg-info", ignore_errors=True)

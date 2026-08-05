@@ -130,6 +130,43 @@ class ProductCatalog(AgEvidenceModel):
     products: list[Product] = Field(default_factory=list)
 
 
+class CountryAdapterInfo(AgEvidenceModel):
+    adapter_id: str
+    country_code: str
+    version: str
+    status: str
+    method_id: str | None = None
+    method_version: str | None = None
+    authority: str | None = None
+    classification: str | None = None
+    limitations: list[str] = Field(default_factory=list)
+
+
+class CountryAdapterValidation(AgEvidenceModel):
+    adapter_id: str | None = None
+    country_code: str | None = None
+    status: str | None = None
+    classification: str
+    errors: list[str] = Field(default_factory=list)
+    manifest_path: str | None = None
+
+
+class CountryDetermination(AgEvidenceModel):
+    id: int | str | None = None
+    project_id: int | str | None = None
+    adapter_id: str
+    country_code: str
+    adapter_version: str | None = None
+    method_id: str | None = None
+    method_version: str | None = None
+    status: str
+    normalized_result: dict[str, Any] = Field(default_factory=dict)
+    receipt_id: int | str | None = None
+    result_digest: str | None = None
+    supersedes: int | str | None = None
+    evaluated_at: str | None = None
+
+
 class ArtifactMetadata(AgEvidenceModel):
     artifact_id: str | None = None
     bundle_id: int | str | None = None

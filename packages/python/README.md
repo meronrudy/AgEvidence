@@ -44,7 +44,7 @@ AGEVIDENCE_INTEGRATION_SECRET
 AGEVIDENCE_VERIFIER_COMMAND
 ```
 
-`AGEVIDENCE_API_TOKEN` is reserved for future authenticated deployments.
+`AGEVIDENCE_API_TOKEN` is sent as a bearer token when configured.
 
 ## SDK Quickstart
 
@@ -91,6 +91,38 @@ print(artifact.artifact.verification_command)
 
 Model output is candidate evidence only. It cannot approve methods, certify
 reductions, determine claim ownership, or create institutional reliance.
+
+The v1 client also exposes resource namespaces. Existing top-level methods are
+kept as compatibility aliases:
+
+```python
+from agevidence import Client
+
+with Client(base_url="http://localhost:3000", api_token="token") as client:
+    adapters = client.country.list_adapters()
+    project = client.projects.create(
+        account_name="Northstar Methane Systems Sandbox",
+        project_name="Enterprise dairy pilot",
+        target_claim="The intervention reduces enteric methane.",
+    )
+```
+
+Mutating requests accept idempotency keys on resource methods when retrying a
+POST, PATCH or checkout operation is intended.
+
+## Async Client
+
+HTTP SDK calls are also available through `AsyncClient`:
+
+```python
+from agevidence import AsyncClient
+
+async with AsyncClient(base_url="http://localhost:3000") as client:
+    adapters = await client.country.list_adapters()
+```
+
+The async client mirrors the sync resource namespaces. Verifier delegation stays
+sync-only and still shells out to the configured Rust verifier.
 
 ## CLI Quickstart
 
@@ -152,7 +184,7 @@ agevidence verify --bundle bundle.zip
 If the verifier command is missing, the CLI returns a setup error instead of
 trying to implement bundle verification in Python.
 
-## Capability and Plugin Scaffold
+## SDK Organization
 
 The SDK is organized around capabilities, not separate industry SDKs:
 
@@ -165,20 +197,60 @@ agevidence
   receipts
   verification
   adapters
+  identifiers
+  sources
+  policies
+  countries
   authorities
   exports
   models
+  client_resources
+  async_client
   cli
+  country_cli
+  campaign_cli
   plugins
   livestock
 ```
 
-Australia-specific integrations are plugin metadata and future adapter work,
-not Rails forks. Placeholder plugin IDs include `au_nlis`, `au_lpa`, `au_nfas`,
-`au_envd`, `au_pic`, and `au_mla`.
+Country adapters are executable Python runtime classes backed by packaged
+manifest snapshots for adapter identity, method metadata, requirements and
+limitations. YAML files never load arbitrary Python code. Entry-point adapters
+must be installed through the `agevidence.country_adapters` Python entry-point
+group, and local development adapters must be explicitly loaded as
+`module:object`.
 
-These placeholders do not claim certification, endorsement, conformance, or
-production integration.
+Current country facts:
+
+* AU and CA are active executable adapters.
+* NZ remains scaffold.
+* UK and EU remain research.
+* `au_mla` remains a placeholder until a concrete source contract exists.
+
+Adapter output does not claim certification, endorsement, conformance,
+government approval, production integration or receipt validity.
+
+## Campaign Namespace
+
+Campaign Control Plane methods live under `client.campaign` and the
+`agevidence campaign ...` CLI group. Campaign headers are sent separately from
+event payloads:
+
+```text
+X-AgEvidence-Campaign-Account
+X-AgEvidence-Activation
+X-AgEvidence-Repository-SHA
+X-AgEvidence-SDK-Version
+```
+
+Sandbox campaign handoff values are planning signals only. They are not booked,
+collected or recognized revenue.
+
+## Package Contract
+
+The package ships a `py.typed` marker for Python 3.11+ type consumers. Request
+models are strict about unknown fields; response models remain additive so the
+Rails `/v1` scaffold can add compatible fields without breaking SDK consumers.
 
 ## Test
 
