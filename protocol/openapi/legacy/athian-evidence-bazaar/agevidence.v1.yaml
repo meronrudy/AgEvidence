@@ -13,9 +13,11 @@ servers:
     description: Local Rails scaffold
 tags:
   - name: Developer
+  - name: Country Adapters
   - name: Pricing
   - name: Artifact Orders
   - name: Integrations
+  - name: Campaign
 paths:
   /v1/developer/projects:
     post:
@@ -125,6 +127,93 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ModelRun"
+  /v1/developer/projects/{project_id}/country_determinations:
+    get:
+      tags: [Country Adapters]
+      summary: List append-only country determinations for a project.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: Country determinations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryDetermination"
+    post:
+      tags: [Country Adapters]
+      summary: Append a country determination for a project.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [adapter]
+              properties:
+                adapter:
+                  type: string
+                  description: Country code or adapter id.
+                institution_profile:
+                  type: object
+      responses:
+        "201":
+          description: Determination appended.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CountryDetermination"
+  /v1/country_adapters:
+    get:
+      tags: [Country Adapters]
+      summary: List country adapter manifest projections.
+      responses:
+        "200":
+          description: Country adapters.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryAdapter"
+  /v1/country_adapters/{adapter_id}:
+    get:
+      tags: [Country Adapters]
+      summary: Retrieve one country adapter projection.
+      parameters:
+        - name: adapter_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Country adapter.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CountryAdapter"
+  /v1/country_adapters/{adapter_id}/validate:
+    post:
+      tags: [Country Adapters]
+      summary: Validate a country adapter manifest projection.
+      parameters:
+        - name: adapter_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Validation report.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CountryAdapterValidation"
   /v1/developer/candidates/{id}:
     get:
       tags: [Developer]
@@ -382,6 +471,160 @@ paths:
       responses:
         "201":
           description: Webhook endpoint registered.
+  /v1/campaign/accounts:
+    get:
+      tags: [Campaign]
+      summary: List campaign target accounts.
+      responses:
+        "200":
+          description: Campaign accounts.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accounts:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CampaignAccount"
+    post:
+      tags: [Campaign]
+      summary: Create a bounded campaign account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [campaign_account]
+              properties:
+                campaign_account:
+                  $ref: "#/components/schemas/CampaignAccountInput"
+      responses:
+        "201":
+          description: Campaign account created.
+  /v1/campaign/accounts/{account_id}:
+    get:
+      tags: [Campaign]
+      summary: Retrieve a campaign account.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Campaign account detail.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CampaignAccount"
+    patch:
+      tags: [Campaign]
+      summary: Update bounded campaign account fields.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Campaign account updated.
+  /v1/campaign/accounts/{account_id}/activations:
+    get:
+      tags: [Campaign]
+      summary: List activation paths for a campaign account.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Activation paths.
+    post:
+      tags: [Campaign]
+      summary: Start or record an activation path.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Activation path recorded.
+  /v1/campaign/accounts/{account_id}/qualifications:
+    get:
+      tags: [Campaign]
+      summary: List immutable qualification snapshots.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Qualification snapshots.
+    post:
+      tags: [Campaign]
+      summary: Evaluate evidence-grounded campaign qualification.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Qualification snapshot created.
+  /v1/campaign/accounts/{account_id}/handoffs:
+    get:
+      tags: [Campaign]
+      summary: List commercial handoffs.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Commercial handoffs.
+    post:
+      tags: [Campaign]
+      summary: Create an idempotent Salesforce handoff for a commercially qualified account.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Handoff created and connector outbox queued.
+  /v1/campaign/dashboard:
+    get:
+      tags: [Campaign]
+      summary: Retrieve campaign dashboard summary.
+      responses:
+        "200":
+          description: Campaign dashboard.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CampaignDashboard"
+  /v1/campaign/connectors/salesforce/events:
+    post:
+      tags: [Campaign]
+      summary: Accept bounded Salesforce connector signals.
+      responses:
+        "202":
+          description: Salesforce signal accepted.
 components:
   parameters:
     ProjectId:
@@ -566,6 +809,82 @@ components:
           type: string
         resolution_status:
           type: string
+    CountryAdapter:
+      type: object
+      required: [adapter_id, country_code, version, status]
+      properties:
+        adapter_id:
+          type: string
+        country_code:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+          enum: [active, pilot, scaffold, research, superseded, retired]
+        method_id:
+          type: string
+        method_version:
+          type: string
+        authority:
+          type: string
+        classification:
+          type: string
+          enum: [active, pilot, scaffold, research, invalid]
+        limitations:
+          type: array
+          items:
+            type: string
+    CountryAdapterValidation:
+      type: object
+      required: [classification, errors]
+      properties:
+        adapter_id:
+          type: string
+        country_code:
+          type: string
+        status:
+          type: string
+        classification:
+          type: string
+          enum: [active, pilot, scaffold, research, invalid]
+        errors:
+          type: array
+          items:
+            type: string
+        manifest_path:
+          type: string
+    CountryDetermination:
+      type: object
+      required: [adapter_id, country_code, status, normalized_result]
+      properties:
+        id:
+          type: integer
+        project_id:
+          type: integer
+        adapter_id:
+          type: string
+        country_code:
+          type: string
+        adapter_version:
+          type: string
+        method_id:
+          type: string
+        method_version:
+          type: string
+        status:
+          type: string
+        normalized_result:
+          type: object
+        receipt_id:
+          type: integer
+        result_digest:
+          type: string
+        supersedes:
+          type: integer
+        evaluated_at:
+          type: string
+          format: date-time
     CreateReviewDecisionRequest:
       type: object
       required: [review_decision]
@@ -646,3 +965,189 @@ components:
               type: string
             artifact_scope:
               type: object
+    CampaignAccountInput:
+      type: object
+      required: [name, country_code]
+      properties:
+        external_id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+        country_code:
+          type: string
+          pattern: "^[A-Z]{2}$"
+        subsector:
+          type: string
+        funding_stage:
+          type: string
+        capital_raised_cents:
+          type: integer
+          minimum: 0
+        status:
+          type: string
+          enum: [identified, researched, approved_for_outreach, activation_invited, developer_activated, evidence_qualified, reliance_qualified, commercially_qualified, handed_to_salesforce, contracted, active_customer, paused, disqualified, archived]
+        qualification_level:
+          type: string
+          enum: [unqualified, market_qualified, developer_activated, evidence_qualified, reliance_qualified, commercially_qualified]
+        priority_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        authoritative_system:
+          type: string
+        evidence_obligation_code:
+          type: string
+        evidence_obligation_summary:
+          type: string
+        salesforce_account_id:
+          type: string
+        apollo_account_id:
+          type: string
+        developer_account_id:
+          type: integer
+        metadata_json:
+          type: object
+    CampaignAccount:
+      allOf:
+        - $ref: "#/components/schemas/CampaignAccountInput"
+        - type: object
+          properties:
+            account_id:
+              type: string
+            contacts:
+              type: array
+              items:
+                $ref: "#/components/schemas/CampaignContactRef"
+            activations:
+              type: array
+              items:
+                $ref: "#/components/schemas/ActivationPath"
+            qualifications:
+              type: array
+              items:
+                $ref: "#/components/schemas/TechnicalQualification"
+            handoffs:
+              type: array
+              items:
+                $ref: "#/components/schemas/CommercialHandoff"
+            authority_boundary:
+              type: string
+    CampaignContactRef:
+      type: object
+      properties:
+        contact_id:
+          type: string
+        display_name:
+          type: string
+        role_category:
+          type: string
+        email_domain:
+          type: string
+        salesforce_contact_id:
+          type: string
+        apollo_person_id:
+          type: string
+        technical_authority:
+          type: boolean
+        commercial_authority:
+          type: boolean
+        scientific_authority:
+          type: boolean
+        contactability_status:
+          type: string
+    ActivationPath:
+      type: object
+      properties:
+        activation_id:
+          type: string
+        account_id:
+          type: string
+        path_type:
+          type: string
+          enum: [customer_quickstart, developer_quickstart, python_sdk, cli_project_4030, source_record_browser, source_record_api, event_inbox, artifact_verification, webhook_integration]
+        status:
+          type: string
+          enum: [invited, started, completed, failed, ignored]
+        repository_sha:
+          type: string
+        developer_project_external_id:
+          type: string
+        support_minutes:
+          type: integer
+    TechnicalQualification:
+      type: object
+      properties:
+        qualification_id:
+          type: string
+        account_id:
+          type: string
+        developer_project_id:
+          type: integer
+        status:
+          type: string
+        qualification_level:
+          type: string
+        evidence_gap_count:
+          type: integer
+        qualification_reason:
+          type: string
+        snapshot:
+          type: object
+    CommercialHandoff:
+      type: object
+      properties:
+        handoff_id:
+          type: string
+        account_id:
+          type: string
+        qualification_id:
+          type: string
+        product_code:
+          type: string
+        status:
+          type: string
+        scope_digest:
+          type: string
+        planning_value_cents:
+          type: integer
+        contracted_value_cents:
+          type: integer
+        cash_collected_cents:
+          type: integer
+        salesforce_opportunity_id:
+          type: string
+        salesforce_proposal_id:
+          type: string
+        proposal_reference:
+          type: string
+        proposal_terms_digest:
+          type: string
+          pattern: "^sha256:[a-f0-9]{64}$"
+        contract_reference:
+          type: string
+        contract_terms_digest:
+          type: string
+          pattern: "^sha256:[a-f0-9]{64}$"
+        invoice_reference:
+          type: string
+        cash_collection_reference:
+          type: string
+        revenue_system:
+          type: string
+        last_revenue_signal_at:
+          type: string
+          format: date-time
+    CampaignDashboard:
+      type: object
+      properties:
+        counts:
+          type: object
+        phase10:
+          type: object
+          description: Strict gate and reference-only Phase 10 visibility.
+        recent_accounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/CampaignAccount"

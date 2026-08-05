@@ -1,0 +1,13 @@
+version: athian.agevidence.vocabulary.species.v1
+species:
+  species.beef_cattle:
+    label: Beef cattle
+  species.dairy_cattle:
+    label: Dairy cattle
+  species.deer:
+    label: Deer
+  species.swine:
+    label: Swine
+  species.sheep:
+    label: Sheep
+

@@ -26,3 +26,7 @@ evidence_types:
     label: Calculation report
   evidence.verification_readiness_report:
     label: Verification readiness report
+  evidence.payment_record:
+    label: Payment record
+  evidence.rights_receipt:
+    label: Rights receipt

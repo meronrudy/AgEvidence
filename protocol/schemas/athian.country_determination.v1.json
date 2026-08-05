@@ -61,6 +61,32 @@
     "determination_role": { "type": "string" },
     "policy_extensions": { "type": "object" },
     "registry_mapping": { "type": "object" },
+    "policy_stack": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "institution_profile": {
+      "type": ["object", "null"]
+    },
+    "identifier_bindings": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "external_checks": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "source_profile_versions": { "type": "object" },
+    "supersedes": {
+      "type": ["string", "null"]
+    },
+    "evidence_graph_root": {
+      "type": ["string", "null"]
+    },
+    "findings": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
     "limitations": {
       "type": "array",
       "items": { "type": "string" }

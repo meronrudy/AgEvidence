@@ -1,0 +1,22 @@
+version: athian.agevidence.policy_profiles.v1
+profile_types:
+  - MethodologyProfile
+  - DisclosureProfile
+  - AssuranceProfile
+  - RightsProfile
+  - DataPolicyProfile
+  - VerifierProfile
+  - RegistryProfile
+  - BuyerProfile
+  - LenderProfile
+  - ProcessorProfile
+  - GovernmentProfile
+resolution_results:
+  - compatible
+  - extension_applied
+  - requirement_added
+  - requirement_overridden
+  - unresolved_conflict
+  - superseded_policy
+  - institution_specific_requirement
+

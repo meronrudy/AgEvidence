@@ -22,7 +22,7 @@
       "properties": {
         "id": { "type": "string" },
         "version": { "type": "string" },
-        "status": { "enum": ["scaffold", "active", "superseded", "retired"] },
+        "status": { "enum": ["active", "pilot", "scaffold", "research", "superseded", "retired"] },
         "country_code": { "type": "string" }
       }
     },
