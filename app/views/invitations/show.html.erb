@@ -1,0 +1,25 @@
+<% page_title "Accept invitation" %>
+
+<section class="panel" style="max-width:560px;margin:32px auto">
+  <div class="section-title">AgEvidence invitation</div>
+  <% if @error.present? %>
+    <div class="flash flash-alert"><%= @error %></div>
+  <% end %>
+
+  <% if @invitation.pending? %>
+    <p class="muted">Create your account for <strong><%= @invitation.organization.name %></strong>.</p>
+    <%= form_with url: accept_invitation_path(@invitation.token), method: :post, local: true, class: "stack-sm" do %>
+      <label class="label" for="user_first_name">First name</label>
+      <%= text_field_tag "user[first_name]", nil, class: "input", required: true %>
+      <label class="label" for="user_last_name">Last name</label>
+      <%= text_field_tag "user[last_name]", nil, class: "input", required: true %>
+      <label class="label" for="user_password">Password</label>
+      <%= password_field_tag "user[password]", nil, class: "input", required: true, minlength: 12 %>
+      <label class="label" for="user_password_confirmation">Confirm password</label>
+      <%= password_field_tag "user[password_confirmation]", nil, class: "input", required: true, minlength: 12 %>
+      <div><%= submit_tag "Accept invitation", class: "button primary" %></div>
+    <% end %>
+  <% else %>
+    <p class="muted">This invitation is no longer active.</p>
+  <% end %>
+</section>

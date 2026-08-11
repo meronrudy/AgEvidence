@@ -1,0 +1,17 @@
+plugins:
+  - rubocop-rails
+
+AllCops:
+  TargetRubyVersion: 3.4
+  NewCops: enable
+  Exclude:
+    - db/schema.rb
+    - db/queue_schema.rb
+    - bin/**/*
+    - vendor/**/*
+
+Style/StringLiterals:
+  Enabled: false
+
+Layout/LineLength:
+  Max: 160

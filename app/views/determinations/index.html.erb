@@ -1,0 +1,31 @@
+<% page_title "Determinations" %>
+<%= render "shared/page_header",
+  title: "Determinations",
+  description: "Published institutional conclusions produced from evidence and policy basis." %>
+
+<section class="stack-sm">
+  <% @determinations.each do |determination| %>
+    <% project = @projects_by_name[determination.project_name] %>
+    <%= render "shared/evidence_instrument/evidence_plate",
+      eyebrow: "Determination",
+      title: determination.project_name,
+      identifier: determination.determination_code,
+      status: determination.outcome,
+      meta: [
+        ["Outcome", determination.outcome, false],
+        ["Profile", "#{determination.program_profile.code} #{determination.program_profile.profile_version}", true],
+        ["Adapter", determination.adapter, true],
+        ["Digest", determination.digest, true],
+        ["Artifact", project&.artifact&.artifact_code || "Pending", true],
+        ["Published", format_utc(determination.published_at), true]
+      ],
+      basis_url: app_determination_path(determination.determination_code) %>
+  <% end %>
+</section>
+
+<% if @determinations.empty? %>
+  <%= render "shared/evidence_instrument/field_empty",
+    title: "No determinations",
+    detail: "No project in the current organization has a published determination.",
+    kicker: "Reliance" %>
+<% end %>

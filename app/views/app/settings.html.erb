@@ -1,0 +1,5 @@
+<% page_title "Settings" %>
+<%= render "shared/page_header", title: @title, description: @description %>
+<section class="panel">
+  <%= key_values(@settings.map { |row| [row.first, row.last, false] }) %>
+</section>

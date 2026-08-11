@@ -1,0 +1,19 @@
+<nav class="ei-rail" aria-label="Provenance">
+  <% nodes.each do |node| %>
+    <% content = capture do %>
+      <span class="ei-rail-label"><%= node.fetch(:label) %></span>
+      <span class="ei-rail-id"><%= node.fetch(:identifier) %></span>
+      <% if node[:detail].present? %>
+        <span class="ei-rail-detail"><%= node[:detail] %></span>
+      <% end %>
+      <%= ei_status(node[:status] || "unverified") %>
+    <% end %>
+    <% if node[:url].present? %>
+      <%= link_to node[:url], class: "ei-rail-node" do %>
+        <%= content %>
+      <% end %>
+    <% else %>
+      <div class="ei-rail-node"><%= content %></div>
+    <% end %>
+  <% end %>
+</nav>

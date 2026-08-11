@@ -1,0 +1,31 @@
+<% page_title @title %>
+<%= render "shared/page_header", title: @title, description: @description %>
+
+<section class="panel flush">
+  <% @rows.each do |row| %>
+    <div class="list-row">
+      <% case row %>
+      <% when Review %>
+        <div style="display:flex;justify-content:space-between;gap:12px">
+          <div><strong><%= row.title %></strong><div class="mono muted"><%= row.review_code %> / <%= row.requirement_code %> / <%= row.project.name %></div></div>
+          <%= badge(row.state, tone: row.state == "open" ? "info" : "success", dot: true) %>
+        </div>
+      <% when Artifact %>
+        <div style="display:flex;justify-content:space-between;gap:12px">
+          <div><strong class="mono"><%= row.artifact_code %></strong><div class="muted"><%= row.project.name %></div></div>
+          <%= link_to "Open", artifact_project_path(row.project.slug), class: "button secondary small" %>
+        </div>
+      <% when Integration %>
+        <div style="display:flex;justify-content:space-between;gap:12px">
+          <div><strong><%= row.name %></strong><div class="mono muted"><%= row.provider %> / <%= row.events.join(", ") %></div></div>
+          <%= badge(row.status, tone: row.status == "Connected" ? "success" : "danger", dot: true) %>
+        </div>
+      <% when ProgramProfile %>
+        <div style="display:flex;justify-content:space-between;gap:12px">
+          <div><strong><%= row.name %></strong><div class="mono muted"><%= row.code %> / <%= row.profile_version %> / <%= row.requirements_count %> requirements</div></div>
+          <%= link_to "Open", row.code == "AU" ? app_program_australia_path : app_programs_path(jurisdiction: row.code), class: "button secondary small" %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</section>

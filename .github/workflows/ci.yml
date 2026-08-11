@@ -1,0 +1,24 @@
+name: Rails
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      RAILS_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.4.10
+          bundler-cache: true
+      - run: bin/rails db:prepare
+      - run: bin/rails db:seed
+      - run: bin/rails test
+      - run: SECRET_KEY_BASE_DUMMY=1 DATABASE_URL=postgres://postgres:postgres@localhost:5432/agevidence RAILS_ALLOWED_HOSTS=example.com RAILS_ENV=production bin/rails assets:precompile
+      - run: bundle exec brakeman --no-pager
+      - run: bundle exec bundle-audit check --update
+      - run: bundle exec rubocop --fail-level fatal

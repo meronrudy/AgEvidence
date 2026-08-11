@@ -1,0 +1,11 @@
+.bundle
+.git
+log/*
+tmp/*
+storage/*
+db/*.sqlite3
+db/*.sqlite3-*
+public/assets
+node_modules
+vendor/bundle
+config/master.key

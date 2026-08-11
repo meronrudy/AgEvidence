@@ -1,0 +1,70 @@
+<% page_title "Human review workspace" %>
+<%= render "projects/header", project: @project %>
+
+<div class="grid grid-main-side">
+  <section class="panel flush">
+    <div style="padding:12px 14px;border-bottom:1px solid var(--border)" class="section-title">Human review queue</div>
+    <% @reviews.each do |review| %>
+      <%= link_to review_project_path(@project.slug, review: review.review_code), class: "list-row" do %>
+        <strong><span class="ei-glyph ei-glyph--human" aria-hidden="true"></span> <%= review.title %></strong>
+        <div class="mono muted"><%= review.review_code %> / <%= review.requirement_code %></div>
+        <div style="margin-top:6px"><%= ei_status(review.state, status: review.state == "open" ? "human_review" : "valid") %></div>
+      <% end %>
+    <% end %>
+  </section>
+
+  <div class="stack">
+    <% if @active_review %>
+      <section class="panel">
+        <div style="display:flex;justify-content:space-between;gap:12px">
+          <div>
+            <div class="ei-kicker">Institutional judgment</div>
+            <div class="section-title" style="margin:2px 0 0">Review <%= @active_review.review_code %></div>
+          </div>
+          <%= badge(@active_review.requirement_code, tone: "info", mono: true) %>
+        </div>
+
+        <div class="grid grid-2" style="margin:14px 0">
+          <%= render "shared/evidence_instrument/evidence_plate",
+            eyebrow: "Machine precheck",
+            title: "Evidence present",
+            identifier: @active_review.requirement_code,
+            status: "valid",
+            meta: [
+              ["Source integrity", "OK", true],
+              ["Date continuity", "OK", true],
+              ["Schema", "OK", true]
+            ],
+            basis_url: evidence_project_path(@project.slug) %>
+          <%= render "shared/evidence_instrument/evidence_plate",
+            eyebrow: "Review question",
+            title: @active_review.title,
+            identifier: @active_review.review_code,
+            status: "human_review",
+            body: tag.p("Does the presented evidence sufficiently establish the requirement under the active AU profile?", class: "muted"),
+            basis_url: app_program_australia_requirements_path %>
+        </div>
+
+        <%= form_with url: review_decisions_project_path(@project.slug), method: :post, local: true, class: "stack-sm" do |form| %>
+          <%= hidden_field_tag :review_code, @active_review.review_code %>
+          <label class="label" for="decision">Decision</label>
+          <%= select_tag :decision, options_for_select(["Accept", "Accept with limitation", "Request evidence", "Reject"]), class: "select" %>
+          <label class="label" for="rationale">Rationale</label>
+          <%= text_area_tag :rationale, nil, rows: 4, placeholder: "Calibration certificate matches instrument and validity period." %>
+          <label class="label" for="limitation">Reliance limitation</label>
+          <%= text_area_tag :limitation, nil, rows: 2, placeholder: "Any limitation a relying party must be told about." %>
+          <div><%= form.submit "Record determination input", class: "button primary" %></div>
+        <% end %>
+      </section>
+    <% end %>
+
+    <section class="panel">
+      <div class="section-title">Review provenance</div>
+      <% if @decisions.any? %>
+        <%= render "shared/evidence_instrument/causal_timeline", items: @decisions %>
+      <% else %>
+        <p class="muted">No review decisions have been recorded yet.</p>
+      <% end %>
+    </section>
+  </div>
+</div>

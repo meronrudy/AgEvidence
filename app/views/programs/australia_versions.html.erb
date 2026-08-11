@@ -1,0 +1,37 @@
+<% page_title "Australia versions" %>
+<%= render "programs/australia_header", profile: @profile %>
+
+<div class="grid grid-main-side">
+  <section class="panel flush">
+    <div style="padding:14px 16px;border-bottom:1px solid var(--border)">
+      <div class="ei-kicker">AU requirements</div>
+      <div class="section-title" style="margin:2px 0 0">v0.1 to v0.2-draft</div>
+    </div>
+    <% @profile.version_diff.each do |diff| %>
+      <% status = diff["kind"] == "added" ? "valid" : diff["kind"] == "retired" ? "superseded" : "human_review" %>
+      <div class="list-row">
+        <div style="display:flex;justify-content:space-between;gap:12px">
+          <strong class="mono"><%= diff["kind"] == "added" ? "+" : diff["kind"] == "retired" ? "-" : "~" %> <%= diff["id"] %></strong>
+          <%= ei_status(diff["kind"], status: status) %>
+        </div>
+        <div class="muted"><%= diff["note"] %></div>
+        <% if diff["effect"].present? %>
+          <div class="ei-identifier">Effect: <%= diff["effect"] %></div>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <div class="section-title">Impact</div>
+    <%= key_values(@profile.version_impact.map { |key, value| [key.to_s.humanize, value, true] }) %>
+    <div class="stack-sm" style="margin-top:14px">
+      <%= render "shared/evidence_instrument/basis_row",
+        kicker: "Institutional effect",
+        title: "Previously sufficient evidence may require supplementation.",
+        detail: "Version changes are evaluated against project evidence before a new determination is issued.",
+        status: "human_review",
+        url: app_program_evaluate_path %>
+    </div>
+  </section>
+</div>

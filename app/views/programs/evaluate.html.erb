@@ -1,0 +1,29 @@
+<% page_title "Evaluation playground" %>
+<%= render "shared/page_header", title: "Country Program Engine", description: "Evaluate an evidence graph against a country program without publishing a determination." %>
+<%= render "programs/engine_tabs" %>
+
+<div class="grid grid-main-side">
+  <section class="panel">
+    <div class="section-title">Evaluation playground</div>
+    <%= form_with url: app_program_evaluate_path, method: :get, local: true, class: "filter-bar" do |form| %>
+      <%= form.select :project, options_for_select(@project_options.map { |p| [p.name, p.slug] }, @project.slug), {}, class: "select" %>
+      <%= form.submit "Run evaluation", class: "button primary small" %>
+    <% end %>
+    <div class="grid grid-3">
+      <div class="metric"><div class="metric-label">Project</div><div class="metric-value" style="font-size:18px"><%= @project.project_code %></div></div>
+      <div class="metric"><div class="metric-label">Satisfied</div><div class="metric-value">18 / 24</div></div>
+      <div class="metric"><div class="metric-label">Outcome</div><div class="metric-value" style="font-size:18px">Eligible with conditions</div></div>
+    </div>
+  </section>
+  <section class="panel">
+    <div class="section-title">Blocking gaps</div>
+    <% @gaps.each do |gap| %>
+      <div class="list-row">
+        <%= severity_badge(gap.severity) %>
+        <strong><%= gap.title %></strong>
+        <div class="mono muted"><%= gap.requirement_code %></div>
+      </div>
+    <% end %>
+    <%= link_to "Open determinations", app_program_australia_determinations_path, class: "button secondary small", style: "margin-top:12px" %>
+  </section>
+</div>

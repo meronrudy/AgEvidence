@@ -1,0 +1,6 @@
+<% page_title "Australia profiles" %>
+<%= render "programs/australia_header", profile: @profile %>
+<section class="panel">
+  <div class="section-title">Profile composition</div>
+  <%= render "shared/json_block", value: @profile.composition %>
+</section>

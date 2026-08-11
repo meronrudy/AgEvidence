@@ -1,0 +1,27 @@
+<% page_title "Confirmation instructions" %>
+
+<div class="auth-page">
+  <section class="auth-card panel">
+    <%= link_to root_path, class: "brand-link auth-brand" do %>
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>AgEvidence</span>
+    <% end %>
+
+    <div class="auth-heading">
+      <div class="eyebrow">Email confirmation</div>
+      <h1>Resend confirmation</h1>
+      <p>Request a fresh confirmation link for an invited AgEvidence account.</p>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post, class: "auth-form" }) do |form| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+      <div>
+        <%= form.label :email, class: "label" %>
+        <%= form.email_field :email, autofocus: true, autocomplete: "email", required: true %>
+      </div>
+      <%= form.submit "Resend confirmation", class: "button primary auth-submit" %>
+    <% end %>
+
+    <%= render "devise/shared/links" %>
+  </section>
+</div>

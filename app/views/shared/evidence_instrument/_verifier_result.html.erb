@@ -1,0 +1,39 @@
+<section class="ei-verifier">
+  <header>
+    <div class="ei-kicker">AgEvidence / Verify</div>
+    <h1 class="mono"><%= artifact&.artifact_code || identifier %></h1>
+    <%= ei_status(artifact ? (artifact.issued? ? "Valid issued artifact" : "Valid draft artifact") : "Artifact not found", status: artifact ? "valid" : "material_gap") %>
+  </header>
+
+  <% if artifact %>
+    <div class="ei-verifier-checks">
+      <% ei_artifact_checks(artifact).each do |label, value, ok| %>
+        <div>
+          <span><%= label %></span>
+          <strong class="mono"><%= value %></strong>
+          <%= ei_status(ok ? "valid" : "draft") %>
+        </div>
+      <% end %>
+    </div>
+
+    <dl class="ei-plate-meta ei-verifier-meta">
+      <div><dt>Artifact hash</dt><dd class="mono"><%= artifact.digest %></dd></div>
+      <div><dt>Profile</dt><dd class="mono"><%= artifact.program %></dd></div>
+      <div><dt>Boundary</dt><dd class="mono"><%= artifact.boundary %></dd></div>
+      <div><dt>Issued</dt><dd class="mono"><%= artifact.issued? ? format_utc(artifact.issued_at) : "Not issued" %></dd></div>
+    </dl>
+
+    <div class="ei-verifier-boundary">
+      <div>
+        <div class="ei-kicker">This verifies</div>
+        <p>Integrity, canonical digest, profile commitment, receipt chain, and provenance of the artifact.</p>
+      </div>
+      <div>
+        <div class="ei-kicker">This does not assert</div>
+        <p>Independent truth of underlying physical events outside the committed evidence and review boundary.</p>
+      </div>
+    </div>
+  <% else %>
+    <p>No reliance artifact exists for <span class="mono"><%= identifier %></span> in this demo workspace.</p>
+  <% end %>
+</section>

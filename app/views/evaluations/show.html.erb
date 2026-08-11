@@ -1,0 +1,41 @@
+<% page_title @evaluation.evaluation_code %>
+<%= render "shared/page_header",
+  eyebrow: link_to("Program evaluations", app_program_australia_evaluations_path) + " / #{@evaluation.evaluation_code}",
+  title: @evaluation.project_name,
+  description: "Requirement evaluation under #{@evaluation.program_profile.code} #{@evaluation.program_profile.profile_version}." %>
+
+<%= render "shared/evidence_instrument/provenance_rail", nodes: ei_project_provenance_nodes(@project) %>
+
+<div class="grid grid-main-side">
+  <%= render "shared/evidence_instrument/evidence_plate",
+    eyebrow: "Evaluation",
+    title: @evaluation.outcome,
+    identifier: @evaluation.evaluation_code,
+    status: @evaluation.outcome,
+    meta: [
+      ["Satisfied", @evaluation.satisfied, true],
+      ["Profile", "#{@evaluation.program_profile.code} #{@evaluation.program_profile.profile_version}", true],
+      ["Published", @evaluation.published? ? "Yes" : "No", false],
+      ["Evaluated", format_utc(@evaluation.evaluated_at), true],
+      ["Determination", @determination&.determination_code || "Pending", true],
+      ["Artifact", @artifact&.artifact_code || "Pending", true]
+    ],
+    basis_url: assessment_project_path(@project.slug) %>
+
+  <section class="panel">
+    <div class="section-title">Open requirement gaps</div>
+    <div class="stack-sm">
+      <% @gaps.each do |gap| %>
+        <%= render "shared/evidence_instrument/basis_row",
+          kicker: gap.requirement_code,
+          title: gap.title,
+          detail: gap.explanation,
+          status: gap.severity,
+          url: assessment_project_path(@project.slug) %>
+      <% end %>
+      <% if @gaps.empty? %>
+        <p class="muted">No open gaps for this evaluation.</p>
+      <% end %>
+    </div>
+  </section>
+</div>

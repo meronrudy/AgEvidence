@@ -1,0 +1,67 @@
+<% page_title "Evidence workbench" %>
+<%= render "projects/header", project: @project %>
+
+<div class="grid" style="grid-template-columns:minmax(220px,.7fr) minmax(0,1.2fr) minmax(300px,.9fr)">
+  <section class="panel flush">
+    <div style="padding:12px 14px;border-bottom:1px solid var(--border)" class="section-title">Evidence</div>
+    <% @records.each do |record| %>
+      <%= link_to evidence_project_path(@project.slug, selected: record.record_code), class: "list-row #{record == @selected_record ? 'active' : ''}" do %>
+        <strong><%= record.label %></strong>
+        <div class="mono muted"><%= record.record_code %></div>
+        <div style="margin-top:6px"><%= evidence_badge(record.status) %></div>
+      <% end %>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <div class="section-title">Evidence lineage</div>
+    <p class="muted">Select a record to inspect its canonical projection and integrity checks.</p>
+    <%= render "shared/lineage", records: @records %>
+  </section>
+
+  <section class="panel">
+    <% if @selected_record %>
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:start">
+        <div><div class="section-title"><%= @selected_record.label %></div><div class="mono muted"><%= @selected_record.record_code %></div></div>
+        <%= evidence_badge(@selected_record.status) %>
+      </div>
+      <div class="tabs" style="margin:14px 0">
+        <% [["summary", "Summary"], ["payload", "Payload"], ["integrity", "Integrity"]].each do |tab, label| %>
+          <%= link_to label, evidence_project_path(@project.slug, selected: @selected_record.record_code, view: tab), class: "tab-link #{params[:view] == tab || (params[:view].blank? && tab == 'summary') ? 'active' : ''}" %>
+        <% end %>
+      </div>
+      <% case params[:view].presence || "summary" %>
+      <% when "payload" %>
+        <%= render "shared/json_block", value: @selected_record.payload %>
+      <% when "integrity" %>
+        <div class="stack-sm">
+          <% @selected_record.integrity.each do |item| %>
+            <div><%= badge(item["ok"] ? "OK" : "Needs attention", tone: item["ok"] ? "success" : "warning", dot: true) %> <%= item["label"] %></div>
+          <% end %>
+          <%= key_values([["Projection", @selected_record.projection, true], ["Digest", @selected_record.digest, true]]) %>
+        </div>
+      <% else %>
+        <% manifest_meta = [
+          ["ID", @selected_record.record_code, true],
+          ["Schema", @selected_record.schema_name, true],
+          ["Source", @selected_record.source, false],
+          ["Evidence type", @selected_record.payload["evidence_type"] || @selected_record.record_type, true],
+          ["Lot", @selected_record.payload["lot"] || @project.metadata["product_lot"], true],
+          ["Cohort", @selected_record.payload["cohort"] || @project.metadata["cohort"], true],
+          ["Facility", @selected_record.payload["facility"] || "VIC-012", true],
+          ["Period", @selected_record.payload["period"] || @project.metadata["period"], false],
+          ["Digest", @selected_record.digest, true]
+        ] %>
+        <%= render "shared/evidence_instrument/evidence_plate",
+          eyebrow: @selected_record.record_type == "source_manifest" ? "Source manifest" : "Evidence record",
+          title: @selected_record.label,
+          identifier: @selected_record.record_code,
+          status: @selected_record.status,
+          meta: manifest_meta,
+          basis_url: assessment_project_path(@project.slug) %>
+        <div class="section-title" style="margin-top:18px">Record</div>
+        <%= key_values(@selected_record.summary.map { |row| [row["label"], row["value"], row["mono"]] }) %>
+      <% end %>
+    <% end %>
+  </section>
+</div>

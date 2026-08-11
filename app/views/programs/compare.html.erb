@@ -1,0 +1,37 @@
+<% page_title "Cross-program comparison" %>
+<%= render "shared/page_header", title: "Country Program Engine", description: "Hold the evidence graph constant and compare how programs interpret it." %>
+<%= render "programs/engine_tabs" %>
+
+<section class="panel">
+  <div class="section-title">Cross-program comparison</div>
+  <% columns = @comparison.fetch("columns").select { |column| @selected_codes.include?(column.fetch("code")) } %>
+  <div class="filter-bar">
+    <% @comparison.fetch("columns").each do |column| %>
+      <% code = column.fetch("code") %>
+      <%= link_to code, app_program_compare_path(programs: (@selected_codes.include?(code) ? (@selected_codes - [code]) : (@selected_codes + [code]))), class: "button small #{@selected_codes.include?(code) ? 'primary' : 'secondary'}" %>
+    <% end %>
+  </div>
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Requirement</th>
+          <% columns.each do |column| %>
+            <th><%= column.fetch("code") %><div class="mono muted"><%= column.fetch("version") %></div></th>
+          <% end %>
+        </tr>
+      </thead>
+      <tbody>
+        <% @comparison.fetch("rows").each do |row| %>
+          <tr>
+            <td><strong><%= row.fetch("label") %></strong><div class="mono muted"><%= row.fetch("requirement") %></div></td>
+            <% columns.each do |column| %>
+              <% mark = row.fetch("marks").fetch(@comparison.fetch("columns").index(column)) %>
+              <td><%= badge(mark, tone: mark == "Pass" ? "success" : mark == "Review" ? "info" : "warning") %></td>
+            <% end %>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

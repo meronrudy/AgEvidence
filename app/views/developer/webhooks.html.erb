@@ -1,0 +1,41 @@
+<% page_title "Webhooks" %>
+<%= render "shared/page_header", title: "Developer Platform", description: "Endpoint health, delivery attempts, response bodies, and retries for evidence webhooks." %>
+<%= render "developer/tabs" %>
+
+<div class="grid grid-main-side">
+  <section class="panel flush">
+    <div style="padding:12px 14px;border-bottom:1px solid var(--border)" class="section-title">Endpoints</div>
+    <% @endpoints.each do |endpoint| %>
+      <div class="list-row">
+        <strong class="mono"><%= endpoint.url %></strong>
+        <div style="margin-top:8px">
+          <%= badge(endpoint.status, tone: "success", dot: true) %>
+          <% if endpoint.last_delivery %>
+            <%= link_to "Last delivery #{endpoint.last_delivery.status}", app_developer_webhooks_path(delivery: endpoint.last_delivery.delivery_code), class: "button secondary small" %>
+          <% end %>
+        </div>
+        <div class="mono muted"><%= endpoint.events.join(" / ") %></div>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <% if @selected_delivery %>
+      <div style="display:flex;justify-content:space-between;gap:12px">
+        <div class="section-title">Delivery <%= @selected_delivery.delivery_code %></div>
+        <%= badge(@selected_delivery.status, tone: status_tone(@selected_delivery.status), mono: true) %>
+      </div>
+      <%= key_values([
+        ["Endpoint", @selected_endpoint.url, true],
+        ["Attempt", "#{@selected_delivery.attempt} of #{@selected_delivery.max_attempts}", true],
+        ["Duration", "#{@selected_delivery.duration_ms}ms", true],
+        ["At", format_utc(@selected_delivery.delivered_at), true]
+      ]) %>
+      <div class="section-title" style="margin-top:18px">Delivery timeline</div>
+      <%= render "shared/json_block", value: @selected_delivery.timeline %>
+      <div class="section-title" style="margin-top:18px">Response body</div>
+      <%= render "shared/json_block", value: @selected_delivery.response %>
+      <%= button_to "Retry delivery", app_developer_webhook_retry_path(@selected_delivery.delivery_code), method: :post, class: "button primary", style: "margin-top:14px" %>
+    <% end %>
+  </section>
+</div>

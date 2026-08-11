@@ -1,0 +1,77 @@
+<% page_title "Evidence inbox" %>
+<%= render "shared/page_header",
+  title: "Evidence inbox",
+  description: "Everything AgEvidence has received, what it became, and what it still needs." %>
+
+<div class="segment-tabs">
+  <% {
+    "all" => "All",
+    "attention" => "Needs attention",
+    "accepted" => "Accepted",
+    "rejected" => "Rejected"
+  }.each do |tab, label| %>
+    <%= link_to label, app_evidence_path(tab: tab), class: (@tab == tab ? "active" : nil) %>
+  <% end %>
+</div>
+
+<div class="grid grid-main-side">
+  <section class="panel flush">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Evidence</th>
+            <th>Source</th>
+            <th>Received</th>
+            <th>Project</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @records.each do |record| %>
+            <tr data-row-link="<%= app_evidence_path(tab: @tab, selected: record.record_code) %>">
+              <td><%= evidence_badge(record.status) %></td>
+              <td><strong><%= record.label %></strong><div class="mono muted"><%= record.record_code %></div></td>
+              <td><%= record.source %></td>
+              <td class="mono muted"><%= format_utc(record.received_at) %></td>
+              <td class="muted"><%= record.project.name %></td>
+              <td class="mono"><%= record.inbox_result %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <% if @selected_record %>
+      <div style="display:flex;justify-content:space-between;gap:12px">
+        <div>
+          <div class="section-title"><%= @selected_record.label %></div>
+          <div class="mono muted"><%= @selected_record.record_code %> / <%= @selected_record.schema_name %></div>
+        </div>
+        <%= evidence_badge(@selected_record.status) %>
+      </div>
+      <div style="margin-top:16px">
+        <%= key_values([
+          ["Source", @selected_record.source, false],
+          ["Project", @selected_record.project.name, false],
+          ["Received", format_utc(@selected_record.received_at), true],
+          ["Operation", @selected_record.operation_id, true],
+          ["Digest", @selected_record.digest, true]
+        ]) %>
+      </div>
+      <div class="section-title" style="margin-top:18px">Processing</div>
+      <div class="stack-sm">
+        <% @selected_record.processing.each do |step| %>
+          <div><%= badge(step["ok"] ? "OK" : "Fail", tone: step["ok"] ? "success" : "danger", dot: true) %> <%= step["step"] %><div class="mono muted"><%= step["note"] %></div></div>
+        <% end %>
+      </div>
+      <div class="section-title" style="margin-top:18px">Event payload</div>
+      <%= render "shared/json_block", value: @selected_record.payload %>
+    <% else %>
+      <p class="muted">No evidence records match this filter.</p>
+    <% end %>
+  </section>
+</div>

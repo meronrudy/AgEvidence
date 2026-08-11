@@ -1,0 +1,42 @@
+<% page_title "Organization" %>
+<%= render "shared/page_header", title: @title, description: @description %>
+<section class="panel">
+  <%= key_values([
+    ["Name", @organization.name, false],
+    ["Environment", @organization.environment, false],
+    ["Projects", @organization.projects.count, true],
+    ["Evidence records", EvidenceRecord.joins(:project).where(projects: { organization_id: @organization.id }).count, true]
+  ]) %>
+</section>
+
+<div class="grid grid-main-side" style="margin-top:16px">
+  <section class="panel flush">
+    <div style="padding:12px 14px;border-bottom:1px solid var(--border)" class="section-title">Members</div>
+    <% @memberships.each do |membership| %>
+      <div class="list-row">
+        <strong><%= membership.user.full_name %></strong>
+        <div class="mono muted"><%= membership.user.email %></div>
+        <div style="margin-top:8px"><%= badge(membership.role.name, tone: "info", mono: true) %></div>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <div class="section-title">Invite access</div>
+    <%= form_with url: app_organization_invitations_path, method: :post, local: true, class: "stack-sm" do %>
+      <label class="label" for="email">Email</label>
+      <%= email_field_tag :email, nil, class: "input", required: true %>
+      <label class="label" for="role">Role</label>
+      <%= select_tag :role, options_for_select(%w[viewer auditor reviewer operator approver org_admin]), class: "select" %>
+      <div><%= submit_tag "Create invitation", class: "button primary" %></div>
+    <% end %>
+
+    <div class="section-title" style="margin-top:18px">Recent invitations</div>
+    <% @invitations.each do |invitation| %>
+      <div class="list-row">
+        <strong><%= invitation.email %></strong>
+        <div class="mono muted"><%= invitation.status %> / expires <%= format_utc(invitation.expires_at) %></div>
+      </div>
+    <% end %>
+  </section>
+</div>

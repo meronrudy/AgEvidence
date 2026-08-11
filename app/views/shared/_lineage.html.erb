@@ -1,0 +1,14 @@
+<ol class="lineage">
+  <% records.each do |record| %>
+    <% state = record.status == "accepted" ? "complete" : record.status == "needs_review" ? "gap" : record.status == "schema_error" ? "gap" : "pending" %>
+    <li class="<%= state %>">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+        <div>
+          <strong><%= record.label %></strong>
+          <div class="mono muted"><%= record.record_code %> / <%= record.schema_name %></div>
+        </div>
+        <%= evidence_badge(record.status) %>
+      </div>
+    </li>
+  <% end %>
+</ol>

@@ -1,0 +1,21 @@
+<section class="panel flush">
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Requirement</th><th>Program</th><th>Category</th><th>Mode</th><th>Status</th><th>Accepted evidence</th></tr>
+      </thead>
+      <tbody>
+        <% requirements.each do |requirement| %>
+          <tr>
+            <td><strong><%= requirement.title %></strong><div class="mono muted"><%= requirement.requirement_code %></div></td>
+            <td><%= requirement.program_profile.name %></td>
+            <td><%= requirement.category %></td>
+            <td><%= badge(requirement.evaluation_mode, tone: requirement.evaluation_mode == "Machine" ? "info" : "warning") %></td>
+            <td><%= badge(requirement.status, tone: "success", dot: true) %></td>
+            <td class="mono muted"><%= requirement.accepted_evidence.join(", ") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

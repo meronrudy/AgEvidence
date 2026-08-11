@@ -1,0 +1,38 @@
+<article class="ei-plate <%= local_assigns[:class_name] %>">
+  <header class="ei-plate-header">
+    <div>
+      <% if local_assigns[:eyebrow].present? %>
+        <div class="ei-kicker"><%= eyebrow %></div>
+      <% end %>
+      <h3><%= title %></h3>
+      <% if local_assigns[:identifier].present? %>
+        <div class="ei-identifier"><%= identifier %></div>
+      <% end %>
+    </div>
+    <% if local_assigns[:status].present? %>
+      <%= ei_status(status) %>
+    <% end %>
+  </header>
+
+  <% if local_assigns[:meta].present? %>
+    <dl class="ei-plate-meta">
+      <% meta.each do |label, value, mono| %>
+        <div>
+          <dt><%= label %></dt>
+          <dd class="<%= 'mono' if mono %>"><%= value %></dd>
+        </div>
+      <% end %>
+    </dl>
+  <% end %>
+
+  <% if local_assigns[:body].present? %>
+    <div class="ei-plate-body"><%= body %></div>
+  <% end %>
+
+  <% if local_assigns[:basis_url].present? || local_assigns[:actions].present? %>
+    <footer class="ei-plate-actions">
+      <%= ei_basis_link(basis_url) if local_assigns[:basis_url].present? %>
+      <%= actions if local_assigns[:actions].present? %>
+    </footer>
+  <% end %>
+</article>

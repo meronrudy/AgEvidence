@@ -1,0 +1,86 @@
+<% page_title "Evidence control" %>
+<%= render "shared/page_header",
+  title: "Evidence control",
+  description: "Inspect the current institutional chain from source evidence through program basis to reliance artifacts.",
+  actions: safe_join([
+    link_to("Evidence inbox", app_evidence_path, class: "button secondary small"),
+    link_to("Program basis", app_program_australia_path, class: "button secondary small"),
+    link_to("Determinations", app_determinations_path, class: "button primary small")
+  ]) %>
+
+<section class="ei-system-chain" aria-label="Active institutional chain">
+  <% @system_chain.each_with_index do |node, index| %>
+    <%= render "shared/evidence_instrument/evidence_plate",
+      eyebrow: node.fetch(:eyebrow),
+      title: node.fetch(:title),
+      identifier: node.fetch(:identifier),
+      status: node.fetch(:status),
+      meta: node.fetch(:meta),
+      basis_url: node.fetch(:basis_url) %>
+    <% if index < @system_chain.length - 1 %>
+      <div class="ei-chain-operator" aria-hidden="true">-></div>
+    <% end %>
+  <% end %>
+</section>
+
+<div class="grid grid-main-side">
+  <section class="panel">
+    <div class="section-title">Requires attention</div>
+    <div class="stack-sm">
+      <% @attention_items.each do |title, detail, url, status| %>
+        <%= render "shared/evidence_instrument/basis_row",
+          title: title,
+          detail: detail,
+          url: url,
+          status: status,
+          kicker: "Evidence system exception" %>
+      <% end %>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="section-title">Verification activity</div>
+    <%= render "shared/evidence_instrument/evidence_plate",
+      eyebrow: "Reliance artifact",
+      title: @artifact.claim,
+      identifier: @artifact.artifact_code,
+      status: @artifact.issued? ? "issued" : "draft",
+      meta: [
+        ["Digest", @artifact.digest, true],
+        ["Program", @artifact.program, false],
+        ["Boundary", @artifact.boundary, true]
+      ],
+      basis_url: verify_artifact_path(@artifact.artifact_code) %>
+  </section>
+</div>
+
+<section class="panel" style="margin-top:16px">
+  <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px">
+    <div class="section-title" style="margin:0">Project evidence states</div>
+    <%= link_to "View all", projects_path, class: "ei-basis-link" %>
+  </div>
+  <div class="stack-sm">
+    <% @projects.each do |project| %>
+      <% state = ei_project_requirement_state(project) %>
+      <%= render "shared/evidence_instrument/evidence_plate",
+        eyebrow: "Project",
+        title: project.name,
+        identifier: project.project_code,
+        status: project.status,
+        meta: [
+          ["Jurisdiction", project.jurisdiction, false],
+          ["Program", project.program, false],
+          ["Requirements", state.fetch(:satisfied), true],
+          ["Human review", state.fetch(:human), false],
+          ["Material gaps", state.fetch(:material), false],
+          ["Artifact", project.artifact_status, false]
+        ],
+        basis_url: project_path(project.slug) %>
+    <% end %>
+  </div>
+</section>
+
+<section class="panel" style="margin-top:16px">
+  <div class="section-title">Causal activity</div>
+  <%= render "shared/evidence_instrument/causal_timeline", items: @activities %>
+</section>

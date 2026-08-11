@@ -1,0 +1,20 @@
+<section class="ei-profile-stack">
+  <header class="ei-stack-root">
+    <div class="ei-kicker"><%= local_assigns.fetch(:kicker, "Profile") %></div>
+    <h2><%= title %></h2>
+    <div class="ei-identifier"><%= identifier %></div>
+  </header>
+  <div class="ei-stack-grid">
+    <% layers.each do |layer| %>
+      <article class="ei-stack-layer">
+        <div class="ei-kicker"><%= layer["label"] || layer[:label] %></div>
+        <strong><%= layer["identifier"] || layer[:identifier] || layer["digest"] || layer[:digest] %></strong>
+        <span class="ei-identifier"><%= layer["version"] || layer[:version] || layer["kind"] || layer[:kind] %></span>
+        <% description = layer["description"] || layer[:description] %>
+        <% if description.present? %>
+          <p><%= description %></p>
+        <% end %>
+      </article>
+    <% end %>
+  </div>
+</section>

@@ -1,0 +1,48 @@
+<% page_title "Evidence assessment" %>
+<%= render "projects/header", project: @project %>
+
+<section class="panel" style="margin-bottom:16px">
+  <div class="section-title">Assessment basis</div>
+  <%= render "shared/evidence_instrument/basis_row",
+    kicker: "Program basis",
+    title: "AU Agricultural Climate Evidence v0.1",
+    detail: "Requirement state is shown before percentage readiness because one material gap can bound the determination.",
+    status: "valid",
+    url: app_program_australia_requirements_path %>
+</section>
+
+<div class="stack">
+  <% @gaps.each do |gap| %>
+    <%= render "shared/evidence_instrument/evidence_plate",
+      eyebrow: "Material gap",
+      title: gap.title,
+      identifier: "#{gap.requirement_code} / #{gap.gap_code}",
+      status: gap.severity,
+      meta: [
+        ["Action", gap.action, false],
+        ["Severity", gap.severity.upcase, true],
+        ["Related evidence", gap.related_evidence.join(", "), true]
+      ],
+      body: tag.p(gap.explanation, class: "muted"),
+      basis_url: app_program_australia_requirements_path %>
+
+    <div class="grid grid-2">
+      <section class="panel">
+        <div class="section-title">Expected evidence</div>
+        <ul>
+          <% gap.expected.each do |item| %>
+            <li><%= item %></li>
+          <% end %>
+        </ul>
+      </section>
+      <section class="panel">
+        <div class="section-title">Observed</div>
+        <ul>
+          <% gap.observed.each do |item| %>
+            <li><%= item %></li>
+          <% end %>
+        </ul>
+      </section>
+    </div>
+  <% end %>
+</div>

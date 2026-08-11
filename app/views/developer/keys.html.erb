@@ -1,0 +1,14 @@
+<% page_title "API keys" %>
+<%= render "shared/page_header", title: "Developer Platform", description: "API keys available to the demo workspace." %>
+<%= render "developer/tabs" %>
+<section class="panel flush">
+  <% @keys.each do |key| %>
+    <div class="list-row">
+      <div style="display:flex;justify-content:space-between;gap:12px">
+        <div><strong><%= key.name %></strong><div class="mono muted"><%= key.token_hint %></div></div>
+        <%= badge(key.status, tone: key.status == "Active" ? "success" : "neutral", dot: true) %>
+      </div>
+      <div class="mono muted">Last used <%= format_utc(key.last_used_at) %></div>
+    </div>
+  <% end %>
+</section>

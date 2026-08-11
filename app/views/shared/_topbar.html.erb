@@ -1,0 +1,24 @@
+<header class="topbar">
+  <button class="icon-button mobile-only" type="button" data-sidebar-open aria-label="Open navigation">menu</button>
+  <div class="org-switcher">
+    <span class="org-initials">DA</span>
+    <span><%= current_organization&.name || "DIT AgTech" %></span>
+    <span class="switcher-chevrons" aria-hidden="true">v</span>
+  </div>
+  <%= badge(current_organization&.environment || "Production", tone: "success", dot: true) %>
+  <div class="topbar-spacer"></div>
+  <%= link_to app_evidence_path, class: "search-button" do %>
+    <span aria-hidden="true">Search</span>
+    <span class="search-label">Search evidence, IDs, endpoints</span>
+    <kbd class="kbd">Cmd K</kbd>
+  <% end %>
+  <%= link_to "Public verification", verify_path, class: "button secondary small" %>
+  <% if user_signed_in? %>
+    <%= button_to "Sign out", destroy_user_session_path, method: :delete, class: "button secondary small" %>
+    <%= link_to app_settings_path, class: "avatar-link", title: current_user.full_name do %>
+      <%= current_user.first_name.first %><%= current_user.last_name.first %>
+    <% end %>
+  <% else %>
+    <%= link_to "Sign in", new_user_session_path, class: "button secondary small" %>
+  <% end %>
+</header>

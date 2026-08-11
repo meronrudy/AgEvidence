@@ -1,0 +1,23 @@
+<% page_title "Australia determinations" %>
+<%= render "programs/australia_header", profile: @profile %>
+
+<section class="stack-sm">
+  <% @determinations.each do |row| %>
+    <%= render "shared/evidence_instrument/evidence_plate",
+      eyebrow: "Determination",
+      title: row.project_name,
+      identifier: row.determination_code,
+      status: row.outcome,
+      meta: [
+        ["Outcome", row.outcome, false],
+        ["Adapter", row.adapter, true],
+        ["Result digest", row.digest, true],
+        ["Published", format_utc(row.published_at), true]
+      ],
+      basis_url: app_determination_path(row.determination_code) %>
+  <% end %>
+</section>
+
+<section class="panel" style="margin-top:14px">
+  <p class="muted">Determinations are append-only. A published determination is superseded by a new determination, never edited.</p>
+</section>

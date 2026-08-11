@@ -1,0 +1,49 @@
+<div class="sidebar-brand">
+  <%= link_to app_home_path, class: "brand-link" do %>
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span>AgEvidence</span>
+  <% end %>
+  <button class="icon-button mobile-only" type="button" data-sidebar-close aria-label="Close navigation">x</button>
+</div>
+
+<nav class="sidebar-nav">
+  <div class="nav-section">
+    <%= nav_link app_home_path, "Overview", exact: true, icon: "O" %>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-heading">Evidence</div>
+    <%= nav_link projects_path, "Projects", icon: "P" %>
+    <% attention_count = current_organization ? EvidenceRecord.joins(:project).where(projects: { organization_id: current_organization.id }, status: ["needs_mapping", "schema_error", "needs_review"]).count : 0 %>
+    <% review_count = current_organization ? Review.joins(:project).where(projects: { organization_id: current_organization.id }, state: "open").count : 0 %>
+    <%= nav_link app_evidence_path, "Evidence Inbox", badge: attention_count, icon: "I" %>
+    <%= nav_link app_reviews_path, "Reviews", badge: review_count, icon: "R" %>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-heading">Policy</div>
+    <%= nav_link app_programs_path, "Programs", icon: "G" %>
+    <%= nav_link app_methodologies_path, "Methodologies", icon: "M" %>
+    <%= nav_link app_program_profiles_path, "Profiles", icon: "F" %>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-heading">Reliance</div>
+    <%= nav_link app_determinations_path, "Determinations", icon: "D" %>
+    <%= nav_link app_artifacts_path, "Artifacts", icon: "A" %>
+    <%= nav_link app_verification_path, "Verification", icon: "V" %>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-heading">System</div>
+    <%= nav_link app_integrations_path, "Integrations", icon: "N" %>
+    <%= nav_link app_developer_webhooks_path, "API & Webhooks", icon: "W" %>
+    <%= nav_link app_developer_path, "Developer", exact: true, icon: "T" %>
+  </div>
+</nav>
+
+<nav class="sidebar-bottom">
+  <%= nav_link app_organization_path, "Organization", icon: "B" %>
+  <%= nav_link app_settings_path, "Settings", icon: "S" %>
+  <%= nav_link app_documentation_path, "Documentation", icon: "D" %>
+</nav>

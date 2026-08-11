@@ -1,0 +1,7 @@
+<% page_title "Project activity" %>
+<%= render "projects/header", project: @project %>
+
+<section class="panel">
+  <div class="section-title">Causal provenance</div>
+  <%= render "shared/evidence_instrument/causal_timeline", items: @activities %>
+</section>

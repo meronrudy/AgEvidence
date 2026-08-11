@@ -1,0 +1,39 @@
+<% page_title "Sign in" %>
+
+<div class="auth-page">
+  <section class="auth-card panel">
+    <%= link_to root_path, class: "brand-link auth-brand" do %>
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>AgEvidence</span>
+    <% end %>
+
+    <div class="auth-heading">
+      <div class="eyebrow">Console access</div>
+      <h1>Sign in to AgEvidence</h1>
+      <p>Use an invited workspace account to review evidence, issue artifacts, and manage integrations.</p>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "auth-form" }) do |form| %>
+      <div>
+        <%= form.label :email, "Login", class: "label" %>
+        <%= form.text_field :email, autofocus: true, autocomplete: "username", required: true, value: "demo" %>
+      </div>
+
+      <div>
+        <%= form.label :password, class: "label" %>
+        <%= form.password_field :password, autocomplete: "current-password", required: true, value: "demo" %>
+      </div>
+
+      <% if devise_mapping.rememberable? %>
+        <label class="check-row">
+          <%= form.check_box :remember_me %>
+          <span>Remember this device</span>
+        </label>
+      <% end %>
+
+      <%= form.submit "Sign in", class: "button primary auth-submit" %>
+    <% end %>
+
+    <%= render "devise/shared/links" %>
+  </section>
+</div>

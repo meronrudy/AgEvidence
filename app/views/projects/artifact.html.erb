@@ -1,0 +1,95 @@
+<% page_title "Reliance artifact" %>
+<%= render "projects/header", project: @project %>
+
+<% determination = ei_project_determination(@project) %>
+
+<section class="panel" style="margin-bottom:16px">
+  <div class="page-header" style="margin:0">
+    <div>
+      <div class="eyebrow">Reliance Artifact</div>
+      <h1 class="mono"><%= @artifact.artifact_code %></h1>
+      <p><%= @artifact.claim %></p>
+      <%= ei_status(@artifact.issued? ? "issued" : "draft", status: @artifact.issued? ? "issued" : "draft") %>
+    </div>
+    <div class="header-actions">
+      <% unless @artifact.issued? %>
+        <%= button_to "Issue artifact", artifact_issue_project_path(@project.slug), method: :post, class: "button primary" %>
+      <% end %>
+      <%= link_to "Download JSON", artifact_download_project_path(@project.slug), class: "button secondary" %>
+      <%= link_to "Download bundle", artifact_bundle_project_path(@project.slug), class: "button secondary" %>
+      <%= link_to "Open verification view", verify_artifact_path(@artifact.artifact_code), class: "button ghost" %>
+    </div>
+  </div>
+</section>
+
+<div class="grid grid-main-side">
+  <section class="panel">
+    <div class="section-title">Artifact basis</div>
+    <div class="stack-sm">
+      <%= render "shared/evidence_instrument/basis_row",
+        kicker: "Determination",
+        title: determination&.outcome || "Determination pending",
+        detail: determination ? "#{determination.determination_code} / #{determination.digest}" : "No determination exists for this artifact.",
+        status: determination ? "human_review" : "draft",
+        url: determination ? app_determination_path(determination.determination_code) : app_determinations_path %>
+      <%= render "shared/evidence_instrument/basis_row",
+        kicker: "Verification",
+        title: "Canonical digest and receipt chain",
+        detail: @artifact.digest,
+        status: @artifact.issued? ? "issued" : "valid",
+        url: verify_artifact_path(@artifact.artifact_code) %>
+    </div>
+  </section>
+
+  <%= render "shared/evidence_instrument/evidence_plate",
+    eyebrow: "Evidence and review",
+    title: "#{@artifact.artifact["evidence"]["accepted"]} accepted evidence items",
+    identifier: @artifact.artifact["schema"],
+    status: @artifact.artifact["evidence"]["critical_gaps"].to_i.zero? ? "valid" : "material_gap",
+    meta: [
+      ["Critical gaps", @artifact.artifact["evidence"]["critical_gaps"], true],
+      ["Limitations", @artifact.limitations.count, true],
+      ["Review decisions", @project.reviews.sum { |r| r.review_decisions.count }, true]
+    ],
+    basis_url: assessment_project_path(@project.slug) %>
+</div>
+
+<div class="grid grid-main-side" style="margin-top:16px">
+  <section class="panel">
+    <div class="section-title">Machine-readable artifact</div>
+    <%= render "shared/json_block", value: @artifact.artifact %>
+  </section>
+  <div class="stack">
+    <section class="panel">
+      <div class="section-title">Integrity checks</div>
+      <div class="stack-sm">
+        <% @artifact.integrity.each do |item| %>
+          <%= render "shared/evidence_instrument/basis_row",
+            kicker: "Integrity",
+            title: item["label"],
+            detail: item["ok"] ? "Check satisfied" : "Check pending until issuance",
+            status: item["ok"] ? "valid" : "draft",
+            url: verify_artifact_path(@artifact.artifact_code) %>
+        <% end %>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="section-title">Reliance limitations</div>
+      <div class="stack-sm">
+        <% @artifact.limitations.each do |item| %>
+          <%= render "shared/evidence_instrument/evidence_plate",
+            eyebrow: "Limitation",
+            title: item["title"],
+            identifier: item["id"],
+            status: "human_review",
+            body: tag.p(item["detail"], class: "muted"),
+            basis_url: app_program_australia_path %>
+        <% end %>
+      </div>
+    </section>
+    <section class="panel">
+      <div class="section-title">Receipt chain</div>
+      <%= key_values(@artifact.receipt_chain.map { |row| [row["label"], row["digest"], true] }) %>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+<ul class="timeline">
+  <% items.each do |item| %>
+    <% time = item.respond_to?(:recorded_at) ? item.recorded_at : item.occurred_at %>
+    <% title = item.respond_to?(:decision) ? "#{item.decision} - #{item.review.title}" : item.title %>
+    <% actor = item.respond_to?(:reviewer) ? item.reviewer : item.actor %>
+    <% detail = item.respond_to?(:rationale) ? item.rationale : item.detail %>
+    <li>
+      <div class="timeline-title"><%= title %></div>
+      <% if detail.present? %>
+        <div class="timeline-meta"><%= detail %></div>
+      <% end %>
+      <div class="timeline-meta mono"><%= actor %> / <%= format_utc(time) %></div>
+    </li>
+  <% end %>
+</ul>

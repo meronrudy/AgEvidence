@@ -1,0 +1,22 @@
+<% page_title "Australia evaluations" %>
+<%= render "programs/australia_header", profile: @profile %>
+<section class="panel flush">
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Evaluation</th><th>Project</th><th>Outcome</th><th>Satisfied</th><th>State</th><th>Evaluated</th><th>Basis</th></tr></thead>
+      <tbody>
+        <% @evaluations.each do |row| %>
+          <tr>
+            <td class="mono"><%= row.evaluation_code %></td>
+            <td><%= row.project_name %></td>
+            <td><%= badge(row.outcome, tone: row.outcome.include?("conditions") ? "warning" : "success", dot: true) %></td>
+            <td class="mono"><%= row.satisfied %></td>
+            <td><%= badge(row.published? ? "PUBLISHED" : "SIMULATION", tone: row.published? ? "info" : "neutral", mono: true) %></td>
+            <td class="mono muted"><%= format_utc(row.evaluated_at) %></td>
+            <td><%= link_to "View basis", app_evaluation_path(row.evaluation_code), class: "ei-basis-link" %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

@@ -1,0 +1,20 @@
+<%= render "shared/page_header",
+  eyebrow: link_to("Programs", app_programs_path) + " / Australia",
+  title: "Australia",
+  description: "#{profile.program} / #{profile.scope}" %>
+
+<div class="grid grid-4" style="margin-bottom:16px">
+  <div class="metric"><div class="metric-value"><%= profile.requirements_count %></div><div class="metric-label">Requirements</div></div>
+  <div class="metric"><div class="metric-value"><%= profile.machine_evaluable %></div><div class="metric-label">Machine evaluable</div></div>
+  <div class="metric"><div class="metric-value"><%= profile.human_review %></div><div class="metric-label">Human review</div></div>
+  <div class="metric"><div class="metric-value"><%= profile.profile_classes %></div><div class="metric-label">Active profile classes</div></div>
+</div>
+
+<div class="tabs" style="margin-bottom:18px">
+  <%= tab_link app_program_australia_path, "Overview", exact: true %>
+  <%= tab_link app_program_australia_requirements_path, "Requirements" %>
+  <%= tab_link app_program_australia_profiles_path, "Profiles" %>
+  <%= tab_link app_program_australia_versions_path, "Versions" %>
+  <%= tab_link app_program_australia_evaluations_path, "Evaluations" %>
+  <%= tab_link app_program_australia_determinations_path, "Determinations" %>
+</div>

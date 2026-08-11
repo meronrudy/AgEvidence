@@ -1,0 +1,27 @@
+<% page_title "Reset password" %>
+
+<div class="auth-page">
+  <section class="auth-card panel">
+    <%= link_to root_path, class: "brand-link auth-brand" do %>
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>AgEvidence</span>
+    <% end %>
+
+    <div class="auth-heading">
+      <div class="eyebrow">Account recovery</div>
+      <h1>Reset your password</h1>
+      <p>Enter your email and AgEvidence will send reset instructions if the account exists.</p>
+    </div>
+
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "auth-form" }) do |form| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+      <div>
+        <%= form.label :email, class: "label" %>
+        <%= form.email_field :email, autofocus: true, autocomplete: "email", required: true %>
+      </div>
+      <%= form.submit "Send reset instructions", class: "button primary auth-submit" %>
+    <% end %>
+
+    <%= render "devise/shared/links" %>
+  </section>
+</div>

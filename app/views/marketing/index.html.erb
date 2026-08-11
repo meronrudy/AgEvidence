@@ -1,0 +1,51 @@
+<% page_title "Portable evidence infrastructure" %>
+<header class="landing-header">
+  <%= link_to root_path, class: "brand-link" do %>
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span>AgEvidence</span>
+  <% end %>
+  <div class="header-actions">
+    <%= link_to "Verify an artifact", verify_path, class: "button secondary small" %>
+    <%= link_to "Open console", app_home_path, class: "button primary small" %>
+  </div>
+</header>
+
+<main class="landing-main">
+  <%= badge("Australia / Methane intervention evidence / Beef", tone: "accent", dot: true) %>
+  <h1 class="landing-title">Portable evidence infrastructure for agricultural climate programs</h1>
+  <p class="lead">
+    AgEvidence converts operational events, controlled source records, model outputs, and human review
+    decisions into portable, independently verifiable reliance artifacts. Not a marketplace -- the
+    evidence layer underneath one.
+  </p>
+
+  <div class="header-actions" style="justify-content:flex-start;margin-top:26px">
+    <%= link_to "Open the console", app_home_path, class: "button primary" %>
+    <%= link_to "Verify RA-AU-000184", verify_artifact_path("RA-AU-000184"), class: "button secondary" %>
+  </div>
+
+  <div class="flow">
+    <% @flow.each_with_index do |step, index| %>
+      <span class="flow-item">
+        <span class="flow-step mono"><%= step %></span>
+        <% if index < @flow.length - 1 %>
+          <span class="flow-arrow" aria-hidden="true">-&gt;</span>
+        <% end %>
+      </span>
+    <% end %>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:48px">
+    <% [
+      ["What evidence do we have?", "Every operational event, source record, and model run, normalized with a digest."],
+      ["What is missing or questionable?", "Country-profile requirements evaluated continuously into ranked, explainable gaps."],
+      ["Who reviewed or transformed it?", "Append-only review decisions, determinations, and receipts for every state change."],
+      ["What can another party rely on?", "A signed reliance artifact any counterparty can verify without internal system access."]
+    ].each do |question, answer| %>
+      <section class="panel">
+        <div class="section-title"><%= question %></div>
+        <p class="muted"><%= answer %></p>
+      </section>
+    <% end %>
+  </div>
+</main>

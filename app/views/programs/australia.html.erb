@@ -1,0 +1,45 @@
+<% page_title "Australia" %>
+<%= render "programs/australia_header", profile: @profile %>
+
+<div class="grid grid-main-side">
+  <%= render "shared/evidence_instrument/profile_stack",
+    title: "Australia / Agricultural Climate Evidence",
+    identifier: "#{@profile.code} #{@profile.profile_version}",
+    layers: ei_profile_stack_layers(@profile),
+    kicker: "Executable profile stack" %>
+
+  <div class="stack">
+    <%= render "shared/evidence_instrument/evidence_plate",
+      eyebrow: "Program",
+      title: @profile.program,
+      identifier: "#{@profile.code} #{@profile.profile_version}",
+      status: @profile.status,
+      meta: [
+        ["Jurisdiction", @profile.name, false],
+        ["Scope", @profile.scope, false],
+        ["Requirements", @profile.requirements_count, true],
+        ["Machine", @profile.machine_evaluable, true],
+        ["Human", @profile.human_review, true],
+        ["Profile classes", @profile.profile_classes, true]
+      ],
+      basis_url: app_program_australia_requirements_path %>
+
+    <section class="panel">
+      <div class="section-title">Run the program</div>
+      <div class="stack-sm">
+        <%= render "shared/evidence_instrument/basis_row",
+          kicker: "Evaluate",
+          title: "Evaluate a project evidence graph",
+          detail: "Apply AU v0.1 to a bounded evidence project.",
+          status: "draft",
+          url: app_program_evaluate_path %>
+        <%= render "shared/evidence_instrument/basis_row",
+          kicker: "Compare",
+          title: "Compare the same evidence across programs",
+          detail: "Inspect where jurisdictional requirements diverge.",
+          status: "unverified",
+          url: app_program_compare_path %>
+      </div>
+    </section>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<% page_title "Projects" %>
+<%= render "shared/page_header",
+  title: "Projects",
+  description: "Evidence projects, their governing profile, requirement state, and current determination path." %>
+
+<%= form_with url: projects_path, method: :get, local: true, class: "filter-bar" do |form| %>
+  <%= form.search_field :q, value: params[:q], class: "input", placeholder: "Search projects, IDs, programs" %>
+  <%= form.select :jurisdiction, options_for_select(@jurisdictions.map { |v| [v, v] }, params[:jurisdiction]), { include_blank: "All jurisdictions" }, class: "select" %>
+  <%= form.select :status, options_for_select(@statuses.map { |v| [v, v] }, params[:status]), { include_blank: "All status" }, class: "select" %>
+  <%= form.submit "Filter", class: "button secondary small" %>
+  <%= link_to "Reset", projects_path, class: "button ghost small" %>
+<% end %>
+
+<section class="stack-sm">
+  <% @projects.each do |project| %>
+    <% state = ei_project_requirement_state(project) %>
+    <% determination = ei_project_determination(project) %>
+    <%= render "shared/evidence_instrument/evidence_plate",
+      eyebrow: "Project",
+      title: project.name,
+      identifier: project.project_code,
+      status: determination&.outcome || project.status,
+      meta: [
+        ["Organization", project.organization.name, false],
+        ["Jurisdiction", project.jurisdiction, false],
+        ["Program", project.program, false],
+        ["Requirements", state.fetch(:satisfied), true],
+        ["Human", state.fetch(:human), false],
+        ["Material gaps", state.fetch(:material), false],
+        ["Determination", determination&.determination_code || "Pending", true],
+        ["Artifact", project.artifact_status, false],
+        ["Updated", format_utc(project.last_activity_at), true]
+      ],
+      basis_url: project_path(project.slug) %>
+  <% end %>
+</section>
+
+<p class="muted"><%= @projects.count %> projects</p>

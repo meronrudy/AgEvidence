@@ -1,0 +1,13 @@
+<div class="ei-basis-row">
+  <div>
+    <div class="ei-kicker"><%= local_assigns.fetch(:kicker, "Basis") %></div>
+    <strong><%= title %></strong>
+    <% if local_assigns[:detail].present? %>
+      <p><%= detail %></p>
+    <% end %>
+  </div>
+  <div class="ei-basis-actions">
+    <%= ei_status(local_assigns.fetch(:status, "unverified")) if local_assigns[:status].present? %>
+    <%= ei_basis_link(url) if local_assigns[:url].present? %>
+  </div>
+</div>

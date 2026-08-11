@@ -1,0 +1,15 @@
+<div class="ei-requirement-state">
+  <div>
+    <div class="ei-kicker"><%= local_assigns.fetch(:label, "Requirement state") %></div>
+    <strong><%= state.fetch(:satisfied) %> requirements satisfied</strong>
+    <% if state[:readiness].present? %>
+      <span class="ei-tertiary"><%= state[:readiness] %>% readiness signal</span>
+    <% end %>
+  </div>
+  <div class="ei-state-grid">
+    <span><span class="ei-glyph ei-glyph--machine"></span><%= state.fetch(:machine) %></span>
+    <span><span class="ei-glyph ei-glyph--human"></span><%= state.fetch(:human) %></span>
+    <span><span class="ei-glyph ei-glyph--gap"></span><%= state.fetch(:material) %></span>
+    <span><span class="ei-glyph ei-glyph--neutral"></span><%= state.fetch(:non_material) %></span>
+  </div>
+</div>

@@ -1,0 +1,55 @@
+<% page_title @determination.determination_code %>
+<%= render "shared/page_header",
+  eyebrow: link_to("Determinations", app_determinations_path) + " / #{@determination.determination_code}",
+  title: @determination.project_name,
+  description: "The institutional conclusion produced from a bounded evidence graph and active program profile." %>
+
+<%= render "shared/evidence_instrument/provenance_rail", nodes: ei_project_provenance_nodes(@project) %>
+
+<div class="grid grid-main-side">
+  <%= render "shared/evidence_instrument/evidence_plate",
+    eyebrow: "Determination",
+    title: @determination.outcome,
+    identifier: @determination.determination_code,
+    status: @determination.outcome,
+    meta: [
+      ["Project", @project.project_code, true],
+      ["Profile", "#{@determination.program_profile.code} #{@determination.program_profile.profile_version}", true],
+      ["Adapter", @determination.adapter, true],
+      ["Result digest", @determination.digest, true],
+      ["Published", format_utc(@determination.published_at), true],
+      ["Artifact", @artifact&.artifact_code || "Pending", true]
+    ],
+    basis_url: @evaluation ? app_evaluation_path(@evaluation.evaluation_code) : assessment_project_path(@project.slug) %>
+
+  <section class="panel">
+    <div class="section-title">Basis</div>
+    <div class="stack-sm">
+      <%= render "shared/evidence_instrument/basis_row",
+        kicker: "Evidence",
+        title: @project.name,
+        detail: @project.project_code,
+        status: @project.open_gaps.positive? ? "human_review" : "valid",
+        url: project_path(@project.slug) %>
+      <%= render "shared/evidence_instrument/basis_row",
+        kicker: "Evaluation",
+        title: @evaluation&.outcome || "Evaluation pending",
+        detail: @evaluation&.satisfied || "No evaluation record",
+        status: @evaluation ? "human_review" : "draft",
+        url: @evaluation ? app_evaluation_path(@evaluation.evaluation_code) : assessment_project_path(@project.slug) %>
+      <% if @artifact %>
+        <%= render "shared/evidence_instrument/basis_row",
+          kicker: "Reliance artifact",
+          title: @artifact.artifact_code,
+          detail: @artifact.digest,
+          status: @artifact.issued? ? "issued" : "draft",
+          url: artifact_project_path(@project.slug) %>
+      <% end %>
+    </div>
+  </section>
+</div>
+
+<section class="panel" style="margin-top:16px">
+  <div class="section-title">Related activity</div>
+  <%= render "shared/evidence_instrument/causal_timeline", items: @activities %>
+</section>

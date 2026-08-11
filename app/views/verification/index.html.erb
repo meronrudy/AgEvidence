@@ -1,0 +1,44 @@
+<% page_title "Verification" %>
+
+<div class="centered-page">
+  <section class="ei-verifier">
+    <header>
+      <div>
+        <div class="ei-kicker">AgEvidence / Verify</div>
+        <h1>Artifact inspection</h1>
+      </div>
+      <%= ei_status("unverified") %>
+    </header>
+
+    <%= form_with url: verify_path, method: :post, local: true, class: "stack-sm" do |form| %>
+      <label class="label" for="artifact_id">Reliance artifact ID</label>
+      <%= text_field_tag :artifact_id, params[:artifact_id], class: "input mono", placeholder: "RA-AU-000184" %>
+      <div><%= form.submit "Verify artifact", class: "button primary" %></div>
+    <% end %>
+
+    <div class="ei-verifier-boundary">
+      <div>
+        <div class="ei-kicker">This verifies</div>
+        <p>Integrity, canonical digest, profile commitment, receipt chain, and artifact provenance.</p>
+      </div>
+      <div>
+        <div class="ei-kicker">This does not assert</div>
+        <p>Independent truth of underlying physical events outside the committed evidence and review boundary.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" style="max-width:920px;margin:0 auto 48px">
+    <div class="section-title">Recent artifacts</div>
+    <div class="stack-sm">
+      <% @recent_artifacts.each do |artifact| %>
+        <%= render "shared/evidence_instrument/basis_row",
+          kicker: "Artifact",
+          title: artifact.artifact_code,
+          detail: artifact.digest,
+          status: artifact.issued? ? "issued" : "draft",
+          url: verify_artifact_path(artifact.artifact_code) %>
+      <% end %>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,28 @@
+<% page_title "Developer platform" %>
+<%= render "shared/page_header",
+  title: "Developer Platform",
+  description: "Project dit-production / Production environment",
+  actions: badge("Production", tone: "success", dot: true) %>
+<%= render "developer/tabs" %>
+
+<div class="grid grid-4" style="margin-bottom:16px">
+  <div class="metric"><div class="metric-label">Events today</div><div class="metric-value"><%= @stats[:events_today] %></div></div>
+  <div class="metric"><div class="metric-label">Acceptance rate</div><div class="metric-value"><%= @stats[:acceptance_rate] %>%</div></div>
+  <div class="metric"><div class="metric-label">Open schema errors</div><div class="metric-value"><%= @stats[:schema_errors] %></div></div>
+  <div class="metric"><div class="metric-label">Webhooks failing</div><div class="metric-value"><%= @stats[:webhooks_failing] %></div></div>
+</div>
+
+<div class="grid grid-main-side">
+  <section class="panel">
+    <div class="section-title">Quick start</div>
+    <ol>
+      <% ["Create project", "Send evidence event", "Inspect projection", "Evaluate country profile", "Generate reliance artifact"].each do |step| %>
+        <li><%= step %></li>
+      <% end %>
+    </ol>
+  </section>
+  <section class="panel">
+    <div class="section-title">Send an evidence event</div>
+    <pre class="code-block mono"><%= @curl_example %></pre>
+  </section>
+</div>

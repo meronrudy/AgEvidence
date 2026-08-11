@@ -1,0 +1,14 @@
+<ol class="ei-causal">
+  <% items.each do |item| %>
+    <% occurred_at = item.respond_to?(:occurred_at) ? item.occurred_at : item.try(:recorded_at) %>
+    <li>
+      <time><%= format_utc(occurred_at) %></time>
+      <strong><%= item.respond_to?(:title) ? item.title : item.decision %></strong>
+      <span><%= item.respond_to?(:detail) ? item.detail : item.rationale %></span>
+      <% code = item.respond_to?(:activity_code) ? item.activity_code : item.try(:decision_code) %>
+      <% if code.present? %>
+        <code><%= code %></code>
+      <% end %>
+    </li>
+  <% end %>
+</ol>

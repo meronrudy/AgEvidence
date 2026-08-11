@@ -1,0 +1,7 @@
+<% page_title "OpenAPI" %>
+<%= render "shared/page_header", title: "Developer Platform", description: "Representative API surface observed in the demo logs." %>
+<%= render "developer/tabs" %>
+<section class="panel">
+  <div class="section-title">Endpoints</div>
+  <pre class="code-block mono"><%= JSON.pretty_generate(@endpoints.map { |method, endpoint| { method: method, endpoint: endpoint } }) %></pre>
+</section>

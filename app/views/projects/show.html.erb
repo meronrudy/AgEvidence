@@ -1,0 +1,74 @@
+<% page_title @project.name %>
+<%= render "projects/header", project: @project %>
+
+<% evaluation = ei_project_evaluation(@project) %>
+<% determination = ei_project_determination(@project) %>
+<% artifact = @project.artifact %>
+
+<div class="grid grid-main-side">
+  <section class="panel">
+    <div class="section-title">Institutional reasoning</div>
+    <div class="stack-sm">
+      <%= render "shared/evidence_instrument/basis_row",
+        kicker: "Source boundary",
+        title: "#{@project.metadata["trial"]} / #{@project.metadata["product_lot"]} / #{@project.metadata["cohort"]}",
+        detail: "Period #{@project.metadata["period"]}. Evidence is bounded before it is evaluated.",
+        status: "valid",
+        url: evidence_project_path(@project.slug) %>
+      <%= render "shared/evidence_instrument/basis_row",
+        kicker: "Program basis",
+        title: "AU Agricultural Climate Evidence v0.1",
+        detail: "Machine and human requirements are evaluated as separate institutional acts.",
+        status: "valid",
+        url: app_program_australia_path %>
+      <%= render "shared/evidence_instrument/basis_row",
+        kicker: "Evaluation",
+        title: evaluation&.outcome || "Evaluation pending",
+        detail: evaluation ? "#{evaluation.satisfied} requirements satisfied" : "No evaluation has been published for this project.",
+        status: evaluation ? "human_review" : "draft",
+        url: evaluation ? app_evaluation_path(evaluation.evaluation_code) : app_program_evaluate_path(project: @project.slug) %>
+      <%= render "shared/evidence_instrument/basis_row",
+        kicker: "Determination",
+        title: determination&.outcome || "No determination",
+        detail: determination ? "#{determination.adapter} / #{determination.digest}" : "A determination has not been published.",
+        status: determination&.outcome.to_s.downcase == "eligible" ? "valid" : "human_review",
+        url: determination ? app_determination_path(determination.determination_code) : app_determinations_path %>
+    </div>
+  </section>
+
+  <div class="stack">
+    <%= render "shared/evidence_instrument/evidence_plate",
+      eyebrow: "Project",
+      title: @project.name,
+      identifier: @project.project_code,
+      status: @project.status,
+      meta: [
+        ["Jurisdiction", @project.jurisdiction, false],
+        ["Program", @project.program, false],
+        ["Scope", @project.scope, false],
+        ["Profile", "AU v0.1", true],
+        ["Open gaps", @project.open_gaps, true],
+        ["Review", @project.review_status, false]
+      ],
+      basis_url: assessment_project_path(@project.slug) %>
+
+    <% if artifact %>
+      <%= render "shared/evidence_instrument/evidence_plate",
+        eyebrow: "Artifact",
+        title: artifact.claim,
+        identifier: artifact.artifact_code,
+        status: artifact.issued? ? "issued" : "draft",
+        meta: [
+          ["Boundary", artifact.boundary, true],
+          ["Digest", artifact.digest, true],
+          ["Status", artifact.status, false]
+        ],
+        basis_url: artifact_project_path(@project.slug) %>
+    <% end %>
+  </div>
+</div>
+
+<section class="panel" style="margin-top:16px">
+  <div class="section-title">Recent causal activity</div>
+  <%= render "shared/evidence_instrument/causal_timeline", items: @activities %>
+</section>

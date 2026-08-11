@@ -1,0 +1,8 @@
+<% page_title params[:id] %>
+
+<div class="centered-page">
+  <%= render "shared/evidence_instrument/verifier_result", artifact: @artifact, identifier: params[:id] %>
+  <div style="max-width:920px;margin:-32px auto 48px">
+    <%= link_to "Back to verification", verify_path, class: "button secondary" %>
+  </div>
+</div>

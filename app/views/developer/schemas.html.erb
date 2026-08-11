@@ -1,0 +1,20 @@
+<% page_title "Schemas" %>
+<%= render "shared/page_header", title: "Developer Platform", description: "Evidence and artifact schemas used by the ingestion pipeline." %>
+<%= render "developer/tabs" %>
+<section class="panel flush">
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Schema</th><th>Version</th><th>Events</th><th>Status</th></tr></thead>
+      <tbody>
+        <% @schemas.each do |schema| %>
+          <tr>
+            <td><%= schema.name %><div class="mono muted"><%= schema.schema_code %></div></td>
+            <td class="mono"><%= schema.version %></td>
+            <td class="mono"><%= schema.events_count %></td>
+            <td><%= badge(schema.status, tone: schema.status == "Active" ? "success" : "info", dot: true) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

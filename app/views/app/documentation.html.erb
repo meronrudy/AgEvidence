@@ -1,0 +1,10 @@
+<% page_title "Documentation" %>
+<%= render "shared/page_header", title: @title, description: @description %>
+<section class="panel flush">
+  <% @docs.each do |schema| %>
+    <div class="list-row">
+      <strong><%= schema.name %></strong>
+      <div class="mono muted">v<%= schema.version %> / <%= schema.events_count %> events / <%= schema.status %></div>
+    </div>
+  <% end %>
+</section>

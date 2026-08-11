@@ -1,0 +1,19 @@
+<%= render "shared/page_header",
+  eyebrow: link_to("Projects", projects_path) + " / #{project.project_code}",
+  title: project.name,
+  description: "#{project.organization.name} / #{project.jurisdiction} / #{project.program} / #{project.scope}" %>
+
+<%= render "shared/evidence_instrument/provenance_rail", nodes: ei_project_provenance_nodes(project) %>
+
+<div style="margin-bottom:18px">
+  <%= render "shared/evidence_instrument/requirement_state", state: ei_project_requirement_state(project), label: "Evidence readiness" %>
+</div>
+
+<div class="tabs" style="margin-bottom:18px">
+  <%= tab_link project_path(project.slug), "Overview", exact: true %>
+  <%= tab_link evidence_project_path(project.slug), "Evidence" %>
+  <%= tab_link assessment_project_path(project.slug), "Assessment" %>
+  <%= tab_link review_project_path(project.slug), "Review" %>
+  <%= tab_link artifact_project_path(project.slug), "Artifact" %>
+  <%= tab_link activity_project_path(project.slug), "Activity" %>
+</div>

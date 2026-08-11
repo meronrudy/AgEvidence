@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><%= content_for?(:title) ? "#{yield(:title)} - AgEvidence" : "AgEvidence" %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <%= stylesheet_link_tag 'application' %>
+  <%= javascript_include_tag 'application' %>
+  <%= csrf_meta_tags %>
+  <%= csp_meta_tag %>
+</head>
+<body class="<%= @app_shell ? "console-body" : "public-body" %>">
+  <% if @app_shell %>
+    <div class="mobile-backdrop" data-sidebar-close></div>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <%= render "shared/sidebar" %>
+      </aside>
+      <div class="app-frame">
+        <%= render "shared/topbar" %>
+        <main class="app-main">
+          <%= render "shared/flash" %>
+          <div class="page-container">
+            <%= yield %>
+          </div>
+        </main>
+      </div>
+    </div>
+  <% else %>
+    <main class="public-main">
+      <%= render "shared/flash" %>
+      <div class="public-container">
+        <%= yield %>
+      </div>
+    </main>
+  <% end %>
+</body>
+</html>

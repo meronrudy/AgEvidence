@@ -1,0 +1,17 @@
+<% page_title "Program profiles" %>
+<%= render "shared/page_header", title: "Country Program Engine", description: "Digest-addressed methodology, requirements, claim, verification, data, and artifact profiles." %>
+<%= render "programs/engine_tabs" %>
+<div class="grid grid-3">
+  <% @profiles.each do |profile| %>
+    <section class="panel">
+      <%= badge(profile.code, tone: "neutral", mono: true) %>
+      <h2><%= profile.name %></h2>
+      <%= key_values([
+        ["Version", profile.profile_version, true],
+        ["Methodology", profile.methodology, false],
+        ["Verification", profile.verification_profile, false],
+        ["Evidence policy", profile.evidence_policy, false]
+      ]) %>
+    </section>
+  <% end %>
+</div>
