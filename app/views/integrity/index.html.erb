@@ -1,0 +1,19 @@
+<% page_title "Integrity" %>
+<%= render "shared/page_header",
+  title: "Integrity",
+  description: "Operational integrity checks for canonical records, lineage, signatures, and statement verification." %>
+
+<section class="panel">
+  <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+    <div class="section-title" style="margin:0">Integrity</div>
+    <%= badge(@integrity_status, tone: "success", mono: true) %>
+  </div>
+  <div class="stack-sm" style="margin-top:18px">
+    <% @integrity_metrics.each do |label, value| %>
+      <div class="list-row" style="display:flex;justify-content:space-between;gap:12px">
+        <strong><%= label %></strong>
+        <span class="mono"><%= value %></span>
+      </div>
+    <% end %>
+  </div>
+</section>

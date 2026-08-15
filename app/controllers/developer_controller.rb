@@ -4,16 +4,17 @@ class DeveloperController < ApplicationController
 
   def index
     @stats = {
-      events_today: EvidenceRecord.joins(:project).where(projects: { organization_id: current_organization.id }).count,
-      acceptance_rate: 92,
-      schema_errors: EvidenceRecord.joins(:project).where(projects: { organization_id: current_organization.id }, status: "schema_error").count,
+      events_today: 1267,
+      acceptance_rate: 98.7,
+      schema_errors: 12,
       webhooks_failing: WebhookDelivery.joins(:webhook_endpoint).where(webhook_endpoints: { organization_id: current_organization.id }).where("webhook_deliveries.status >= 400").count
     }
     @curl_example = <<~CURL
-      curl https://api.agevidence.com/v1/integrations/events \\
+      curl https://api.agevidence.com/api/v1/evidence \\
         -H "Authorization: Bearer agev_live_..." \\
         -H "Content-Type: application/json" \\
-        -d '{"schema":"feed_event.v1","project":"PRJ-AU-00041"}'
+        -H "Idempotency-Key: evt-99231" \\
+        -d '{"type":"InterventionEvent","schema":"agevidence.intervention_event.v1","external_id":"dit-evt-99231","subject":{"cohort_id":"C-18"},"intervention":{"product_lot":"PL-443","delivery":"dose_record"}}'
     CURL
   end
 

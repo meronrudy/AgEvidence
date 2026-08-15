@@ -1,0 +1,31 @@
+<% page_title "Statements" %>
+<%= render "shared/page_header",
+  title: "Evidence Statements",
+  description: "Bounded statements generated from evaluated evidence, human determinations, and profile commitments." %>
+
+<section class="panel flush">
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Statement</th>
+          <th>Scope</th>
+          <th>State</th>
+          <th>Issued</th>
+          <th>Digest</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @statements.each do |statement| %>
+          <tr data-row-link="<%= app_statement_path(statement.artifact_code) %>">
+            <td class="mono"><%= statement.artifact_code %></td>
+            <td><%= statement.claim %></td>
+            <td><%= evidence_badge(statement.status) %></td>
+            <td class="mono muted"><%= statement.issued_at ? format_utc(statement.issued_at) : "not issued" %></td>
+            <td class="mono muted"><%= statement.digest.first(22) %>...</td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

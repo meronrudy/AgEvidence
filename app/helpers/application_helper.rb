@@ -10,12 +10,27 @@ module ApplicationHelper
 
   EVIDENCE_STATUS = {
     "accepted" => ["Accepted", "success"],
+    "available" => ["Available", "success"],
+    "completed" => ["Completed", "success"],
+    "draft" => ["Draft", "neutral"],
+    "issued" => ["Issued", "success"],
     "needs_review" => ["Needs review", "warning"],
+    "needs_more_evidence" => ["Needs more evidence", "warning"],
     "needs_mapping" => ["Needs mapping", "warning"],
     "projected" => ["Projected", "info"],
+    "received" => ["Received", "info"],
+    "recorded" => ["Recorded", "success"],
     "rejected" => ["Rejected", "danger"],
+    "restricted" => ["Restricted", "warning"],
+    "running" => ["Running", "info"],
     "schema_error" => ["Schema error", "danger"],
-    "pending" => ["Pending", "neutral"]
+    "pending" => ["Pending", "neutral"],
+    "queued" => ["Queued", "neutral"],
+    "ready" => ["Ready to issue", "success"],
+    "ready_with_qualification" => ["Ready with qualification", "warning"],
+    "revoked" => ["Revoked", "danger"],
+    "superseded" => ["Superseded", "neutral"],
+    "validated" => ["Validated", "success"]
   }.freeze
 
   def page_title(title)

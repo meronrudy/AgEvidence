@@ -1,16 +1,23 @@
-<% page_title "Program profiles" %>
-<%= render "shared/page_header", title: "Country Program Engine", description: "Digest-addressed methodology, requirements, claim, verification, data, and artifact profiles." %>
+<% page_title "Profiles" %>
+<%= render "shared/page_header",
+  title: "Program Profiles",
+  description: "Operational profile definitions maintained by the hosted Evidence Plane." %>
 <%= render "programs/engine_tabs" %>
-<div class="grid grid-3">
+
+<div class="grid grid-2">
   <% @profiles.each do |profile| %>
     <section class="panel">
-      <%= badge(profile.code, tone: "neutral", mono: true) %>
-      <h2><%= profile.name %></h2>
+      <div style="display:flex;justify-content:space-between;gap:12px">
+        <strong><%= profile.name %></strong>
+        <%= badge(profile.status.upcase, tone: profile.status == "Operational" ? "success" : "warning", mono: true) %>
+      </div>
       <%= key_values([
+        ["Code", profile.code, true],
         ["Version", profile.profile_version, true],
-        ["Methodology", profile.methodology, false],
-        ["Verification", profile.verification_profile, false],
-        ["Evidence policy", profile.evidence_policy, false]
+        ["Requirements", profile.requirements_count, true],
+        ["Machine", profile.machine_evaluable, true],
+        ["Human / hybrid", profile.human_review, true],
+        ["Effective", profile.effective_from&.strftime("%d %b %Y") || "n/a", true]
       ]) %>
     </section>
   <% end %>

@@ -1,19 +1,23 @@
-<% page_title "Reliance artifact" %>
+<% page_title "Evidence Statement" %>
 <%= render "projects/header", project: @project %>
 
 <% determination = ei_project_determination(@project) %>
+<% artifact_evidence = @artifact.artifact["evidence"] || {
+  "accepted" => @project.evidence_records.where(status: "accepted").count,
+  "critical_gaps" => @project.gaps.open.blocking.count
+} %>
 
 <section class="panel" style="margin-bottom:16px">
   <div class="page-header" style="margin:0">
     <div>
-      <div class="eyebrow">Reliance Artifact</div>
+      <div class="eyebrow">Evidence Statement</div>
       <h1 class="mono"><%= @artifact.artifact_code %></h1>
       <p><%= @artifact.claim %></p>
       <%= ei_status(@artifact.issued? ? "issued" : "draft", status: @artifact.issued? ? "issued" : "draft") %>
     </div>
     <div class="header-actions">
       <% unless @artifact.issued? %>
-        <%= button_to "Issue artifact", artifact_issue_project_path(@project.slug), method: :post, class: "button primary" %>
+        <%= button_to "Issue statement", artifact_issue_project_path(@project.slug), method: :post, class: "button primary" %>
       <% end %>
       <%= link_to "Download JSON", artifact_download_project_path(@project.slug), class: "button secondary" %>
       <%= link_to "Download bundle", artifact_bundle_project_path(@project.slug), class: "button secondary" %>
@@ -24,12 +28,12 @@
 
 <div class="grid grid-main-side">
   <section class="panel">
-    <div class="section-title">Artifact basis</div>
+    <div class="section-title">Statement basis</div>
     <div class="stack-sm">
       <%= render "shared/evidence_instrument/basis_row",
         kicker: "Determination",
         title: determination&.outcome || "Determination pending",
-        detail: determination ? "#{determination.determination_code} / #{determination.digest}" : "No determination exists for this artifact.",
+        detail: determination ? "#{determination.determination_code} / #{determination.digest}" : "No determination exists for this statement.",
         status: determination ? "human_review" : "draft",
         url: determination ? app_determination_path(determination.determination_code) : app_determinations_path %>
       <%= render "shared/evidence_instrument/basis_row",
@@ -43,11 +47,11 @@
 
   <%= render "shared/evidence_instrument/evidence_plate",
     eyebrow: "Evidence and review",
-    title: "#{@artifact.artifact["evidence"]["accepted"]} accepted evidence items",
-    identifier: @artifact.artifact["schema"],
-    status: @artifact.artifact["evidence"]["critical_gaps"].to_i.zero? ? "valid" : "material_gap",
+    title: "#{artifact_evidence["accepted"]} accepted evidence items",
+    identifier: @artifact.artifact["schema"] || @artifact.contract_version,
+    status: artifact_evidence["critical_gaps"].to_i.zero? ? "valid" : "material_gap",
     meta: [
-      ["Critical gaps", @artifact.artifact["evidence"]["critical_gaps"], true],
+      ["Critical gaps", artifact_evidence["critical_gaps"], true],
       ["Limitations", @artifact.limitations.count, true],
       ["Review decisions", @project.reviews.sum { |r| r.review_decisions.count }, true]
     ],
@@ -56,7 +60,7 @@
 
 <div class="grid grid-main-side" style="margin-top:16px">
   <section class="panel">
-    <div class="section-title">Machine-readable artifact</div>
+    <div class="section-title">Machine-readable statement</div>
     <%= render "shared/json_block", value: @artifact.artifact %>
   </section>
   <div class="stack">

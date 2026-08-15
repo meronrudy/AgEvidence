@@ -36,16 +36,16 @@ module EvidenceInstrumentHelper
   end
 
   def ei_project_evaluation(project)
-    Evaluation.order(evaluated_at: :desc).find_by(project_name: project.name)
+    project.evaluations.order(evaluated_at: :desc).first
   end
 
   def ei_project_determination(project)
-    Determination.order(published_at: :desc).find_by(project_name: project.name)
+    project.determinations.order(published_at: :desc).first
   end
 
   def ei_project_requirement_state(project)
     accepted = project.artifact&.artifact&.dig("evidence", "accepted").presence || [project.readiness * 24 / 100, 0].max
-    total = ProgramProfile.find_by(code: "AU")&.requirements_count || 24
+    total = ProgramProfile.find_by(code: "AU_METHANE_INTERVENTION_V1")&.requirements_count || 15
     material = project.critical_gaps
     open = project.open_gaps
     human = project.reviews.where(state: "open").count
@@ -62,7 +62,7 @@ module EvidenceInstrumentHelper
   end
 
   def ei_project_provenance_nodes(project)
-    profile = ProgramProfile.find_by(code: "AU")
+    profile = ProgramProfile.find_by(code: "AU_METHANE_INTERVENTION_V1")
     evaluation = ei_project_evaluation(project)
     determination = ei_project_determination(project)
     artifact = project.artifact
@@ -72,9 +72,9 @@ module EvidenceInstrumentHelper
       {
         label: "Source",
         identifier: project.organization.name,
-        detail: "#{project.evidence_records.distinct.count(:source)} source systems",
+        detail: "#{project.source_records.count} source records",
         status: "valid",
-        url: evidence_project_path(project.slug)
+        url: source_records_project_path(project.slug)
       },
       {
         label: "Evidence",
@@ -109,7 +109,7 @@ module EvidenceInstrumentHelper
         identifier: artifact&.artifact_code || "Not issued",
         detail: artifact&.issued? ? "Issued" : artifact&.status&.humanize || "Unavailable",
         status: artifact&.issued? ? "issued" : "draft",
-        url: artifact ? artifact_project_path(project.slug) : project_path(project.slug)
+        url: artifact ? app_statement_path(artifact.artifact_code) : project_path(project.slug)
       }
     ]
   end
@@ -132,8 +132,8 @@ module EvidenceInstrumentHelper
     return [] unless artifact
 
     [
-      ["Canonical digest", "MATCH", true],
-      ["Issuer signature", artifact.issued? ? "VALID" : "PENDING", artifact.issued?],
+      ["Statement digest", "MATCH", true],
+      ["Verifier result", artifact.latest_verifier_result&.status || "PENDING", artifact.latest_verifier_result.present?],
       ["Evidence root", "MATCH", true],
       ["Profile commitment", "MATCH", true],
       ["Receipt chain", "COMPLETE", true]

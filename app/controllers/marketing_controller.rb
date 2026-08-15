@@ -1,8 +1,8 @@
 class MarketingController < ApplicationController
   def index
     @flow = [
-      "Connect", "Ingest Evidence", "Normalize", "Assess", "Find Gaps",
-      "Human Review", "Assemble", "Issue", "Verify", "Rely"
+      "SDK", "Ingest", "Evaluate", "Find Gaps", "Review",
+      "Determine", "Statement", "Issue", "Share", "Verify"
     ]
   end
 end

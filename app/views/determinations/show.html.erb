@@ -18,7 +18,7 @@
       ["Adapter", @determination.adapter, true],
       ["Result digest", @determination.digest, true],
       ["Published", format_utc(@determination.published_at), true],
-      ["Artifact", @artifact&.artifact_code || "Pending", true]
+      ["Statement", @artifact&.artifact_code || "Pending", true]
     ],
     basis_url: @evaluation ? app_evaluation_path(@evaluation.evaluation_code) : assessment_project_path(@project.slug) %>
 
@@ -39,11 +39,11 @@
         url: @evaluation ? app_evaluation_path(@evaluation.evaluation_code) : assessment_project_path(@project.slug) %>
       <% if @artifact %>
         <%= render "shared/evidence_instrument/basis_row",
-          kicker: "Reliance artifact",
+          kicker: "Evidence Statement",
           title: @artifact.artifact_code,
           detail: @artifact.digest,
           status: @artifact.issued? ? "issued" : "draft",
-          url: artifact_project_path(@project.slug) %>
+          url: app_statement_path(@artifact.artifact_code) %>
       <% end %>
     </div>
   </section>

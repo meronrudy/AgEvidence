@@ -10,9 +10,9 @@
             <td><strong><%= requirement.title %></strong><div class="mono muted"><%= requirement.requirement_code %></div></td>
             <td><%= requirement.program_profile.name %></td>
             <td><%= requirement.category %></td>
-            <td><%= badge(requirement.evaluation_mode, tone: requirement.evaluation_mode == "Machine" ? "info" : "warning") %></td>
+            <td><%= badge(requirement.evaluation_mode, tone: requirement.evaluation_mode == "machine evaluable" ? "info" : "warning") %></td>
             <td><%= badge(requirement.status, tone: "success", dot: true) %></td>
-            <td class="mono muted"><%= requirement.accepted_evidence.join(", ") %></td>
+            <td class="mono muted"><%= requirement.accepted_evidence.map { |item| item.is_a?(Hash) ? item["schema"] : item }.join(", ") %></td>
           </tr>
         <% end %>
       </tbody>

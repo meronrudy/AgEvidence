@@ -1,0 +1,80 @@
+<% page_title @statement.artifact_code %>
+<%= render "shared/page_header",
+  eyebrow: link_to("Statements", app_statements_path) + " / #{@statement.artifact_code}",
+  title: "AgEvidence Evidence Statement",
+  description: "#{@statement.claim} · #{@statement.boundary}",
+  actions: safe_join([
+    (@statement.issued? ? badge("ISSUED", tone: "success", mono: true) : button_to("Issue statement", issue_app_statement_path(@statement.artifact_code), method: :post, class: "button primary small"))
+  ]) %>
+
+<div class="grid grid-main-side">
+  <section class="panel">
+    <div class="section-title"><%= @statement.artifact_code %></div>
+    <%= key_values([
+      ["Scope", @statement.claim, false],
+      ["Period", @statement.artifact["period"] || "12 Jun - 19 Jul 2026", false],
+      ["Profile", @statement.program, false],
+      ["Evidence records", @statement.artifact["evidence_records"] || @project.evidence_records.count, true],
+      ["Evaluation", @evaluation&.outcome || "Pending", false],
+      ["Human determinations", @statement.artifact["human_determinations"] || @project.determinations.count, true],
+      ["Qualifications", @statement.limitations.count, true],
+      ["Integrity", "VALID", true],
+      ["Digest", @statement.digest, true]
+    ]) %>
+  </section>
+
+  <section class="panel">
+    <div class="section-title">Sharing</div>
+    <%= form_with url: app_statement_shares_path(@statement.artifact_code), method: :post, local: true do |form| %>
+      <div class="field">
+        <%= label_tag "statement_share_access_level", "Access level" %>
+        <%= select_tag "statement_share[access_level]", options_for_select([["Statement only", "statement_only"], ["Statement and summary", "statement_and_summary"], ["Full bundle", "full_bundle"]], "statement_and_summary") %>
+      </div>
+      <div class="field">
+        <%= label_tag "statement_share_expires_in_days", "Expires in days" %>
+        <%= number_field_tag "statement_share[expires_in_days]", 30, min: 1 %>
+      </div>
+      <%= form.submit "Create share link", class: "button secondary" %>
+    <% end %>
+    <div class="section-title" style="margin-top:18px">Active links</div>
+    <div class="stack-sm">
+      <% @shares.each do |share| %>
+        <div class="list-row" style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+          <div>
+            <strong><%= share.access_level.humanize %></strong>
+            <div class="mono muted">expires <%= format_utc(share.expires_at) %> / accessed <%= share.access_count %></div>
+          </div>
+          <% if share.revoked_at %>
+            <%= badge("REVOKED", tone: "danger", mono: true) %>
+          <% else %>
+            <%= button_to "Revoke", app_statement_share_path(@statement.artifact_code, share), method: :delete, class: "button ghost small" %>
+          <% end %>
+        </div>
+      <% end %>
+      <% if @shares.empty? %>
+        <p class="muted">No share links have been created for this statement.</p>
+      <% end %>
+    </div>
+  </section>
+</div>
+
+<section class="panel" style="margin-top:16px">
+  <div class="section-title">Qualifications</div>
+  <div class="stack-sm">
+    <% @statement.limitations.each do |limitation| %>
+      <div class="list-row">
+        <strong><%= limitation["title"] || limitation["code"] || limitation["id"] %></strong>
+        <p class="muted" style="margin:8px 0 0"><%= limitation["detail"] || limitation["statement"] %></p>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<section class="panel" style="margin-top:16px">
+  <div class="section-title">Receipt chain</div>
+  <div class="stack-sm">
+    <% @statement.receipt_chain.each do |item| %>
+      <div class="mono"><%= item["label"] %>: <%= item["digest"] %></div>
+    <% end %>
+  </div>
+</section>

@@ -28,7 +28,7 @@
         ["Human", state.fetch(:human), false],
         ["Material gaps", state.fetch(:material), false],
         ["Determination", determination&.determination_code || "Pending", true],
-        ["Artifact", project.artifact_status, false],
+        ["Statement", project.artifact_status, false],
         ["Updated", format_utc(project.last_activity_at), true]
       ],
       basis_url: project_path(project.slug) %>

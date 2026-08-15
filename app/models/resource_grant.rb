@@ -3,12 +3,13 @@ class ResourceGrant < ApplicationRecord
   belongs_to :user
   belongs_to :grantable, polymorphic: true
   belongs_to :granted_by_user, class_name: 'User', optional: true
+  belongs_to :revoked_by_user, class_name: 'User', optional: true
 
   validates :user_id, :grantable_type, :grantable_id, presence: true
   validates :access_level, inclusion: { in: %w[read write admin] }
   validates :expires_at, presence: true
 
-  scope :active, -> { where('expires_at > ?', Time.current) }
+  scope :active, -> { where(revoked_at: nil).where('expires_at > ?', Time.current) }
   scope :expired, -> { where('expires_at <= ?', Time.current) }
   scope :for_artifact, -> { where(grantable_type: 'Artifact') }
   scope :for_evidence_record, -> { where(grantable_type: 'EvidenceRecord') }
@@ -19,8 +20,16 @@ class ResourceGrant < ApplicationRecord
     expires_at <= Time.current
   end
 
-  def revoke!
-    update!(expires_at: Time.current, revoked_at: Time.current)
+  def revoked?
+    revoked_at.present?
+  end
+
+  def revoke!(revoked_by: nil)
+    update!(expires_at: Time.current, revoked_at: Time.current, revoked_by_user: revoked_by)
+  end
+
+  def record_download!
+    update!(last_downloaded_at: Time.current)
   end
 
   def self.grant_artifact_access(user, artifact, granted_by, expires_in: 30.days, access_level: 'read')

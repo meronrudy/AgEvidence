@@ -7,46 +7,62 @@ class ActionsTest < ActionDispatch::IntegrationTest
 
   test "records a review decision" do
     sign_in_demo_user!
-    review = Review.find_by!(review_code: "RV-202")
+    review = Review.find_by!(review_code: "RV-201")
 
     assert_difference -> { review.review_decisions.count }, 1 do
       assert_difference -> { AuditEvent.where(action: "review_decision_created").count }, 1 do
-      post review_decisions_project_path("dit-au-methane"), params: {
-        review_code: review.review_code,
-        decision: "Accept",
-        rationale: "Verifier organization confirmed.",
-        limitation: ""
-      }
+        post review_decisions_project_path("dit-production"), params: {
+          review_code: review.review_code,
+          decision: "SUPPORTED WITH QUALIFICATION",
+          rationale: "Secondary evidence supports treatment continuity.",
+          limitation: "Primary telemetry unavailable for 4h17m."
+        }
       end
     end
 
-    assert_redirected_to review_project_path("dit-au-methane", review: review.review_code)
+    assert_redirected_to review_project_path("dit-production", review: review.review_code)
   end
 
-  test "issues artifact and persists signature state" do
+  test "issues statement without mutating statement substance" do
     sign_in_demo_user!
-    artifact = Artifact.find_by!(artifact_code: "RA-AU-000184")
-    artifact.update!(issued: false, issued_at: nil, status: "ready")
+    Project.find_by!(slug: "dit-production").reviews.update_all(state: "decided")
+    artifact = Artifact.find_by!(artifact_code: "AE-AU-000184")
+    artifact.update!(issued: false, issued_at: nil, status: "ready_with_qualification")
 
     assert_difference -> { AuditEvent.where(action: "artifact_issued").count }, 1 do
-      post artifact_issue_project_path("dit-au-methane")
+      assert_difference -> { VerifierResult.where(status: "locally_consistent").count }, 1 do
+        post artifact_issue_project_path("dit-production")
+      end
     end
 
-    assert_redirected_to artifact_project_path("dit-au-methane")
+    assert_redirected_to artifact_project_path("dit-production")
     artifact.reload
     assert artifact.issued?
     assert_equal "issued", artifact.status
-    assert artifact.artifact.fetch("integrity").key?("signature")
+    refute artifact.artifact.fetch("integrity", {}).key?("signature")
   end
 
-  test "downloads artifact json" do
+  test "downloads statement json through legacy artifact route" do
     sign_in_demo_user!
 
-    get artifact_download_project_path("dit-au-methane")
+    get artifact_download_project_path("dit-production")
 
     assert_response :success
     assert_equal "application/json", response.media_type
-    assert_includes response.body, "RA-AU-000184"
+    assert_includes response.body, "AE-AU-000184"
+  end
+
+  test "bundle includes public source records without restricted metadata" do
+    sign_in_demo_user!
+
+    get artifact_bundle_project_path("dit-production")
+
+    assert_response :success
+    assert_equal "application/json", response.media_type
+    payload = JSON.parse(response.body)
+    assert_equal "artifact-bundle.v0", payload.fetch("contract_version")
+    assert payload.fetch("source_records").any? { |record| record["record_code"] == "SR-DIT-SDK" }
+    refute_includes response.body, "restricted_reason"
   end
 
   test "retries webhook delivery" do
@@ -62,10 +78,10 @@ class ActionsTest < ActionDispatch::IntegrationTest
     assert_equal original_attempt + 1, delivery.reload.attempt
   end
 
-  test "verification lookup redirects to artifact result" do
-    post verify_path, params: { artifact_id: "RA-AU-000184" }
+  test "verification lookup redirects to statement result" do
+    post verify_path, params: { artifact_id: "AE-AU-000184" }
 
-    assert_redirected_to verify_artifact_path("RA-AU-000184")
+    assert_redirected_to verify_artifact_path("AE-AU-000184")
   end
 
   test "accepts invitation and signs in new user" do

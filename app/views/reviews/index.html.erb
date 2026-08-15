@@ -1,0 +1,31 @@
+<% page_title "Reviews" %>
+<%= render "shared/page_header",
+  title: "Reviews",
+  description: "Human review requirements that separate machine evaluation from institutional judgment." %>
+
+<section class="panel flush">
+  <% @reviews.each do |review| %>
+    <div class="list-row">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+        <div>
+          <strong class="mono"><%= review.review_code %></strong>
+          <div><%= review.title %></div>
+          <div class="mono muted">Requirement <%= review.requirement_code %></div>
+          <p class="muted" style="margin:8px 0 0">Primary telemetry unavailable for 4h17m</p>
+          <div class="mono muted">Machine result: INSUFFICIENT PRIMARY EVIDENCE</div>
+        </div>
+        <div style="text-align:right">
+          <%= badge(review.state == "open" ? "REVIEW REQUIRED" : review.state.upcase, tone: review.state == "open" ? "warning" : "success", mono: true) %>
+          <div style="margin-top:8px"><%= link_to "Open", app_review_path(review.review_code), class: "button secondary small" %></div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</section>
+
+<% if @reviews.empty? %>
+  <%= render "shared/evidence_instrument/field_empty",
+    title: "No reviews",
+    detail: "No human review requirements are open for the current organization.",
+    kicker: "Review" %>
+<% end %>

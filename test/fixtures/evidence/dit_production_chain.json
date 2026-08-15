@@ -1,0 +1,50 @@
+{
+  "organization": "DIT AgTech",
+  "workspace": {
+    "slug": "dit-production",
+    "project_code": "PRJ-AU-00041",
+    "name": "DIT Production Evidence"
+  },
+  "profile": {
+    "code": "AU_METHANE_INTERVENTION_V1",
+    "version": "v1.0"
+  },
+  "records": [
+    {
+      "id": "SRC-PL-443",
+      "type": "SourceRecord",
+      "label": "Product lot",
+      "schema": "agevidence.source_record.v1"
+    },
+    {
+      "id": "SRC-C-18",
+      "type": "SourceRecord",
+      "label": "Animal cohort",
+      "schema": "agevidence.source_record.v1"
+    },
+    {
+      "id": "EVT-99231",
+      "type": "InterventionEvent",
+      "label": "Feed intervention delivery",
+      "schema": "agevidence.intervention_event.v1"
+    },
+    {
+      "id": "OP-22019",
+      "type": "OperationalEvent",
+      "label": "Pump telemetry continuity",
+      "schema": "agevidence.operational_event.v1"
+    },
+    {
+      "id": "OBS-828",
+      "type": "Observation",
+      "label": "Methane measurement",
+      "schema": "agevidence.observation.v1"
+    },
+    {
+      "id": "MR-334",
+      "type": "ModelRun",
+      "label": "Modeled reduction",
+      "schema": "agevidence.model_run.v1"
+    }
+  ]
+}

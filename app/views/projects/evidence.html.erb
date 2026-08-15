@@ -45,6 +45,7 @@
           ["ID", @selected_record.record_code, true],
           ["Schema", @selected_record.schema_name, true],
           ["Source", @selected_record.source, false],
+          ["Source record", @selected_record.source_record&.record_code || "Unlinked", true],
           ["Evidence type", @selected_record.payload["evidence_type"] || @selected_record.record_type, true],
           ["Lot", @selected_record.payload["lot"] || @project.metadata["product_lot"], true],
           ["Cohort", @selected_record.payload["cohort"] || @project.metadata["cohort"], true],

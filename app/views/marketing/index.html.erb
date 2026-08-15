@@ -5,7 +5,7 @@
     <span>AgEvidence</span>
   <% end %>
   <div class="header-actions">
-    <%= link_to "Verify an artifact", verify_path, class: "button secondary small" %>
+    <%= link_to "Verify a statement", verify_path, class: "button secondary small" %>
     <%= link_to "Open console", app_home_path, class: "button primary small" %>
   </div>
 </header>
@@ -14,14 +14,13 @@
   <%= badge("Australia / Methane intervention evidence / Beef", tone: "accent", dot: true) %>
   <h1 class="landing-title">Portable evidence infrastructure for agricultural climate programs</h1>
   <p class="lead">
-    AgEvidence converts operational events, controlled source records, model outputs, and human review
-    decisions into portable, independently verifiable reliance artifacts. Not a marketplace -- the
-    evidence layer underneath one.
+    AgEvidence keeps canonical evidence operating after the free SDK emits it: continuous ingestion,
+    evaluation, human review, determinations, Evidence Statements, sharing, and public integrity checks.
   </p>
 
   <div class="header-actions" style="justify-content:flex-start;margin-top:26px">
     <%= link_to "Open the console", app_home_path, class: "button primary" %>
-    <%= link_to "Verify RA-AU-000184", verify_artifact_path("RA-AU-000184"), class: "button secondary" %>
+    <%= link_to "Verify AE-AU-000184", verify_artifact_path("AE-AU-000184"), class: "button secondary" %>
   </div>
 
   <div class="flow">
@@ -40,7 +39,7 @@
       ["What evidence do we have?", "Every operational event, source record, and model run, normalized with a digest."],
       ["What is missing or questionable?", "Country-profile requirements evaluated continuously into ranked, explainable gaps."],
       ["Who reviewed or transformed it?", "Append-only review decisions, determinations, and receipts for every state change."],
-      ["What can another party rely on?", "A signed reliance artifact any counterparty can verify without internal system access."]
+      ["What can be shared externally?", "A bounded Evidence Statement a recipient can inspect through public verification without internal system access."]
     ].each do |question, answer| %>
       <section class="panel">
         <div class="section-title"><%= question %></div>

@@ -33,7 +33,15 @@ class ArtifactPolicy < ApplicationPolicy
     show?
   end
 
+  def verify?
+    show?
+  end
+
   def issue?
+    has_any_role?(:org_admin, :operator, :approver)
+  end
+
+  def share?
     has_any_role?(:org_admin, :operator, :approver)
   end
 

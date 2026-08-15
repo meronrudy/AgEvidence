@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agevidence.example/contracts/error-response.v0.json",
+  "contract_version": "error-response.v0",
+  "title": "AgEvidence Error Response v0",
+  "type": "object",
+  "required": ["contract_version", "request_id", "error"],
+  "properties": {
+    "contract_version": { "const": "error-response.v0" },
+    "request_id": { "type": "string" },
+    "error": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": { "type": "string" },
+        "message": { "type": "string" },
+        "details": { "type": "object" }
+      }
+    }
+  },
+  "examples": [
+    {
+      "contract_version": "error-response.v0",
+      "request_id": "req_123",
+      "error": {
+        "code": "validation_failed",
+        "message": "Controlled uri must use https://, s3://, or evidence://"
+      }
+    }
+  ],
+  "x-negative_examples": [
+    { "description": "Unversioned error", "payload": { "error": { "code": "validation_failed" } } },
+    { "description": "Missing code", "payload": { "contract_version": "error-response.v0", "request_id": "req_123", "error": { "message": "Invalid" } } }
+  ]
+}

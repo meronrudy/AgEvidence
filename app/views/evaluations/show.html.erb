@@ -1,8 +1,8 @@
 <% page_title @evaluation.evaluation_code %>
 <%= render "shared/page_header",
-  eyebrow: link_to("Program evaluations", app_program_australia_evaluations_path) + " / #{@evaluation.evaluation_code}",
+  eyebrow: link_to("Evaluations", app_evaluations_path) + " / #{@evaluation.evaluation_code}",
   title: @evaluation.project_name,
-  description: "Requirement evaluation under #{@evaluation.program_profile.code} #{@evaluation.program_profile.profile_version}." %>
+  description: "Continuous requirement evaluation under #{@evaluation.program_profile.name} #{@evaluation.program_profile.profile_version}." %>
 
 <%= render "shared/evidence_instrument/provenance_rail", nodes: ei_project_provenance_nodes(@project) %>
 
@@ -18,7 +18,7 @@
       ["Published", @evaluation.published? ? "Yes" : "No", false],
       ["Evaluated", format_utc(@evaluation.evaluated_at), true],
       ["Determination", @determination&.determination_code || "Pending", true],
-      ["Artifact", @artifact&.artifact_code || "Pending", true]
+      ["Statement", @artifact&.artifact_code || "Pending", true]
     ],
     basis_url: assessment_project_path(@project.slug) %>
 

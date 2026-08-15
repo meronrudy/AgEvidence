@@ -1,0 +1,74 @@
+<% page_title @review.review_code %>
+<%= render "shared/page_header",
+  eyebrow: link_to("Reviews", app_reviews_path) + " / #{@review.review_code}",
+  title: @review.title,
+  description: "Requirement #{@review.requirement_code} requires institutional judgment before statement issuance." %>
+
+<div class="grid grid-main-side">
+  <section class="panel">
+    <div class="section-title">Evidence used</div>
+    <div class="stack-sm">
+      <%= render "shared/evidence_instrument/basis_row",
+        kicker: "Primary evidence",
+        title: "Telemetry",
+        detail: "Primary pump telemetry unavailable for 4h17m",
+        status: "human_review",
+        url: app_evidence_records_path(selected: "OP-22019") %>
+      <%= render "shared/evidence_instrument/basis_row",
+        kicker: "Secondary evidence",
+        title: "Flow meter record",
+        detail: "Operational continuity observed through secondary meter record.",
+        status: "valid",
+        url: app_evidence_records_path(selected: "OP-22019") %>
+      <%= render "shared/evidence_instrument/basis_row",
+        kicker: "Operational evidence",
+        title: "Operator event",
+        detail: "Expected treatment schedule linked to EVT-99231.",
+        status: "valid",
+        url: app_evidence_records_path(selected: "EVT-99231") %>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="section-title">Decision</div>
+    <%= key_values([
+      ["State", @review.state == "open" ? "REVIEW REQUIRED" : @review.state.upcase, true],
+      ["Requirement", @review.requirement_code, true],
+      ["Machine result", "INSUFFICIENT PRIMARY EVIDENCE", true],
+      ["Reason", "Primary telemetry unavailable for 4h17m", false]
+    ]) %>
+    <%= form_with url: review_decisions_project_path(@project.slug), method: :post, local: true, style: "margin-top:16px" do |form| %>
+      <%= hidden_field_tag :review_code, @review.review_code %>
+      <div class="field">
+        <%= label_tag :decision, "Decision" %>
+        <%= select_tag :decision, options_for_select(["SUPPORTED", "SUPPORTED WITH QUALIFICATION", "NOT SUPPORTED", "MORE EVIDENCE REQUIRED"], "SUPPORTED WITH QUALIFICATION") %>
+      </div>
+      <div class="field">
+        <%= label_tag :rationale, "Rationale" %>
+        <%= text_area_tag :rationale, "Secondary flow meter and operator event evidence support treatment continuity during the primary telemetry gap." %>
+      </div>
+      <div class="field">
+        <%= label_tag :limitation, "Qualification" %>
+        <%= text_area_tag :limitation, "Primary pump telemetry was unavailable for 4h17m; continuity is supported by secondary operational evidence." %>
+      </div>
+      <%= form.submit "Record decision", class: "button primary" %>
+    <% end %>
+  </section>
+</div>
+
+<section class="panel" style="margin-top:16px">
+  <div class="section-title">Decision history</div>
+  <% if @decisions.any? %>
+    <div class="stack-sm">
+      <% @decisions.each do |decision| %>
+        <div class="list-row">
+          <strong><%= decision.decision %></strong>
+          <div class="mono muted"><%= decision.decision_code %> / <%= format_utc(decision.recorded_at) %></div>
+          <p class="muted" style="margin:8px 0 0"><%= decision.rationale %></p>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="muted">No human decision has been recorded for this review.</p>
+  <% end %>
+</section>

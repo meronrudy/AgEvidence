@@ -1,0 +1,39 @@
+<% page_title "Profile Versions" %>
+<%= render "shared/page_header",
+  title: "Profile Versions",
+  description: "Profile update impact maintained by the hosted Evidence Plane." %>
+<%= render "programs/engine_tabs" %>
+
+<div class="grid grid-main-side">
+  <section class="panel">
+    <div class="section-title">Profile update</div>
+    <%= key_values([
+      ["Current", @current_profile ? "#{@current_profile.profile_version} CURRENT" : "n/a", true],
+      ["Pending", @pending_profile ? "#{@pending_profile.profile_version} PENDING" : "n/a", true],
+      ["Effective", @pending_profile&.effective_from&.strftime("%d %B %Y") || "n/a", false]
+    ]) %>
+    <% if @current_profile %>
+      <div class="section-title" style="margin-top:18px"><%= @current_profile.profile_version %> -> <%= @pending_profile&.profile_version || "v1.1" %></div>
+      <div class="stack-sm">
+        <% @current_profile.version_diff.each do |diff| %>
+          <div class="list-row">
+            <strong class="mono"><%= diff["id"] %></strong>
+            <div class="muted"><%= diff["note"] %></div>
+            <div class="mono muted">Effect: <%= diff["effect"] %></div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <div class="section-title">Impact</div>
+    <% impact = @current_profile&.version_impact || {} %>
+    <%= key_values([
+      ["Requirements changed", impact["changed_requirements"] || 0, true],
+      ["Evidence records potentially affected", impact["evidence_records_potentially_affected"] || 0, true],
+      ["Evaluations require recalculation", impact["evaluations_require_recalculation"] || 0, true],
+      ["Draft statements potentially affected", impact["draft_statements_potentially_affected"] || 0, true]
+    ]) %>
+  </section>
+</div>

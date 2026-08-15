@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agevidence.example/contracts/webhook-envelope.v0.json",
+  "contract_version": "webhook-envelope.v0",
+  "title": "AgEvidence Webhook Envelope v0",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "event_name",
+    "event_id",
+    "occurred_at",
+    "organization_code",
+    "payload",
+    "signature"
+  ],
+  "properties": {
+    "contract_version": { "const": "webhook-envelope.v0" },
+    "event_name": { "type": "string" },
+    "event_id": { "type": "string" },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "organization_code": { "type": "string" },
+    "payload": { "type": "object" },
+    "signature": {
+      "type": "object",
+      "required": ["algorithm", "key_id", "value"],
+      "properties": {
+        "algorithm": { "type": "string" },
+        "key_id": { "type": "string" },
+        "value": { "type": "string" }
+      }
+    }
+  },
+  "examples": [
+    {
+      "contract_version": "webhook-envelope.v0",
+      "event_name": "statement.issued",
+      "event_id": "evt_001",
+      "occurred_at": "2026-08-07T09:53:00Z",
+      "organization_code": "ORG-DEMO",
+      "payload": { "statement_code": "AE-AU-000184" },
+      "signature": { "algorithm": "hmac-sha256", "key_id": "whsec_demo", "value": "demo" }
+    }
+  ],
+  "x-negative_examples": [
+    { "description": "Missing signature", "payload": { "contract_version": "webhook-envelope.v0", "event_name": "statement.issued" } },
+    { "description": "Unversioned event", "payload": { "event_name": "statement.issued", "payload": {} } }
+  ]
+}

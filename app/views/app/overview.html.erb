@@ -1,29 +1,68 @@
-<% page_title "Evidence control" %>
+<% page_title "Evidence Plane" %>
 <%= render "shared/page_header",
-  title: "Evidence control",
-  description: "Inspect the current institutional chain from source evidence through program basis to reliance artifacts.",
+  title: "Evidence Plane",
+  description: "Continuous evaluation, review, statement generation, sharing and production integrity. DIT AgTech · Production",
   actions: safe_join([
-    link_to("Evidence inbox", app_evidence_path, class: "button secondary small"),
-    link_to("Program basis", app_program_australia_path, class: "button secondary small"),
-    link_to("Determinations", app_determinations_path, class: "button primary small")
+    link_to("Ingestion", app_evidence_path, class: "button secondary small"),
+    link_to("Evaluations", app_evaluations_path, class: "button secondary small"),
+    link_to("Statements", app_statements_path, class: "button primary small")
   ]) %>
 
-<section class="ei-system-chain" aria-label="Active institutional chain">
-  <% @system_chain.each_with_index do |node, index| %>
-    <%= render "shared/evidence_instrument/evidence_plate",
-      eyebrow: node.fetch(:eyebrow),
-      title: node.fetch(:title),
-      identifier: node.fetch(:identifier),
-      status: node.fetch(:status),
-      meta: node.fetch(:meta),
-      basis_url: node.fetch(:basis_url) %>
-    <% if index < @system_chain.length - 1 %>
-      <div class="ei-chain-operator" aria-hidden="true">-></div>
-    <% end %>
-  <% end %>
+<section class="panel">
+  <div class="grid grid-2">
+    <div>
+      <div class="section-title">Local / Free</div>
+      <div class="metric-label">AgEvidence SDK</div>
+      <div class="stack-sm" style="margin-top:12px">
+        <% ["SourceRecord", "Observation", "InterventionEvent", "OperationalEvent", "ModelRun"].each do |primitive| %>
+          <div class="mono"><%= primitive %></div>
+        <% end %>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">Hosted / Commercial</div>
+      <div class="metric-label">Evidence Plane</div>
+      <div class="stack-sm" style="margin-top:12px">
+        <div class="mono">Ingest -> Evaluate -> Review</div>
+        <div class="mono">Statement</div>
+        <div class="mono">Share / API / Verify</div>
+      </div>
+    </div>
+  </div>
+  <div style="border-top:1px solid var(--border);margin-top:18px;padding-top:14px;text-align:center">
+    <%= badge("OPTIONAL HOSTED CONNECTION", tone: "info", mono: true) %>
+  </div>
 </section>
 
-<div class="grid grid-main-side">
+<div class="grid grid-4" style="margin-top:16px">
+  <% @plane_metrics.each do |group, rows| %>
+    <section class="panel">
+      <div class="section-title"><%= group.to_s.humanize.upcase %></div>
+      <div class="stack-sm">
+        <% rows.each do |value, label| %>
+          <div class="metric">
+            <div class="metric-value"><%= value %></div>
+            <div class="metric-label"><%= label %></div>
+          </div>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
+</div>
+
+<div class="grid grid-main-side" style="margin-top:16px">
+  <section class="panel">
+    <div class="section-title">Operational status</div>
+    <div class="stack-sm">
+      <% @operational_health.each do |name, state, tone| %>
+        <div class="list-row" style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+          <strong><%= name %></strong>
+          <%= badge(state, tone: tone, mono: true) %>
+        </div>
+      <% end %>
+    </div>
+  </section>
+
   <section class="panel">
     <div class="section-title">Requires attention</div>
     <div class="stack-sm">
@@ -33,51 +72,29 @@
           detail: detail,
           url: url,
           status: status,
-          kicker: "Evidence system exception" %>
+          kicker: "Evidence Plane" %>
       <% end %>
     </div>
-  </section>
-
-  <section class="panel">
-    <div class="section-title">Verification activity</div>
-    <%= render "shared/evidence_instrument/evidence_plate",
-      eyebrow: "Reliance artifact",
-      title: @artifact.claim,
-      identifier: @artifact.artifact_code,
-      status: @artifact.issued? ? "issued" : "draft",
-      meta: [
-        ["Digest", @artifact.digest, true],
-        ["Program", @artifact.program, false],
-        ["Boundary", @artifact.boundary, true]
-      ],
-      basis_url: verify_artifact_path(@artifact.artifact_code) %>
   </section>
 </div>
 
 <section class="panel" style="margin-top:16px">
   <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px">
-    <div class="section-title" style="margin:0">Project evidence states</div>
-    <%= link_to "View all", projects_path, class: "ei-basis-link" %>
+    <div class="section-title" style="margin:0">Active statement</div>
+    <%= link_to "Open statement", app_statement_path(@statement.artifact_code), class: "ei-basis-link" %>
   </div>
-  <div class="stack-sm">
-    <% @projects.each do |project| %>
-      <% state = ei_project_requirement_state(project) %>
-      <%= render "shared/evidence_instrument/evidence_plate",
-        eyebrow: "Project",
-        title: project.name,
-        identifier: project.project_code,
-        status: project.status,
-        meta: [
-          ["Jurisdiction", project.jurisdiction, false],
-          ["Program", project.program, false],
-          ["Requirements", state.fetch(:satisfied), true],
-          ["Human review", state.fetch(:human), false],
-          ["Material gaps", state.fetch(:material), false],
-          ["Artifact", project.artifact_status, false]
-        ],
-        basis_url: project_path(project.slug) %>
-    <% end %>
-  </div>
+  <%= render "shared/evidence_instrument/evidence_plate",
+    eyebrow: "Evidence Statement",
+    title: @statement.claim,
+    identifier: @statement.artifact_code,
+    status: @statement.status,
+    meta: [
+      ["Digest", @statement.digest, true],
+      ["Profile", @profile.profile_version, true],
+      ["Integrity", "VALID", true],
+      ["Qualification", "1", true]
+    ],
+    basis_url: app_statement_path(@statement.artifact_code) %>
 </section>
 
 <section class="panel" style="margin-top:16px">

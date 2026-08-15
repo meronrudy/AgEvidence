@@ -1,28 +1,37 @@
-<% page_title "Developer platform" %>
+<% page_title "SDK Integration" %>
 <%= render "shared/page_header",
-  title: "Developer Platform",
-  description: "Project dit-production / Production environment",
+  title: "SDK Integration",
+  description: "Connect canonical evidence produced by the free AgEvidence SDK to the hosted Evidence Plane.",
   actions: badge("Production", tone: "success", dot: true) %>
 <%= render "developer/tabs" %>
 
 <div class="grid grid-4" style="margin-bottom:16px">
-  <div class="metric"><div class="metric-label">Events today</div><div class="metric-value"><%= @stats[:events_today] %></div></div>
+  <div class="metric"><div class="metric-label">Records today</div><div class="metric-value"><%= @stats[:events_today] %></div></div>
   <div class="metric"><div class="metric-label">Acceptance rate</div><div class="metric-value"><%= @stats[:acceptance_rate] %>%</div></div>
-  <div class="metric"><div class="metric-label">Open schema errors</div><div class="metric-value"><%= @stats[:schema_errors] %></div></div>
-  <div class="metric"><div class="metric-label">Webhooks failing</div><div class="metric-value"><%= @stats[:webhooks_failing] %></div></div>
+  <div class="metric"><div class="metric-label">Schema exceptions</div><div class="metric-value"><%= @stats[:schema_errors] %></div></div>
+  <div class="metric"><div class="metric-label">Webhooks retrying</div><div class="metric-value"><%= @stats[:webhooks_failing] %></div></div>
 </div>
 
-<div class="grid grid-main-side">
+<div class="grid grid-2" style="margin-bottom:16px">
   <section class="panel">
-    <div class="section-title">Quick start</div>
-    <ol>
-      <% ["Create project", "Send evidence event", "Inspect projection", "Evaluate country profile", "Generate reliance artifact"].each do |step| %>
-        <li><%= step %></li>
+    <div class="section-title">Free SDK</div>
+    <div class="stack-sm">
+      <% ["SourceRecord", "Observation", "InterventionEvent", "OperationalEvent", "ModelRun", "Local validation", "Canonical encoding", "Lineage", "Integrity", "Bundles"].each do |item| %>
+        <div><%= item %></div>
       <% end %>
-    </ol>
+    </div>
   </section>
   <section class="panel">
-    <div class="section-title">Send an evidence event</div>
-    <pre class="code-block mono"><%= @curl_example %></pre>
+    <div class="section-title">Hosted Evidence Plane</div>
+    <div class="stack-sm">
+      <% ["Continuous ingestion", "Continuous evaluation", "Maintained profiles", "Human review", "Determinations", "Evidence Statements", "Sharing", "Hosted API", "Webhooks", "Integrity monitoring", "Operational support"].each do |item| %>
+        <div><%= item %></div>
+      <% end %>
+    </div>
   </section>
 </div>
+
+<section class="panel">
+  <div class="section-title">Send canonical evidence</div>
+  <pre class="code-block mono"><%= @curl_example %></pre>
+</section>

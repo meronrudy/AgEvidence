@@ -1,0 +1,30 @@
+<% page_title "Gaps" %>
+<%= render "shared/page_header",
+  title: "Gaps",
+  description: "Open evidence requirements that need correction, review, or supplemental evidence." %>
+
+<section class="panel flush">
+  <% @gaps.each do |gap| %>
+    <div class="list-row">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+        <div>
+          <strong><%= gap.title %></strong>
+          <div class="mono muted"><%= gap.gap_code %> / <%= gap.requirement_code %></div>
+          <p class="muted" style="margin:8px 0 0"><%= gap.explanation %></p>
+        </div>
+        <div style="text-align:right">
+          <%= severity_badge(gap.severity) %>
+          <div style="margin-top:8px"><%= badge(gap.blocking? ? "BLOCKING" : "ATTENTION", tone: gap.blocking? ? "danger" : "warning", mono: true) %></div>
+        </div>
+      </div>
+      <div class="mono muted" style="margin-top:8px">Evidence: <%= gap.related_evidence.join(", ") %></div>
+    </div>
+  <% end %>
+</section>
+
+<% if @gaps.empty? %>
+  <%= render "shared/evidence_instrument/field_empty",
+    title: "No open gaps",
+    detail: "No current organization evidence records have open gap findings.",
+    kicker: "Evidence" %>
+<% end %>

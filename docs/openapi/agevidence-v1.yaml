@@ -1,0 +1,138 @@
+openapi: 3.1.0
+info:
+  title: AgEvidence API
+  version: v1
+  description: Versioned partner API for source intake, artifact verification, artifact retrieval, reliance, and contract schema access.
+servers:
+  - url: /api/v1
+    description: Relative API path. Add production and staging hosts only after DNS and deploy targets are verified.
+security:
+  - bearerApiKey: []
+components:
+  securitySchemes:
+    bearerApiKey:
+      type: http
+      scheme: bearer
+  schemas:
+    ErrorEnvelope:
+      type: object
+      required: [contract_version, request_id, error]
+      properties:
+        contract_version:
+          const: error-response.v0
+        request_id:
+          type: string
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+paths:
+  /projects/{project_code}/source-records:
+    post:
+      summary: Intake a source record
+      parameters:
+        - name: project_code
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              source_system: DIT Evidence API
+              document_id: DIT-FEED-2026-07
+              evidence_type: feeding_event
+              evidence_class: controlled_source
+              controlled_uri: evidence://dit-au-methane/source/DIT-FEED-2026-07
+              commitment: sha256:4f8c114a02ccf3b9
+              disclosure_status: available
+              status: received
+      responses:
+        "201":
+          description: Source record intaked.
+        "401":
+          description: Invalid API key.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /projects/{project_code}/source-records/{record_code}:
+    get:
+      summary: Retrieve a public-safe source record summary
+      parameters:
+        - name: project_code
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: record_code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Source record summary.
+  /artifacts/{artifact_code}:
+    get:
+      summary: Retrieve a public-safe artifact summary
+      parameters:
+        - name: artifact_code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Artifact summary.
+  /artifacts/{artifact_code}/verify:
+    post:
+      summary: Record an AgEvidence placeholder verifier result
+      parameters:
+        - name: artifact_code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Verifier placeholder result recorded.
+  /artifacts/{artifact_code}/reliance-events:
+    post:
+      summary: Record reliance on an artifact
+      parameters:
+        - name: artifact_code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Reliance event recorded.
+  /schemas/{contract_version}:
+    get:
+      summary: Retrieve a checked-in JSON contract
+      parameters:
+        - name: contract_version
+          in: path
+          required: true
+          schema:
+            enum:
+              - artifact-manifest.v0
+              - verifier-result.v0
+              - webhook-envelope.v0
+              - error-response.v0
+      responses:
+        "200":
+          description: Contract schema envelope.

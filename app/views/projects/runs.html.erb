@@ -1,0 +1,70 @@
+<% page_title "Model runs" %>
+<%= render "projects/header", project: @project %>
+
+<div class="grid" style="grid-template-columns:minmax(260px,.8fr) minmax(0,1.2fr)">
+  <section class="panel flush">
+    <div style="padding:12px 14px;border-bottom:1px solid var(--border)" class="section-title">Runs</div>
+    <% if @model_runs.any? %>
+      <% @model_runs.each do |run| %>
+        <%= link_to runs_project_path(@project.slug, selected: run.run_code), class: "list-row #{run == @selected_run ? 'active' : ''}" do %>
+          <strong><%= run.adapter_name %></strong>
+          <div class="mono muted"><%= run.run_code %></div>
+          <div style="margin-top:6px"><%= evidence_badge(run.status) %></div>
+        <% end %>
+      <% end %>
+    <% else %>
+      <div style="padding:14px">
+        <%= render "shared/evidence_instrument/field_empty",
+          kicker: "No runs",
+          title: "No automated interpretation recorded",
+          detail: "Runs are recorded only when an adapter result exists; the UI does not trigger hidden remote inference." %>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <% if @selected_run %>
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:start">
+        <div>
+          <div class="section-title"><%= @selected_run.adapter_name %></div>
+          <div class="mono muted"><%= @selected_run.run_code %> / <%= @selected_run.adapter_version %></div>
+        </div>
+        <%= evidence_badge(@selected_run.status) %>
+      </div>
+      <%= key_values([
+        ["Input commitment", @selected_run.input_commitment, true],
+        ["Started", format_utc(@selected_run.started_at), true],
+        ["Completed", @selected_run.completed_at ? format_utc(@selected_run.completed_at) : "Pending", true],
+        ["Failure reason", @selected_run.failure_reason.presence || "None", false]
+      ]) %>
+
+      <div class="section-title" style="margin-top:18px">Candidates</div>
+      <% if @selected_run.evidence_candidates.any? %>
+        <div class="stack-sm">
+          <% @selected_run.evidence_candidates.order(:candidate_code).each do |candidate| %>
+            <%= render "shared/evidence_instrument/evidence_plate",
+              eyebrow: candidate.candidate_type,
+              title: candidate.claim,
+              identifier: candidate.candidate_code,
+              status: candidate.status,
+              meta: [
+                ["Confidence", candidate.confidence || "Not scored", true],
+                ["Evidence", candidate.evidence_record&.record_code || "Unlinked", true],
+                ["Reviewed", candidate.reviewed_at ? format_utc(candidate.reviewed_at) : "No", true]
+              ] %>
+          <% end %>
+        </div>
+      <% else %>
+        <%= render "shared/evidence_instrument/field_empty",
+          kicker: "No candidates",
+          title: "This run did not create accepted candidates",
+          detail: "Failed or incomplete runs preserve status and failure detail without creating accepted findings." %>
+      <% end %>
+    <% else %>
+      <%= render "shared/evidence_instrument/field_empty",
+        kicker: "No run selected",
+        title: "No model run history",
+        detail: "Record a synchronous model run before enabling background execution." %>
+    <% end %>
+  </section>
+</div>

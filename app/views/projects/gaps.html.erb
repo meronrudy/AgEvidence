@@ -1,0 +1,31 @@
+<% page_title "Gaps" %>
+<%= render "projects/header", project: @project %>
+
+<section class="panel">
+  <div class="section-title">Open evidence gaps</div>
+  <% if @gaps.any? %>
+    <div class="stack-sm">
+      <% @gaps.each do |gap| %>
+        <%= render "shared/evidence_instrument/evidence_plate",
+          eyebrow: gap.requirement_code,
+          title: gap.title,
+          identifier: gap.gap_code,
+          status: gap.blocking? ? "material_gap" : gap.status,
+          meta: [
+            ["Severity", gap.severity, true],
+            ["Blocking", gap.blocking? ? "yes" : "no", true],
+            ["Status", gap.status, true],
+            ["Source", gap.source_record&.record_code || "None", true],
+            ["Evidence", gap.evidence_record&.record_code || "None", true]
+          ],
+          body: tag.p(gap.explanation, class: "muted"),
+          basis_url: review_project_path(@project.slug) %>
+      <% end %>
+    </div>
+  <% else %>
+    <%= render "shared/evidence_instrument/field_empty",
+      kicker: "No gaps",
+      title: "No unsatisfied requirements recorded",
+      detail: "Gap detection writes deterministic records when supplied or normalized evidence is insufficient." %>
+  <% end %>
+</section>

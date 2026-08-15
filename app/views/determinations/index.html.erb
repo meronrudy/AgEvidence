@@ -1,11 +1,11 @@
 <% page_title "Determinations" %>
 <%= render "shared/page_header",
   title: "Determinations",
-  description: "Published institutional conclusions produced from evidence and policy basis." %>
+  description: "Institutional judgments produced from evidence, profile evaluation, and human review basis." %>
 
 <section class="stack-sm">
   <% @determinations.each do |determination| %>
-    <% project = @projects_by_name[determination.project_name] %>
+    <% project = determination.project %>
     <%= render "shared/evidence_instrument/evidence_plate",
       eyebrow: "Determination",
       title: determination.project_name,
@@ -16,7 +16,7 @@
         ["Profile", "#{determination.program_profile.code} #{determination.program_profile.profile_version}", true],
         ["Adapter", determination.adapter, true],
         ["Digest", determination.digest, true],
-        ["Artifact", project&.artifact&.artifact_code || "Pending", true],
+        ["Statement", project&.artifact&.artifact_code || "Pending", true],
         ["Published", format_utc(determination.published_at), true]
       ],
       basis_url: app_determination_path(determination.determination_code) %>

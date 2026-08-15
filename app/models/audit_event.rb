@@ -25,7 +25,8 @@ class AuditEvent < ApplicationRecord
       auditable: auditable,
       metadata: metadata,
       ip_address: metadata[:ip_address],
-      user_agent: metadata[:user_agent]
+      user_agent: metadata[:user_agent],
+      request_id: metadata[:request_id]
     )
   end
 end

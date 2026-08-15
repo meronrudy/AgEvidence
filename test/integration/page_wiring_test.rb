@@ -7,21 +7,29 @@ class PageWiringTest < ActionDispatch::IntegrationTest
       root_path,
       health_path,
       verify_path,
-      verify_artifact_path("RA-AU-000184")
+      verify_artifact_path("AE-AU-000184")
     ]
     @app_paths = [
       app_home_path,
       projects_path,
-      project_path("dit-au-methane"),
-      evidence_project_path("dit-au-methane"),
-      assessment_project_path("dit-au-methane"),
-      review_project_path("dit-au-methane"),
-      artifact_project_path("dit-au-methane"),
-      activity_project_path("dit-au-methane"),
+      project_path("dit-production"),
+      source_records_project_path("dit-production"),
+      evidence_project_path("dit-production"),
+      runs_project_path("dit-production"),
+      gaps_project_path("dit-production"),
+      assessment_project_path("dit-production"),
+      review_project_path("dit-production"),
+      artifact_project_path("dit-production"),
+      reliance_project_path("dit-production"),
+      activity_project_path("dit-production"),
       app_evidence_path,
+      app_evidence_records_path,
+      app_gaps_path,
+      app_evaluations_path,
       app_programs_path,
       app_program_requirements_path,
       app_program_profiles_path,
+      app_program_versions_path,
       app_program_evaluate_path,
       app_program_compare_path,
       app_program_australia_path,
@@ -31,8 +39,8 @@ class PageWiringTest < ActionDispatch::IntegrationTest
       app_program_australia_evaluations_path,
       app_program_australia_determinations_path,
       app_determinations_path,
-      app_determination_path("DET-002"),
-      app_evaluation_path("EVAL-001"),
+      app_determination_path("DET-AU-000184"),
+      app_evaluation_path("EVAL-AU-METH-001"),
       app_developer_path,
       app_developer_logs_path,
       app_developer_webhooks_path,
@@ -40,8 +48,12 @@ class PageWiringTest < ActionDispatch::IntegrationTest
       app_developer_schemas_path,
       app_developer_openapi_path,
       app_reviews_path,
+      app_review_path("RV-201"),
       app_artifacts_path,
+      app_statements_path,
+      app_statement_path("AE-AU-000184"),
       app_integrations_path,
+      app_integrity_path,
       app_methodologies_path,
       app_verification_path,
       app_organization_path,
@@ -73,17 +85,17 @@ class PageWiringTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "app overview is evidence control surface" do
+  test "app overview is Evidence Plane control surface" do
     sign_in_demo_user!
 
     get app_home_path
 
     assert_response :success
-    assert_includes response.body, "Evidence control"
-    assert_includes response.body, "Source evidence"
-    assert_includes response.body, "Program basis"
-    assert_includes response.body, "Reliance"
-    refute_includes response.body, "Evidence operations"
+    assert_includes response.body, "Evidence Plane"
+    assert_includes response.body, "OPTIONAL HOSTED CONNECTION"
+    assert_includes response.body, "AgEvidence SDK"
+    assert_includes response.body, "Statements"
+    refute_includes response.body, "Project evidence states"
   end
 
   test "root is the AgEvidence landing page" do
@@ -91,6 +103,8 @@ class PageWiringTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Portable evidence infrastructure"
+    assert_no_match(/independently verifiable/i, response.body)
+    assert_no_match(/signed reliance artifact/i, response.body)
     refute_includes response.body, "Yay! You're on Rails!"
   end
 
@@ -104,10 +118,10 @@ class PageWiringTest < ActionDispatch::IntegrationTest
   end
 
   test "unknown verification artifact shows not found result" do
-    get verify_artifact_path("RA-AU-DOES-NOT-EXIST")
+    get verify_artifact_path("AE-AU-DOES-NOT-EXIST")
 
     assert_response :not_found
-    assert_includes response.body, "Artifact not found"
+    assert_includes response.body, "Statement not found"
   end
 
   test "unknown determination and evaluation return not found" do

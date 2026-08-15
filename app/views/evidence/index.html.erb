@@ -1,7 +1,7 @@
-<% page_title "Evidence inbox" %>
+<% page_title "Ingestion" %>
 <%= render "shared/page_header",
-  title: "Evidence inbox",
-  description: "Everything AgEvidence has received, what it became, and what it still needs." %>
+  title: "Ingestion",
+  description: "Canonical evidence received from AgEvidence SDK integrations and production sources." %>
 
 <div class="segment-tabs">
   <% {
@@ -21,10 +21,11 @@
         <thead>
           <tr>
             <th>Status</th>
+            <th>Primitive</th>
             <th>Evidence</th>
             <th>Source</th>
             <th>Received</th>
-            <th>Project</th>
+            <th>Schema</th>
             <th>Result</th>
           </tr>
         </thead>
@@ -32,10 +33,11 @@
           <% @records.each do |record| %>
             <tr data-row-link="<%= app_evidence_path(tab: @tab, selected: record.record_code) %>">
               <td><%= evidence_badge(record.status) %></td>
+              <td class="mono"><%= record.record_type.camelize %></td>
               <td><strong><%= record.label %></strong><div class="mono muted"><%= record.record_code %></div></td>
               <td><%= record.source %></td>
               <td class="mono muted"><%= format_utc(record.received_at) %></td>
-              <td class="muted"><%= record.project.name %></td>
+              <td class="mono muted"><%= record.schema_name %></td>
               <td class="mono"><%= record.inbox_result %></td>
             </tr>
           <% end %>
@@ -49,15 +51,16 @@
       <div style="display:flex;justify-content:space-between;gap:12px">
         <div>
           <div class="section-title"><%= @selected_record.label %></div>
-          <div class="mono muted"><%= @selected_record.record_code %> / <%= @selected_record.schema_name %></div>
+          <div class="mono muted"><%= @selected_record.record_code %></div>
         </div>
         <%= evidence_badge(@selected_record.status) %>
       </div>
       <div style="margin-top:16px">
         <%= key_values([
+          ["Primitive", @selected_record.record_type.camelize, true],
+          ["SDK schema", @selected_record.schema_name, true],
+          ["External ID", @selected_record.payload["external_id"] || @selected_record.record_code, true],
           ["Source", @selected_record.source, false],
-          ["Project", @selected_record.project.name, false],
-          ["Received", format_utc(@selected_record.received_at), true],
           ["Operation", @selected_record.operation_id, true],
           ["Digest", @selected_record.digest, true]
         ]) %>

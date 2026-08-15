@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agevidence.example/contracts/artifact-manifest.v0.json",
+  "contract_version": "artifact-manifest.v0",
+  "title": "AgEvidence Artifact Manifest v0",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "canonicalization",
+    "artifact_code",
+    "project",
+    "determination",
+    "evaluation",
+    "profile",
+    "source_records",
+    "evidence_records",
+    "limitations",
+    "receipt_chain",
+    "digest"
+  ],
+  "properties": {
+    "contract_version": { "const": "artifact-manifest.v0" },
+    "canonicalization": { "type": "string" },
+    "artifact_code": { "type": "string", "pattern": "^RA-[A-Z0-9-]+$" },
+    "project": { "type": "object" },
+    "determination": { "type": "object" },
+    "evaluation": { "type": "object" },
+    "profile": { "type": "object" },
+    "source_records": { "type": "array" },
+    "evidence_records": { "type": "array" },
+    "limitations": { "type": "array" },
+    "receipt_chain": { "type": "array" },
+    "digest": { "type": "string", "pattern": "^sha256:" }
+  },
+  "examples": [
+    {
+      "contract_version": "artifact-manifest.v0",
+      "canonicalization": "Rails JSON object keys sorted recursively before SHA-256 digest; not a cross-runtime verifier claim.",
+      "artifact_code": "RA-AU-000184",
+      "project": { "project_code": "PRJ-AU-00041" },
+      "determination": { "determination_code": "DET-002", "digest": "sha256:det002" },
+      "evaluation": { "evaluation_code": "EVAL-001", "profile_version": "v0.1" },
+      "profile": { "code": "AU", "version": "v0.1" },
+      "source_records": [],
+      "evidence_records": [],
+      "limitations": [],
+      "receipt_chain": [],
+      "digest": "sha256:e4b7a0912cd83f6415aa27de90bb35c1f8027ae64d139b0cc7521ea83f4d6610"
+    }
+  ],
+  "x-negative_examples": [
+    { "description": "Missing contract version", "payload": { "artifact_code": "RA-AU-000184" } },
+    { "description": "Unversioned digest", "payload": { "contract_version": "artifact-manifest.v0", "artifact_code": "RA-AU-000184", "digest": "abc" } }
+  ]
+}

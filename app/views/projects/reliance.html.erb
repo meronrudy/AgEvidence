@@ -1,0 +1,70 @@
+<% page_title "Reliance" %>
+<%= render "projects/header", project: @project %>
+
+<div class="grid grid-main-side">
+  <section class="panel">
+    <div class="section-title">Reliance events</div>
+    <% if @reliance_events.any? %>
+      <div class="stack-sm">
+        <% @reliance_events.each do |event| %>
+          <%= render "shared/evidence_instrument/evidence_plate",
+            eyebrow: event.reliance_kind,
+            title: event.relying_party,
+            identifier: event.event_code,
+            status: event.status,
+            meta: [
+              ["Role", event.relying_party_role, false],
+              ["Occurred", format_utc(event.occurred_at), true],
+              ["Recorded by", event.recorded_by_user&.full_name || "System", false],
+              ["Statement", event.artifact.artifact_code, true]
+            ] %>
+        <% end %>
+      </div>
+    <% else %>
+      <%= render "shared/evidence_instrument/field_empty",
+        kicker: "No reliance",
+        title: "No party has recorded reliance",
+        detail: "Statement access is audited separately from reliance events." %>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <div class="section-title">Record reliance</div>
+    <% if @artifact %>
+      <%= form_with url: reliance_events_project_path(@project.slug), scope: :reliance_event, class: "stack-sm" do |form| %>
+        <label>Relying party<%= form.text_field :relying_party, required: true, placeholder: "Recipient application" %></label>
+        <label>Party role<%= form.text_field :relying_party_role, required: true, placeholder: "recipient" %></label>
+        <label>Reliance kind<%= form.select :reliance_kind, RelianceEvent::RELIANCE_KINDS.map { |value| [value.humanize, value] } %></label>
+        <label>Status<%= form.select :status, RelianceEvent::STATUSES.map { |value| [value.humanize, value] } %></label>
+        <label>Occurred at<%= form.datetime_field :occurred_at, value: Time.current.strftime("%Y-%m-%dT%H:%M") %></label>
+        <%= form.submit "Record reliance", class: "button primary" %>
+      <% end %>
+    <% else %>
+      <%= render "shared/evidence_instrument/field_empty",
+        kicker: "No statement",
+        title: "No statement exists",
+        detail: "Reliance can only be recorded against a statement." %>
+    <% end %>
+  </section>
+</div>
+
+<section class="panel" style="margin-top:16px">
+  <div class="section-title">Access grants</div>
+  <% if @resource_grants.any? %>
+    <div class="stack-sm">
+      <% @resource_grants.each do |grant| %>
+        <%= render "shared/evidence_instrument/basis_row",
+          kicker: grant.access_level,
+          title: grant.recipient_name.presence || grant.user.full_name,
+          detail: "Expires #{format_utc(grant.expires_at)}#{grant.revoked? ? " / revoked" : ""}",
+          status: grant.revoked? || grant.expired? ? "superseded" : "valid",
+          url: artifact_project_path(@project.slug) %>
+      <% end %>
+    </div>
+  <% else %>
+    <%= render "shared/evidence_instrument/field_empty",
+      kicker: "No grants",
+      title: "No recipient access grants",
+      detail: "Grant, revoke, and download events are audited separately from reliance." %>
+  <% end %>
+</section>

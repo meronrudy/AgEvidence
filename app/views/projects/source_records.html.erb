@@ -1,0 +1,73 @@
+<% page_title "Source records" %>
+<%= render "projects/header", project: @project %>
+
+<div class="grid grid-main-side">
+  <section class="panel">
+    <div class="section-title">Source record intake</div>
+    <% if @source_record.errors.any? %>
+      <div class="alert danger" style="margin-bottom:14px">
+        <strong>Source record was not intaked.</strong>
+        <p><%= @source_record.errors.full_messages.to_sentence %></p>
+      </div>
+    <% end %>
+    <%= form_with model: @source_record, url: source_records_project_path(@project.slug), scope: :source_record, class: "stack-sm" do |form| %>
+      <div class="form-grid">
+        <label>Source system<%= form.text_field :source_system, required: true, placeholder: "uDOSE Production" %></label>
+        <label>Document ID<%= form.text_field :document_id, required: true, placeholder: "DOC-2026-001" %></label>
+        <label>Evidence type<%= form.text_field :evidence_type, required: true, placeholder: "measurement" %></label>
+        <label>Evidence class<%= form.text_field :evidence_class, required: true, placeholder: "instrument_record" %></label>
+        <label>Controlled URI<%= form.text_field :controlled_uri, required: true, placeholder: "evidence://project/source/DOC-2026-001" %></label>
+        <label>Commitment<%= form.text_field :commitment, required: true, placeholder: "sha256:abcdef1234567890" %></label>
+        <label>Disclosure<%= form.select :disclosure_status, SourceRecord::DISCLOSURE_STATUSES.map { |value| [value.humanize, value] } %></label>
+        <label>Status<%= form.select :status, SourceRecord::STATUSES.map { |value| [value.humanize, value] } %></label>
+      </div>
+      <%= form.submit "Intake source", class: "button primary" %>
+    <% end %>
+  </section>
+
+  <section class="panel">
+    <div class="section-title">Status counts</div>
+    <% if @status_counts.any? %>
+      <div class="stack-sm">
+        <% @status_counts.each do |status, count| %>
+          <div style="display:flex;justify-content:space-between;gap:12px">
+            <%= evidence_badge(status) %>
+            <strong class="mono"><%= count %></strong>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <%= render "shared/evidence_instrument/field_empty",
+        kicker: "No source records",
+        title: "No custody references yet",
+        detail: "Register a source record before normalizing evidence." %>
+    <% end %>
+  </section>
+</div>
+
+<section class="panel" style="margin-top:16px">
+  <div class="section-title">Chronological custody log</div>
+  <% if @source_records.any? %>
+    <div class="stack-sm">
+      <% @source_records.each do |record| %>
+        <%= render "shared/evidence_instrument/evidence_plate",
+          eyebrow: record.source_system,
+          title: record.document_id,
+          identifier: record.record_code,
+          status: record.status,
+          meta: [
+            ["Class", record.evidence_class, true],
+            ["Type", record.evidence_type, true],
+            ["Disclosure", record.disclosure_status, true],
+            ["URI", record.controlled_uri, true],
+            ["Commitment", record.commitment, true]
+          ] %>
+      <% end %>
+    </div>
+  <% else %>
+    <%= render "shared/evidence_instrument/field_empty",
+      kicker: "Empty state",
+      title: "Source evidence starts here",
+      detail: "No raw source is treated as a determination. Intake records only capture custody, identity, and commitment." %>
+  <% end %>
+</section>

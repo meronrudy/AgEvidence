@@ -1,0 +1,32 @@
+<% page_title "Evaluations" %>
+<%= render "shared/page_header",
+  title: "Continuous Evaluations",
+  description: "Current profile evaluations updated by canonical evidence arrivals and profile maintenance." %>
+
+<section class="stack-sm">
+  <% @evaluations.each do |evaluation| %>
+    <% counts = evaluation.result.fetch("counts", {}) %>
+    <%= render "shared/evidence_instrument/evidence_plate",
+      eyebrow: evaluation.program_profile.name,
+      title: evaluation.outcome,
+      identifier: "#{evaluation.program_profile.profile_version} / #{evaluation.evaluation_code}",
+      status: evaluation.outcome,
+      meta: [
+        ["Last evaluated", time_ago_in_words(evaluation.evaluated_at) + " ago", false],
+        ["Last trigger", evaluation.result["last_trigger"] || "n/a", true],
+        ["Requirements", evaluation.program_profile.requirements_count, true],
+        ["PASS", counts["PASS"] || 0, true],
+        ["REVIEW", counts["REVIEW"] || 0, true],
+        ["GAP", counts["GAP"] || 0, true],
+        ["NOT APPLICABLE", counts["NOT APPLICABLE"] || 0, true]
+      ],
+      basis_url: app_evaluation_path(evaluation.evaluation_code) %>
+  <% end %>
+</section>
+
+<% if @evaluations.empty? %>
+  <%= render "shared/evidence_instrument/field_empty",
+    title: "No evaluations",
+    detail: "No active profile evaluations exist for the current organization.",
+    kicker: "Evaluation" %>
+<% end %>

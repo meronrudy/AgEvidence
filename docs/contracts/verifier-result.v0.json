@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agevidence.example/contracts/verifier-result.v0.json",
+  "contract_version": "verifier-result.v0",
+  "title": "AgEvidence Verifier Result v0",
+  "type": "object",
+  "required": [
+    "contract_version",
+    "result_code",
+    "verifier_name",
+    "verifier_version",
+    "status",
+    "artifact_digest",
+    "checked_at",
+    "checks",
+    "result"
+  ],
+  "properties": {
+    "contract_version": { "const": "verifier-result.v0" },
+    "result_code": { "type": "string", "pattern": "^VR-[A-Z0-9-]+$" },
+    "verifier_name": { "type": "string" },
+    "verifier_version": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["pending_external_verifier", "locally_consistent", "failed", "superseded"]
+    },
+    "artifact_digest": { "type": "string", "pattern": "^sha256:" },
+    "checked_at": { "type": "string", "format": "date-time" },
+    "checks": { "type": "array" },
+    "result": { "type": "object" }
+  },
+  "examples": [
+    {
+      "contract_version": "verifier-result.v0",
+      "result_code": "VR-SEED-184",
+      "verifier_name": "AgEvidence placeholder",
+      "verifier_version": "v0",
+      "status": "pending_external_verifier",
+      "artifact_digest": "sha256:e4b7a0912cd83f6415aa27de90bb35c1f8027ae64d139b0cc7521ea83f4d6610",
+      "checked_at": "2026-08-07T09:53:00Z",
+      "checks": [{ "code": "external_signature", "status": "not_performed" }],
+      "result": { "statement": "AgEvidence internal placeholder only; no independent verifier was invoked." }
+    }
+  ],
+  "x-negative_examples": [
+    { "description": "Third-party claim without verifier", "payload": { "contract_version": "verifier-result.v0", "status": "independently_verified" } },
+    { "description": "Missing artifact digest", "payload": { "contract_version": "verifier-result.v0", "status": "locally_consistent" } }
+  ]
+}

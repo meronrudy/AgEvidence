@@ -1,0 +1,66 @@
+<% page_title "Records" %>
+<%= render "shared/page_header",
+  title: "Records",
+  description: "Canonical evidence store with lineage, digests, dependencies, and current validity." %>
+
+<div class="grid grid-main-side">
+  <section class="panel flush">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Primitive</th>
+            <th>Record</th>
+            <th>Lineage</th>
+            <th>Digest</th>
+            <th>Validity</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @records.each do |record| %>
+            <tr data-row-link="<%= app_evidence_records_path(selected: record.record_code) %>">
+              <td class="mono"><%= record.record_type.camelize %></td>
+              <td><strong><%= record.label %></strong><div class="mono muted"><%= record.record_code %></div></td>
+              <td class="mono muted"><%= record.source_record&.record_code || "direct" %></td>
+              <td class="mono muted"><%= record.digest.first(22) %>...</td>
+              <td><%= evidence_badge(record.status) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel">
+    <% if @selected_record %>
+      <div class="section-title"><%= @selected_record.record_code %></div>
+      <%= key_values([
+        ["Canonical object", @selected_record.record_type.camelize, true],
+        ["Schema", @selected_record.schema_name, true],
+        ["Lineage source", @selected_record.source_record&.record_code || "direct", true],
+        ["Current validity", @selected_record.status.upcase, true],
+        ["Digest", @selected_record.digest, true]
+      ]) %>
+      <div class="section-title" style="margin-top:18px">Dependencies</div>
+      <div class="stack-sm">
+        <% Array(@selected_record.payload["subject"]).each do |key, value| %>
+          <div class="mono"><%= key %>: <%= value %></div>
+        <% end %>
+        <% Array(@selected_record.payload["intervention"]).each do |key, value| %>
+          <div class="mono"><%= key %>: <%= value %></div>
+        <% end %>
+        <% if @selected_record.payload["subject"].blank? && @selected_record.payload["intervention"].blank? %>
+          <p class="muted">No explicit dependencies declared in this payload.</p>
+        <% end %>
+      </div>
+      <div class="section-title" style="margin-top:18px">Integrity</div>
+      <div class="stack-sm">
+        <% @selected_record.integrity.each do |check| %>
+          <div><%= badge(check["ok"] ? "OK" : "Fail", tone: check["ok"] ? "success" : "danger", dot: true) %> <%= check["label"] %></div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="muted">No canonical records match this filter.</p>
+    <% end %>
+  </section>
+</div>

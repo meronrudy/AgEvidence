@@ -11,9 +11,13 @@
 
 <div class="tabs" style="margin-bottom:18px">
   <%= tab_link project_path(project.slug), "Overview", exact: true %>
+  <%= tab_link source_records_project_path(project.slug), "Source records" %>
   <%= tab_link evidence_project_path(project.slug), "Evidence" %>
+  <%= tab_link runs_project_path(project.slug), "Runs" %>
+  <%= tab_link gaps_project_path(project.slug), "Gaps" %>
   <%= tab_link assessment_project_path(project.slug), "Assessment" %>
   <%= tab_link review_project_path(project.slug), "Review" %>
-  <%= tab_link artifact_project_path(project.slug), "Artifact" %>
+  <%= tab_link artifact_project_path(project.slug), "Statement" %>
+  <%= tab_link reliance_project_path(project.slug), "Reliance" %>
   <%= tab_link activity_project_path(project.slug), "Activity" %>
 </div>

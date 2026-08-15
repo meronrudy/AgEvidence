@@ -12,18 +12,22 @@
         </div>
       <% when Artifact %>
         <div style="display:flex;justify-content:space-between;gap:12px">
-          <div><strong class="mono"><%= row.artifact_code %></strong><div class="muted"><%= row.project.name %></div></div>
-          <%= link_to "Open", artifact_project_path(row.project.slug), class: "button secondary small" %>
+          <div><strong class="mono"><%= row.artifact_code %></strong><div class="muted"><%= row.claim %></div></div>
+          <%= link_to "Open", app_statement_path(row.artifact_code), class: "button secondary small" %>
         </div>
       <% when Integration %>
         <div style="display:flex;justify-content:space-between;gap:12px">
-          <div><strong><%= row.name %></strong><div class="mono muted"><%= row.provider %> / <%= row.events.join(", ") %></div></div>
-          <%= badge(row.status, tone: row.status == "Connected" ? "success" : "danger", dot: true) %>
+          <div>
+            <strong><%= row.name %></strong>
+            <div class="mono muted"><%= row.provider %> / <%= row.events.join(", ") %></div>
+            <div class="mono muted">Last event <%= format_utc(row.last_sync_at) %> / acceptance 98.7% / schema failures 12</div>
+          </div>
+          <%= badge(row.status, tone: row.status == "HEALTHY" ? "success" : "warning", dot: true) %>
         </div>
       <% when ProgramProfile %>
         <div style="display:flex;justify-content:space-between;gap:12px">
           <div><strong><%= row.name %></strong><div class="mono muted"><%= row.code %> / <%= row.profile_version %> / <%= row.requirements_count %> requirements</div></div>
-          <%= link_to "Open", row.code == "AU" ? app_program_australia_path : app_programs_path(jurisdiction: row.code), class: "button secondary small" %>
+          <%= link_to "Open", app_program_profiles_path, class: "button secondary small" %>
         </div>
       <% end %>
     </div>

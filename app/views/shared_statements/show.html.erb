@@ -1,0 +1,53 @@
+<% page_title @statement.artifact_code %>
+
+<div class="landing-main">
+  <div class="brand-link">
+    <span class="brand-mark" aria-hidden="true"></span>
+    <span>AgEvidence</span>
+  </div>
+
+  <h1 class="landing-title">Evidence Statement <%= @statement.artifact_code %></h1>
+  <p class="lead"><%= @statement.claim %> · <%= @statement.boundary %></p>
+
+  <section class="panel" style="margin-top:32px">
+    <div class="section-title">Statement</div>
+    <%= key_values([
+      ["State", @statement.status.upcase, true],
+      ["Program", @statement.program, false],
+      ["Digest", @statement.digest, true],
+      ["Issued", @statement.issued_at ? format_utc(@statement.issued_at) : "Not issued", false],
+      ["Access", @share.access_level.humanize, false]
+    ]) %>
+  </section>
+
+  <% if @evaluation && @determination %>
+    <section class="panel" style="margin-top:16px">
+      <div class="section-title">Summary</div>
+      <%= key_values([
+        ["Evaluation", @evaluation.outcome, false],
+        ["Profile version", @evaluation.profile_version, true],
+        ["Determination", @determination.outcome, false],
+        ["Qualification", @statement.limitations.first&.dig("detail") || "None", false]
+      ]) %>
+    </section>
+  <% end %>
+
+  <% if @evidence_records %>
+    <section class="panel flush" style="margin-top:16px">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Primitive</th><th>Record</th><th>Digest</th></tr></thead>
+          <tbody>
+            <% @evidence_records.each do |record| %>
+              <tr>
+                <td class="mono"><%= record.record_type.camelize %></td>
+                <td><%= record.label %><div class="mono muted"><%= record.record_code %></div></td>
+                <td class="mono muted"><%= record.digest.first(22) %>...</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  <% end %>
+</div>

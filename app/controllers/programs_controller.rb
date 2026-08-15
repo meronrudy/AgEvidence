@@ -1,4 +1,6 @@
 class ProgramsController < ApplicationController
+  CANONICAL_PROFILE_CODE = "AU_METHANE_INTERVENTION_V1".freeze
+
   before_action :authenticate_app_user!
   before_action :use_app_shell
   before_action :load_australia_profile, only: [
@@ -7,9 +9,8 @@ class ProgramsController < ApplicationController
   ]
 
   def index
-    @profiles = ProgramProfile.order(:code)
+    @profiles = ProgramProfile.order(:code, :profile_version)
     @profiles = @profiles.where(status: params[:status]) if params[:status].present?
-    @profiles = @profiles.where(code: params[:jurisdiction]) if params[:jurisdiction].present?
     if params[:q].present?
       q = "%#{params[:q].downcase}%"
       @profiles = @profiles.where("lower(name) LIKE ? OR lower(code) LIKE ? OR lower(status) LIKE ?", q, q, q)
@@ -21,18 +22,24 @@ class ProgramsController < ApplicationController
   end
 
   def profiles
-    @profiles = ProgramProfile.order(:code)
+    @profiles = ProgramProfile.order(:code, :profile_version)
+  end
+
+  def versions
+    @profiles = ProgramProfile.where(slug: ["au-methane-intervention-v1", "au-methane-intervention-v1-1"]).order(:effective_from, :profile_version)
+    @current_profile = ProgramProfile.find_by(code: CANONICAL_PROFILE_CODE)
+    @pending_profile = @profiles.detect { |profile| profile.status == "Pending" }
   end
 
   def evaluate
     @project_options = policy_scope(Project).order(:name)
-    @project = @project_options.find_by(slug: params[:project]) || @project_options.find_by!(slug: "dit-au-methane")
-    @profile = ProgramProfile.find_by!(code: "AU")
+    @project = @project_options.find_by(slug: params[:project]) || @project_options.find_by!(slug: "dit-production")
+    @profile = ProgramProfile.find_by!(code: CANONICAL_PROFILE_CODE)
     @gaps = @project.gaps.order(:gap_code)
   end
 
   def compare
-    @profile = ProgramProfile.find_by!(code: "AU")
+    @profile = ProgramProfile.find_by!(code: CANONICAL_PROFILE_CODE)
     @comparison = @profile.comparison
     @selected_codes = Array(params[:programs].presence || @comparison.fetch("columns").map { |c| c.fetch("code") })
   end
@@ -62,6 +69,6 @@ class ProgramsController < ApplicationController
   private
 
   def load_australia_profile
-    @profile = ProgramProfile.find_by!(code: "AU")
+    @profile = ProgramProfile.find_by!(code: CANONICAL_PROFILE_CODE)
   end
 end

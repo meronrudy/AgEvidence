@@ -1,39 +1,22 @@
-<% page_title "Country Program Engine" %>
+<% page_title "Program Profiles" %>
 <%= render "shared/page_header",
-  title: "Country Program Engine",
-  description: "Translate portable evidence into versioned program requirements, evaluations, and reliance profiles." %>
+  title: "Program Profiles",
+  description: "Maintained profile infrastructure used by continuous evaluation and statement lifecycle checks." %>
 <%= render "programs/engine_tabs" %>
 
-<%= form_with url: app_programs_path, method: :get, local: true, class: "filter-bar" do |form| %>
-  <%= form.search_field :q, value: params[:q], class: "input", placeholder: "Search programs" %>
-  <%= form.select :status, options_for_select(ProgramProfile.distinct.order(:status).pluck(:status).map { |v| [v, v] }, params[:status]), { include_blank: "All status" }, class: "select" %>
-  <%= form.select :jurisdiction, options_for_select(ProgramProfile.order(:code).pluck(:name, :code), params[:jurisdiction]), { include_blank: "All jurisdictions" }, class: "select" %>
-  <%= form.submit "Filter", class: "button secondary small" %>
-<% end %>
-
-<div class="grid grid-4" style="margin-bottom:16px">
-  <div class="metric"><div class="metric-label">Jurisdictions</div><div class="metric-value"><%= ProgramProfile.count %></div></div>
-  <div class="metric"><div class="metric-label">Operational</div><div class="metric-value"><%= ProgramProfile.where(status: "Operational").count %></div></div>
-  <div class="metric"><div class="metric-label">Machine-evaluable rules</div><div class="metric-value"><%= ProgramProfile.sum(:machine_evaluable) %></div></div>
-  <div class="metric"><div class="metric-label">Profiles in development</div><div class="metric-value"><%= ProgramProfile.where(status: ["Draft", "In development"]).count %></div></div>
-</div>
-
-<div class="grid grid-3">
+<section class="stack-sm">
   <% @profiles.each do |profile| %>
-    <section class="panel">
-      <div style="display:flex;justify-content:space-between;gap:12px">
-        <strong><%= profile.name %></strong>
-        <%= badge(profile.code, tone: "neutral", mono: true) %>
-      </div>
-      <p class="muted"><%= profile.program %> / <%= profile.scope %></p>
-      <%= key_values([
-        ["Profile", profile.profile_version, true],
+    <%= render "shared/evidence_instrument/evidence_plate",
+      eyebrow: "Program profile",
+      title: profile.name,
+      identifier: "#{profile.profile_version} / #{profile.status.upcase}",
+      status: profile.status,
+      meta: [
         ["Requirements", profile.requirements_count, true],
-        ["Machine / human", "#{profile.machine_evaluable} / #{profile.human_review}", true]
-      ]) %>
-      <div style="margin-top:14px">
-        <%= link_to(profile.code == "AU" ? "Open program" : "Filter to program", profile.code == "AU" ? app_program_australia_path : app_programs_path(jurisdiction: profile.code), class: "button secondary small") %>
-      </div>
-    </section>
+        ["Machine", profile.machine_evaluable, true],
+        ["Human / hybrid", profile.human_review, true],
+        ["Last maintained", profile.effective_from&.strftime("%d %b %Y") || "n/a", true]
+      ],
+      basis_url: app_program_profiles_path %>
   <% end %>
-</div>
+</section>
