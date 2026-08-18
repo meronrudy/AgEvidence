@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+# Deterministic development environment launcher for AgEvidence
+# This script forces development mode, cleans stale state, and starts the server
+
+set -e
+
+# Path to the application root
+APP_ROOT=$(cd "$(dirname "$0")/.." && pwd)
+
+# Change to the application root
+cd "$APP_ROOT"
+
+# Force development environment
+unset RAILS_ENV
+unset RACK_ENV
+unset SECRET_KEY_BASE_DUMMY
+unset RAILS_ALLOWED_HOSTS
+unset PORT
+export RAILS_ENV=development
+export DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/agevidence_development
+
+# Clean stale Puma state
+rm -f tmp/pids/server.pid
+
+# Verify Ruby version
+if ! command -v ruby &> /dev/null; then
+  echo "ERROR: ruby command not found"
+  exit 1
+fi
+
+RUBY_VERSION=$(ruby -v | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+if [[ "$RUBY_VERSION" != "3.4.10" ]]; then
+  echo "ERROR: Ruby version $RUBY_VERSION does not match required 3.4.10"
+  echo "Please run: rbenv local 3.4.10"
+  exit 1
+fi
+
+# Verify bundler dependencies
+if ! bundle check &> /dev/null; then
+  echo "ERROR: Bundler dependencies not satisfied"
+  echo "Please run: bundle install"
+  exit 1
+fi
+
+# Verify PostgreSQL is running
+if ! pg_isready -h 127.0.0.1 -p 5432 -U postgres &> /dev/null; then
+  echo "ERROR: PostgreSQL is not running or not accessible"
+  echo "Please start PostgreSQL on localhost:5432 with user 'postgres'"
+  exit 1
+fi
+
+# Verify Rails can boot before starting the server
+echo "Verifying Rails boot..."
+if ! bin/rails runner 'puts "BOOT OK: Rails #{Rails.version}, env=#{Rails.env}, db=#{ActiveRecord::Base.connection_db_config.database}"' > /dev/null 2>&1; then
+  echo "ERROR: Rails failed to boot"
+  exit 1
+fi
+
+# Start the HTTP listener
+echo "Starting Puma server on http://127.0.0.1:3000"
+bin/rails server -b 127.0.0.1 -p 3000

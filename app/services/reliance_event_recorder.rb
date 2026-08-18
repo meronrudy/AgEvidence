@@ -1,6 +1,9 @@
 class RelianceEventRecorder
   def self.record!(artifact:, actor:, attributes:, metadata: {})
-    new(artifact: artifact, actor: actor, attributes: attributes, metadata: metadata).record!
+    puts "DEBUG: RelianceEventRecorder.record! called with artifact=#{artifact.artifact_code}, actor=#{actor.inspect}"
+    result = new(artifact: artifact, actor: actor, attributes: attributes, metadata: metadata).record!
+    puts "DEBUG: RelianceEventRecorder.record! finished, result=#{result.inspect}"
+    result
   end
 
   def initialize(artifact:, actor:, attributes:, metadata:)
@@ -11,6 +14,7 @@ class RelianceEventRecorder
   end
 
   def record!
+    puts "DEBUG: Creating reliance event with attributes: #{@attributes.inspect}"
     RelianceEvent.transaction do
       reliance_event = @artifact.reliance_events.create!(
         @attributes.merge(
@@ -21,6 +25,7 @@ class RelianceEventRecorder
           occurred_at: @attributes[:occurred_at] || @attributes["occurred_at"] || Time.current
         )
       )
+      puts "DEBUG: Created reliance event: #{reliance_event.inspect}"
 
       AuditEvent.log!(
         action: "reliance_event_recorded",
