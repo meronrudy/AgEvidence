@@ -10,6 +10,19 @@ behind `ink_receipts` and the Rust trust boundary.
 Sandbox pricing and orders are illustrative planning records. They are not
 booked, collected, or recognized revenue.
 
+## Researchers
+
+The `researchers` branch adds documentation and executable examples for
+reconstructing published livestock research with the existing SDK boundary.
+
+Start with [AgEvidence for Researchers](../../docs/researchers/index.md), then
+run the Roque et al. 2021 reconstruction:
+
+```bash
+python3 -m pip install -e "sdks/python[research,test]"
+python examples/researchers/01_roque_2021/run.py
+```
+
 ## Install
 
 From the repository root:
