@@ -1,0 +1,3 @@
+sha256  b5a5064306bbaedb778a4177d4de31a4a6d0742440e0e013a92b36edf9017b2e  Enteric CH4 yield and its variability in dairy cows.xlsx
+md5     2c98c4b5042606fb80606793e7ddd4f0                                  Enteric CH4 yield and its variability in dairy cows.xlsx
+
