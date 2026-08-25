@@ -1,0 +1,12 @@
+[package]
+name = "baink-bundle"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+baink-core = { path = "../baink-core" }
+baink-schema = { path = "../baink-schema" }
+baink-canonical = { path = "../baink-canonical" }
+baink-crypto = { path = "../baink-crypto" }
+serde = { workspace = true }
+serde_json = { workspace = true }

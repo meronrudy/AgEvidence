@@ -1,0 +1,10 @@
+[package]
+name = "baink-crypto"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+baink-core = { path = "../baink-core" }
+sha2 = { workspace = true }
+blake3 = { workspace = true }
+hex = "0.4"
