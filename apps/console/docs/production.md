@@ -7,7 +7,7 @@
 - PostgreSQL through `DATABASE_URL`
 - Solid Queue worker from `Procfile`
 - Sprockets assets
-- Docker build context: this `rails_app` directory
+- Docker build context: `apps/console`
 
 ## Required Environment
 
@@ -26,7 +26,7 @@ Expected for commercial operations:
 
 ## Build And Release
 
-From `rails_app`:
+From `apps/console`:
 
 ```sh
 docker build -t agevidence-rails:COMMIT_SHA .
