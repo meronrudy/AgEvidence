@@ -1,0 +1,2 @@
+"""Packaged SDK resource snapshots."""
+
