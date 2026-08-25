@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "athian.agevidence.artifact_assembly.v1",
+  "title": "Athian AgEvidence Artifact Assembly Receipt Payload",
+  "type": "object",
+  "required": [
+    "artifact_digest",
+    "product_code",
+    "artifact_version",
+    "declared_scope",
+    "included_receipts"
+  ],
+  "properties": {
+    "artifact_digest": { "type": "string" },
+    "product_code": { "type": "string" },
+    "artifact_version": { "type": "string" },
+    "declared_scope": { "type": "string" },
+    "included_receipts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": true
+}

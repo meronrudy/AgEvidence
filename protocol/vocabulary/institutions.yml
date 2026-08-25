@@ -1,0 +1,17 @@
+version: athian.agevidence.vocabulary.institutions.v1
+institution:
+  institution.government:
+    label: Government authority
+  institution.registry:
+    label: Registry
+  institution.verifier:
+    label: Verifier
+  institution.buyer:
+    label: Buyer
+  institution.lender:
+    label: Lender
+  institution.processor:
+    label: Processor
+  institution.assurance_body:
+    label: Assurance body
+

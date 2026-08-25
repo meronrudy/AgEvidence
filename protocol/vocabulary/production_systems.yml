@@ -1,0 +1,13 @@
+version: athian.agevidence.vocabulary.production.v1
+production:
+  production.confined_feeding:
+    label: Confined feeding
+  production.pasture_based:
+    label: Pasture based
+  production.grazing:
+    label: Grazing
+  production.dairy:
+    label: Dairy
+  production.forestry:
+    label: Forestry
+

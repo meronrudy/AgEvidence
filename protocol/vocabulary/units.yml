@@ -1,0 +1,16 @@
+version: athian.agevidence.vocabulary.units.v1
+units:
+  mass.kg:
+    label: Kilogram
+  mass.metric_ton:
+    label: Metric ton
+  emissions.tco2e:
+    label: Metric ton carbon dioxide equivalent
+  count.head:
+    label: Animal head
+  area.hectare:
+    label: Hectare
+  currency.usd:
+    label: US dollar
+  percent:
+    label: Percent

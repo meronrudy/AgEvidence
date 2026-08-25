@@ -1,0 +1,20 @@
+version: athian.agevidence.vocabulary.lifecycle_states.v1
+lifecycle_states:
+  draft:
+    label: Draft
+  observed:
+    label: Observed
+  validated:
+    label: Validated
+  attested:
+    label: Attested
+  sealed:
+    label: Sealed
+  superseded:
+    label: Superseded
+  revoked:
+    label: Revoked
+  expired:
+    label: Expired
+  renewed:
+    label: Renewed

@@ -1,0 +1,17 @@
+version: athian.agevidence.vocabulary.decisions.v1
+decision:
+  decision.compatible:
+    label: Compatible
+  decision.extension_applied:
+    label: Extension applied
+  decision.requirement_added:
+    label: Requirement added
+  decision.requirement_overridden:
+    label: Requirement overridden
+  decision.unresolved_conflict:
+    label: Unresolved conflict
+  decision.superseded_policy:
+    label: Superseded policy
+  decision.institution_specific_requirement:
+    label: Institution-specific requirement
+

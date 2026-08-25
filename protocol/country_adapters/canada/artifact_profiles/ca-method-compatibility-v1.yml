@@ -1,0 +1,23 @@
+profile:
+  id: ca-method-compatibility-v1
+  audience: protocol_governance
+required_receipts:
+  - authority_receipt
+  - intervention_receipt
+  - observation_receipt
+  - measurement_receipt
+  - model_execution_receipt
+  - human_review_receipt
+  - country_compatibility_determination_receipt
+required_documents:
+  - animal_cohort_manifest
+  - baseline_performance_summary
+  - baseline_ration_records
+  - intervention_delivery_records
+  - feed_record_summary
+verification:
+  local_verifier_required: true
+  missing_parent_failure: true
+  tamper_test_required: true
+limitations:
+  - Compatibility is an Athian assessment and not a final federal offset determination.

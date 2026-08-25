@@ -1,0 +1,32 @@
+version: athian.agevidence.vocabulary.events.v1
+events:
+  species.beef_cattle:
+    label: Beef cattle
+  species.dairy_cattle:
+    label: Dairy cattle
+  production.confined_feeding:
+    label: Confined feeding
+  production.pasture_based:
+    label: Pasture based
+  production.grazing:
+    label: Grazing
+  intervention.feed_additive:
+    label: Feed additive
+  intervention.ration_reformulation:
+    label: Ration reformulation
+  intervention.approved_feed_additive:
+    label: Approved feed additive
+  observation.delivery_event:
+    label: Delivery event
+  observation.feeding_period:
+    label: Feeding period
+  measurement.laboratory_result:
+    label: Laboratory result
+  measurement.remote_sensing:
+    label: Remote sensing
+accepted_terminology:
+  local_terms:
+    J-Credit:
+      global_concept: registry_credit_program
+    approved greenhouse-gas-reduction feed additive:
+      global_concept: intervention.approved_feed_additive

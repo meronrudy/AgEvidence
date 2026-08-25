@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "athian.agevidence.model_execution.v1",
+  "title": "Athian AgEvidence Model Execution Receipt Payload",
+  "type": "object",
+  "required": [
+    "base_model_id",
+    "weights_digest",
+    "adapter_id",
+    "adapter_digest",
+    "model_license",
+    "runtime",
+    "generation_config",
+    "system_prompt_digest",
+    "retrieval_corpus_digest",
+    "source_document_commitments",
+    "normalized_output_digest",
+    "policy_version",
+    "limitations",
+    "execution_timestamp",
+    "issuer",
+    "signer"
+  ],
+  "properties": {
+    "base_model_id": { "type": "string" },
+    "weights_digest": { "type": "string" },
+    "adapter_id": { "type": "string" },
+    "adapter_digest": { "type": "string" },
+    "model_license": { "type": "string" },
+    "runtime": { "type": "string" },
+    "generation_config": { "type": "object" },
+    "system_prompt_digest": { "type": "string" },
+    "retrieval_corpus_digest": { "type": "string" },
+    "source_document_commitments": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "normalized_output_digest": { "type": "string" },
+    "policy_version": { "type": "string" },
+    "parent_receipts": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "execution_timestamp": { "type": "string" },
+    "issuer": { "type": "string" },
+    "signer": { "type": "string" }
+  },
+  "additionalProperties": true
+}

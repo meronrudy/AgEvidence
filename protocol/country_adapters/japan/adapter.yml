@@ -1,0 +1,39 @@
+adapter:
+  id: athian-country-jp-jcredit-feed-v1
+  version: v1
+  status: scaffold
+  country_code: JP
+global_contract:
+  receipt_envelope: ink.receipt.v2
+  agricultural_vocabulary: athian.agevidence.v1
+  verifier_contract: ink.verify.v1
+method:
+  id: JP-JCREDIT-FEED
+  version: v0.1
+  authority: Japan J-Credit workflow
+applicability:
+  required_context:
+    species:
+      - species.beef_cattle
+      - species.dairy_cattle
+    production_system:
+      - production.confined_feeding
+    intervention_class:
+      - intervention.approved_feed_additive
+  excluded_context:
+    species: []
+    production_system: []
+required_evidence:
+  - evidence.product_authorization
+  - evidence.feed_invoice
+  - evidence.ration_log
+claim_policy:
+  profile: jp-jcredit-claims-v1
+verification_profile:
+  profile: jp-jcredit-verification-v1
+data_policy:
+  profile: jp-controlled-evidence-v1
+artifact_profiles:
+  - jp-jcredit-readiness-v1
+limitations:
+  - Placeholder scaffold; final J-Credit authority remains external.

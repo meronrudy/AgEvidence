@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "athian.agevidence.country_adapter_commitment.v1",
+  "title": "Country Adapter Commitment Receipt Payload",
+  "type": "object",
+  "required": [
+    "adapter_id",
+    "adapter_version",
+    "country_code",
+    "method_id",
+    "method_version",
+    "eligibility_rules_digest",
+    "claim_policy_digest",
+    "verification_profile_digest",
+    "data_policy_digest",
+    "artifact_profile_digests",
+    "authority_declaration",
+    "limitations"
+  ],
+  "properties": {
+    "adapter_id": { "type": "string" },
+    "adapter_version": { "type": "string" },
+    "country_code": { "type": "string" },
+    "method_id": { "type": "string" },
+    "method_version": { "type": "string" },
+    "eligibility_rules_digest": { "type": "string" },
+    "claim_policy_digest": { "type": "string" },
+    "verification_profile_digest": { "type": "string" },
+    "data_policy_digest": { "type": "string" },
+    "artifact_profile_digests": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "authority_declaration": { "type": "string" },
+    "limitations": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    }
+  },
+  "additionalProperties": true
+}

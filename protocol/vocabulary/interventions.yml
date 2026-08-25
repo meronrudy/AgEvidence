@@ -1,0 +1,13 @@
+version: athian.agevidence.vocabulary.interventions.v1
+intervention:
+  intervention.feed_additive:
+    label: Feed additive
+  intervention.ration_reformulation:
+    label: Ration reformulation
+  intervention.approved_feed_additive:
+    label: Approved feed additive
+  intervention.pasture_management:
+    label: Pasture management
+  intervention.forestry_practice:
+    label: Forestry practice
+

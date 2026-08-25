@@ -1,0 +1,9 @@
+data_policy:
+  id: au-controlled-evidence-v1
+  version: v1
+  disclosure:
+    default: selective
+    local_storage: controlled
+  external_checks:
+    pilot_registry_status:
+      offline_behavior: indeterminate
