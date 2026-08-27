@@ -5,12 +5,12 @@
 #![deny(clippy::expect_used)]
 #![deny(clippy::panic)]
 
-//! Verifier engine for the BAINK kernel.
+//! Verifier engine for the AgEvidence verifier core.
 
-use baink_bundle::EvidenceBundle;
-use baink_canonical::canonicalize;
-use baink_core::{HashDigest, VerificationStatus};
-use baink_crypto::hash_bytes;
+use agevidence_bundle::EvidenceBundle;
+use agevidence_canonical::canonicalize;
+use agevidence_core::{HashDigest, VerificationStatus};
+use agevidence_crypto::hash_bytes;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -147,12 +147,12 @@ pub fn verify_bundle(bundle: &EvidenceBundle) -> Result<VerificationReport, &'st
 #[cfg(test)]
 mod tests {
     use super::*;
-    use baink_bundle::{EvidenceBundle, InkReceipt};
-    use baink_core::{
+    use agevidence_bundle::{EvidenceBundle, InkReceipt};
+    use agevidence_core::{
         ControlAssertion, DecisionId, DecisionOutcome, HashAlgorithm, HashDigest, InputRef,
         InstitutionId, IssuerId, PolicyRef, SchemaVersion, SubjectRef, Timestamp, WorkflowId,
     };
-    use baink_schema::DecisionRecord;
+    use agevidence_schema::DecisionRecord;
 
     fn record() -> DecisionRecord {
         DecisionRecord {
@@ -180,14 +180,11 @@ mod tests {
             algorithm: HashAlgorithm::Sha256,
             value: "11".repeat(32),
         };
-        let receipt = match InkReceipt::issue(
-            bad_record_hash,
-            bundle_hash,
-            IssuerId("athian-test".into()),
-        ) {
-            Ok(receipt) => receipt,
-            Err(error) => panic!("{}", error),
-        };
+        let receipt =
+            match InkReceipt::issue(bad_record_hash, bundle_hash, IssuerId("athian-test".into())) {
+                Ok(receipt) => receipt,
+                Err(error) => panic!("{}", error),
+            };
         let bundle = match EvidenceBundle::new(record(), receipt) {
             Ok(bundle) => bundle,
             Err(error) => panic!("{}", error),

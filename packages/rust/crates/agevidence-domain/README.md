@@ -1,8 +1,8 @@
-# baink-agevidence
+# agevidence-domain
 
-`baink-agevidence` is the AgEvidence domain adapter for the BAINK workspace.
+`agevidence-domain` is the AgEvidence domain adapter for the AgEvidence verifier workspace.
 
-It validates normalized agricultural evidence payloads before the existing BAINK kernel commits to them. It does not run models, call Python, fetch documents, sign receipts, or perform review decisions.
+It validates normalized agricultural evidence payloads before the existing AgEvidence verifier core commits to them. It does not run models, call Python, fetch documents, sign receipts, or perform review decisions.
 
 ## Responsibilities
 
@@ -27,8 +27,8 @@ The current crate intentionally performs lightweight structural validation. Prod
 ## Test
 
 ```bash
-cargo test -p baink-agevidence
-cargo run -q -p baink-cli -- agevidence validate --schema country_adapter_commitment path/to/payload.json
+cargo test -p agevidence-domain
+cargo run -q -p agevidence-cli -- agevidence validate --schema country_adapter_commitment path/to/payload.json
 ```
 
 The CLI command should emit a JSON summary with `schema_id`, `receipt_type`, required fields, and parent requirements.

@@ -3,6 +3,90 @@
 version = 4
 
 [[package]]
+name = "agevidence-bundle"
+version = "0.1.0"
+dependencies = [
+ "agevidence-canonical",
+ "agevidence-core",
+ "agevidence-crypto",
+ "agevidence-schema",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "agevidence-canonical"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
+name = "agevidence-cli"
+version = "0.1.0"
+dependencies = [
+ "agevidence-bundle",
+ "agevidence-canonical",
+ "agevidence-core",
+ "agevidence-crypto",
+ "agevidence-domain",
+ "agevidence-schema",
+ "agevidence-verify",
+ "anyhow",
+ "clap",
+ "serde_json",
+]
+
+[[package]]
+name = "agevidence-core"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "agevidence-crypto"
+version = "0.1.0"
+dependencies = [
+ "agevidence-core",
+ "blake3",
+ "hex",
+ "sha2",
+]
+
+[[package]]
+name = "agevidence-domain"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
+name = "agevidence-schema"
+version = "0.1.0"
+dependencies = [
+ "agevidence-core",
+ "serde",
+]
+
+[[package]]
+name = "agevidence-verify"
+version = "0.1.0"
+dependencies = [
+ "agevidence-bundle",
+ "agevidence-canonical",
+ "agevidence-core",
+ "agevidence-crypto",
+ "agevidence-schema",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "anstream"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -69,90 +153,6 @@ name = "arrayvec"
 version = "0.7.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f02882884d3e1bc524fb12c79f107f6ad0e1cfd498c536ffb494301740995dfe"
-
-[[package]]
-name = "baink-agevidence"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "thiserror",
-]
-
-[[package]]
-name = "baink-bundle"
-version = "0.1.0"
-dependencies = [
- "baink-canonical",
- "baink-core",
- "baink-crypto",
- "baink-schema",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "baink-canonical"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "thiserror",
-]
-
-[[package]]
-name = "baink-cli"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "baink-agevidence",
- "baink-bundle",
- "baink-canonical",
- "baink-core",
- "baink-crypto",
- "baink-schema",
- "baink-verify",
- "clap",
- "serde_json",
-]
-
-[[package]]
-name = "baink-core"
-version = "0.1.0"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "baink-crypto"
-version = "0.1.0"
-dependencies = [
- "baink-core",
- "blake3",
- "hex",
- "sha2",
-]
-
-[[package]]
-name = "baink-schema"
-version = "0.1.0"
-dependencies = [
- "baink-core",
- "serde",
-]
-
-[[package]]
-name = "baink-verify"
-version = "0.1.0"
-dependencies = [
- "baink-bundle",
- "baink-canonical",
- "baink-core",
- "baink-crypto",
- "baink-schema",
- "serde",
- "thiserror",
-]
 
 [[package]]
 name = "blake3"

@@ -1,13 +1,13 @@
 [workspace]
 members = [
-    "crates/baink-core",
-    "crates/baink-schema",
-    "crates/baink-canonical",
-    "crates/baink-crypto",
-    "crates/baink-bundle",
-    "crates/baink-verify",
-    "crates/baink-agevidence",
-    "crates/baink-cli",
+    "crates/agevidence-core",
+    "crates/agevidence-schema",
+    "crates/agevidence-canonical",
+    "crates/agevidence-crypto",
+    "crates/agevidence-bundle",
+    "crates/agevidence-verify",
+    "crates/agevidence-domain",
+    "crates/agevidence-cli",
 ]
 resolver = "2"
 

@@ -5,9 +5,9 @@
 #![deny(clippy::expect_used)]
 #![deny(clippy::panic)]
 
-//! Decision record schemas for the BAINK kernel.
+//! Decision record schemas for the AgEvidence verifier core.
 
-use baink_core::{
+use agevidence_core::{
     ControlAssertion, DecisionId, DecisionOutcome, InputRef, InstitutionId, ModelRef, PolicyRef,
     SchemaVersion, SubjectRef, Timestamp, WorkflowId,
 };

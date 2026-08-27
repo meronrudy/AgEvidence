@@ -1,8 +1,8 @@
 [package]
-name = "baink-schema"
+name = "agevidence-schema"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-baink-core = { path = "../baink-core" }
+agevidence-core = { path = "../agevidence-core" }
 serde = { workspace = true }

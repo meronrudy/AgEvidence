@@ -1,11 +1,11 @@
+use agevidence_bundle::{EvidenceBundle, InkReceipt};
+use agevidence_canonical::canonicalize;
+use agevidence_core::{HashAlgorithm, IssuerId, VerificationStatus};
+use agevidence_crypto::hash_bytes;
+use agevidence_domain::{validate_payload, AgEvidenceSchema};
+use agevidence_schema::DecisionRecord;
+use agevidence_verify::verify_bundle;
 use anyhow::{Context, Result};
-use baink_agevidence::{validate_payload, AgEvidenceSchema};
-use baink_bundle::{EvidenceBundle, InkReceipt};
-use baink_canonical::canonicalize;
-use baink_core::{HashAlgorithm, IssuerId, VerificationStatus};
-use baink_crypto::hash_bytes;
-use baink_schema::DecisionRecord;
-use baink_verify::verify_bundle;
 use clap::{Parser, Subcommand};
 use serde_json::{json, Value};
 use std::fs;
@@ -20,12 +20,17 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Initialize a new BAINK workspace
+    /// Initialize a new AgEvidence verifier workspace
     Init,
     /// Hash a decision record
     Hash {
         /// Path to the record JSON file
         record: PathBuf,
+    },
+    /// Emit canonical JSON for any JSON payload
+    Canonicalize {
+        /// Path to the payload JSON file
+        payload: PathBuf,
     },
     /// Generate a receipt for a decision record
     Receipt {
@@ -146,7 +151,7 @@ fn main() -> Result<()> {
 
     match cli.command {
         Commands::Init => {
-            println!("Initialized empty BAINK workspace.");
+            println!("Initialized empty AgEvidence verifier workspace.");
         }
         Commands::Hash { record } => {
             let record_str = fs::read_to_string(&record).context("Failed to read record file")?;
@@ -155,6 +160,14 @@ fn main() -> Result<()> {
             let canonical = canonicalize(&record).context("Failed to canonicalize record")?;
             let hash = hash_bytes(canonical.as_bytes(), HashAlgorithm::Sha256);
             println!("sha256:{}", hash.value);
+        }
+        Commands::Canonicalize { payload } => {
+            let payload = read_json_payload(&payload).context("Failed to read payload")?;
+            let canonical = canonicalize(&payload).context("Failed to canonicalize payload")?;
+            let canonical = canonical
+                .as_str()
+                .context("Canonical payload was not valid UTF-8")?;
+            println!("{}", canonical);
         }
         Commands::Receipt { record } => {
             let record_str = fs::read_to_string(&record).context("Failed to read record file")?;
@@ -274,7 +287,7 @@ fn main() -> Result<()> {
             let report = verify_bundle(&bundle).map_err(|e| anyhow::anyhow!(e))?;
 
             if format == "markdown" {
-                println!("BAINK VERIFY REPORT\n");
+                println!("AGEVIDENCE VERIFY REPORT\n");
                 println!("Status: {:?}\n", report.status);
                 println!("Checks:");
                 for check in report.checks {

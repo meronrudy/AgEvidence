@@ -5,7 +5,7 @@
 #![deny(clippy::expect_used)]
 #![deny(clippy::panic)]
 
-//! Core types and traits for the BAINK kernel.
+//! Core types and traits for the AgEvidence verifier core.
 
 use serde::{Deserialize, Serialize};
 

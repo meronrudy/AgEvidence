@@ -1,12 +1,12 @@
 [package]
-name = "baink-bundle"
+name = "agevidence-bundle"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-baink-core = { path = "../baink-core" }
-baink-schema = { path = "../baink-schema" }
-baink-canonical = { path = "../baink-canonical" }
-baink-crypto = { path = "../baink-crypto" }
+agevidence-core = { path = "../agevidence-core" }
+agevidence-schema = { path = "../agevidence-schema" }
+agevidence-canonical = { path = "../agevidence-canonical" }
+agevidence-crypto = { path = "../agevidence-crypto" }
 serde = { workspace = true }
 serde_json = { workspace = true }

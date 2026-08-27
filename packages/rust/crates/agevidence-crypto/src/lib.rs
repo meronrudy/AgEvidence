@@ -5,9 +5,9 @@
 #![deny(clippy::expect_used)]
 #![deny(clippy::panic)]
 
-//! Hashing, signing, and verification primitives for the BAINK kernel.
+//! Hashing, signing, and verification primitives for the AgEvidence verifier core.
 
-use baink_core::{HashAlgorithm, HashDigest};
+use agevidence_core::{HashAlgorithm, HashDigest};
 use sha2::{Digest, Sha256};
 
 /// Hash bytes using the specified algorithm.

@@ -5,10 +5,10 @@
 #![deny(clippy::expect_used)]
 #![deny(clippy::panic)]
 
-//! Receipt bundle structure for the BAINK kernel.
+//! Receipt bundle structure for the AgEvidence verifier core.
 
-use baink_core::{HashDigest, IssuerId, SchemaVersion, Timestamp};
-use baink_schema::DecisionRecord;
+use agevidence_core::{HashDigest, IssuerId, SchemaVersion, Timestamp};
+use agevidence_schema::DecisionRecord;
 use serde::{Deserialize, Serialize};
 
 /// Signature block (placeholder for v0.1).
@@ -71,7 +71,7 @@ impl EvidenceBundle {
     /// Create a new evidence bundle.
     pub fn new(record: DecisionRecord, receipt: InkReceipt) -> Result<Self, &'static str> {
         Ok(Self {
-            bundle_version: SchemaVersion("baink.bundle.v0.1".into()),
+            bundle_version: SchemaVersion("agevidence.bundle.v0.1".into()),
             record,
             receipt,
             profile: "default".into(),

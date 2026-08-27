@@ -1,5 +1,5 @@
 [package]
-name = "baink-agevidence"
+name = "agevidence-domain"
 version = "0.1.0"
 edition = "2021"
 
