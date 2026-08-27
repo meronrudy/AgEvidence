@@ -1,116 +1,87 @@
-# AgEvidence SDK Contract
+# AgEvidence API Contract
 
-## Contract name
-agevidence.v1
+## Contract
 
-## Transport
-HTTPS JSON
+- Canonical OpenAPI: `protocol/openapi/agevidence-v1.yaml`
+- Server prefix: `/api/v1`
+- Transport: HTTPS JSON
+- Authentication: bearer API key
+- Idempotency header for mutating requests: `Idempotency-Key`
+- JSON schemas served by Rails from: `protocol/schemas`
 
-## Authentication
-Bearer API key
+The active Rails console API is the `/api/v1` partner surface for source
+intake, artifact access, placeholder verification results, reliance events, and
+checked-in contract schemas.
 
-## Write idempotency
-Idempotency-Key
+The older source-only `/v1` Developer OS contract is preserved as an archive at
+`protocol/openapi/legacy/athian-evidence-bazaar/agevidence.v1.yaml`. Do not use
+that archived contract as the source of truth for new Rails routes.
 
-## API prefix
-/v1
+## Response Envelopes
 
-## Overview
-This document defines the hosted API contract that the AgEvidence Python SDK expects from the AgEvidence Rails application. The Rails application serves as the commercial system of record, exposing a versioned API that the SDK can interact with.
-
-## Architecture
-```
-External Python SDK
-        │
-        │ HTTPS / JSON / Bearer API key
-        ▼
-┌─────────────────────────────┐
-│       AgEvidence Rails      │
-│                             │
-│ /v1/developer/*             │
-│ /v1/pricing/*               │
-│ /v1/artifact-orders/*       │
-│ /v1/country_adapters/*      │
-│ /v1/integrations/*          │
-│                             │
-│ tenancy                     │
-│ persistence                 │
-│ review                      │
-│ evaluation                  │
-│ determination               │
-│ artifact lifecycle          │
-│ billing state               │
-│ audit                       │
-└──────────────┬──────────────┘
-               │
-               │ optional private HTTP
-               ▼
-       Python execution service
-       added later/separately
-```
-
-## Key Principles
-
-1. **No Python in Rails**: Rails does not install Python, shell out to Python, or import the Python SDK.
-
-2. **No external dependencies**: All schemas, code, and data must be self-contained within the Rails repository.
-
-3. **Tenant isolation**: Account names submitted by clients cannot select tenants; tenant is determined by the API key.
-
-4. **Immutable history**: Historical reviews, determinations, artifacts, and audit events cannot be overwritten.
-
-5. **Append-only review**: Candidate reviews are recorded as append-only history, not mutations.
-
-6. **Separate concerns**: Evidence artifacts, commercial orders, and cryptographic verification remain separate concerns.
-
-## Response Format
-All successful responses return the resource object directly, not wrapped in a contract envelope:
+Successful current API responses use a versioned envelope:
 
 ```json
 {
-  "id": "PRJ-123",
-  "name": "Methane Trial"
+  "contract_version": "api-envelope.v1",
+  "request_id": "request-id",
+  "data": {}
 }
 ```
 
-Every response must include the contract version header:
-
-```
-X-AgEvidence-Contract: agevidence.v1
-```
-
-## Error Format
-All errors return a standardized error object:
+Errors use `error-response.v0`:
 
 ```json
 {
+  "contract_version": "error-response.v0",
+  "request_id": "request-id",
   "error": {
-    "code": "validation_failed",
-    "message": "Human-readable explanation."
+    "code": "unauthorized",
+    "message": "A valid API key is required."
   }
 }
 ```
 
-## Required Scopes
-The API uses bearer tokens with scopes for least-privilege access. Required scopes include:
+## Active Resources
 
-- projects:create
-- projects:read
-- source_records:create
-- source_records:read
-- model_runs:create
-- model_runs:read
-- candidates:read
-- candidates:review
-- pricing:read
-- pricing:create
-- artifact_orders:create
-- artifact_orders:read
-- artifacts:create
-- artifacts:read
-- country_adapters:read
-- country_determinations:create
-- country_determinations:read
-- integrations:write
-- integrations:read
-- webhooks:create
+- `POST /api/v1/evidence`
+- `GET /api/v1/evidence/{id}`
+- `POST /api/v1/projects/{project_code}/source-records`
+- `GET /api/v1/projects/{project_code}/source-records/{record_code}`
+- `GET /api/v1/evaluations`
+- `GET /api/v1/evaluations/{id}`
+- `GET /api/v1/reviews`
+- `GET /api/v1/program_profiles`
+- `GET /api/v1/program_profiles/{id}`
+- `GET /api/v1/statements`
+- `GET /api/v1/statements/{id}`
+- `POST /api/v1/statements/{id}/shares`
+- `GET /api/v1/artifacts/{artifact_code}`
+- `POST /api/v1/artifacts/{artifact_code}/verify`
+- `POST /api/v1/artifacts/{artifact_code}/reliance-events`
+- `GET /api/v1/schemas/{contract_version}`
+
+## Required Scopes
+
+API keys are digest-backed and scoped. Seeded demo keys include the scopes used
+by Rails tests:
+
+- `evidence:create`
+- `evidence:read`
+- `evaluations:read`
+- `reviews:read`
+- `program_profiles:read`
+- `statements:read`
+- `statements:share`
+- `source_records:create`
+- `source_records:read`
+- `artifacts:read`
+- `artifacts:verify`
+- `reliance_events:create`
+- `schemas:read`
+
+## Boundaries
+
+Rails does not import or shell out to the Python SDK. The Python package owns
+local research helpers and legacy client compatibility. The Rust workspace owns
+canonical JSON, hashing, bundle, and verifier primitives.

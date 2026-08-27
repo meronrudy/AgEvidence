@@ -16,7 +16,7 @@ published XLSX
 Run:
 
 ```bash
-python research/studies/kebreab/roque-2021/run.py
+python3 research/studies/kebreab/roque-2021/run.py
 ```
 
 The workbook sheets are mapped as follows:
@@ -26,4 +26,3 @@ The workbook sheets are mapped as follows:
   and experimental week.
 - `CarcassData`: carcass and meat-quality measurements.
 - `TastePanelData`: sensory-panel results.
-

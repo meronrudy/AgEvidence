@@ -1,218 +1,113 @@
-# Request/Response Examples
+# Request And Response Examples
 
-## Project Creation
+## Intake A Source Record
 
-### Request
+```http
+POST /api/v1/projects/PRJ-AU-00041/source-records
+Authorization: Bearer agev_live_demo_7f91
+Content-Type: application/json
+Idempotency-Key: source-record-demo-1
+```
+
 ```json
 {
-  "account_name": "Example AgTech",
-  "project_name": "Methane Trial",
-  "target_claim": "supplier-specific methane reduction evidence",
-  "funding_stage": "sandbox",
-  "project_type": "intervention",
-  "external_project_id": "optional",
-  "country_context": {}
+  "record_code": "SR-DIT-SDK",
+  "source_system": "DIT Evidence API",
+  "document_id": "DIT-FEED-2026-07",
+  "evidence_type": "feeding_event",
+  "evidence_class": "controlled_source",
+  "controlled_uri": "evidence://dit-au-methane/source/DIT-FEED-2026-07",
+  "commitment": "sha256:4f8c114a02ccf3b9",
+  "disclosure_status": "available",
+  "status": "received"
 }
 ```
 
-### Response (201)
+Successful response:
+
 ```json
 {
-  "id": "PRJ-123",
-  "name": "Methane Trial",
-  "developer_account": "Example AgTech",
-  "target_claim": "supplier-specific methane reduction evidence",
-  "project_type": "intervention",
-  "protocol_status": "not_selected",
-  "integration_status": "active",
-  "evidence_graph_root": null,
-  "source_records_url": "/v1/developer/projects/PRJ-123/source_records",
-  "model_runs_url": "/v1/developer/projects/PRJ-123/model_runs",
-  "artifacts_url": "/v1/developer/projects/PRJ-123/artifacts",
-  "authority_boundary": "Evidence is distinct from eligibility, verification, issuance, and claim ownership."
-}
-```
-
-## Source Record Submission
-
-### Request
-```json
-{
-  "document_id": "measurement-001",
-  "evidence_type": "observation",
-  "controlled_uri": "s3://bucket/object",
-  "commitment": "abc123...",
-  "source_system": "python_sdk",
-  "evidence_class": "measurement",
-  "metadata": {}
-}
-```
-
-### Response (201)
-```json
-{
-  "id": "SRC-123",
-  "document_id": "measurement-001",
-  "evidence_type": "observation",
-  "evidence_class": "measurement",
-  "source_system": "python_sdk",
-  "controlled_uri": "s3://bucket/object",
-  "commitment": "abc123...",
-  "disclosure_status": "controlled",
-  "status": "accepted",
-  "operation_id": "OP-123",
-  "created_at": "2026-08-18T08:00:00Z"
-}
-```
-
-## Model Run Creation
-
-### Request
-```json
-{
-  "adapter_id": "qwen3.5-4b-reference"
-}
-```
-
-### Response (201)
-```json
-{
-  "id": "RUN-123",
-  "project_id": "PRJ-123",
-  "adapter_id": "qwen3.5-4b-reference",
-  "base_model_id": null,
-  "task": "evidence_candidate_extraction",
-  "status": "queued",
-  "prompt_digest": null,
-  "retrieval_digest": null,
-  "output_digest": null,
-  "limitations": [],
-  "candidates": [],
-  "gaps": [],
-  "completed_at": null
-}
-```
-
-## Candidate Review
-
-### Request
-```json
-{
-  "decision": "accepted",
-  "reason": "Source evidence supports the bounded statement.",
-  "reviewer_role": "scientific_reviewer",
-  "policy_version": "review-policy.v1"
-}
-```
-
-### Response (200)
-```json
-{
-  "id": "CAND-123",
-  "model_run_id": "RUN-123",
-  "candidate_type": "bounded_statement",
-  "claim_text": "Recorded methane measurement...",
-  "source_references": [],
-  "model_confidence": 0.81,
-  "review_status": "accepted",
-  "review_notes": "Source evidence supports the bounded statement.",
-  "reviewed_by": "scientific_reviewer",
-  "reviewed_at": "2026-08-18T08:05:00Z",
-  "authority_boundary": "Model output is not an institutional determination."
-}
-```
-
-## Country Determination
-
-### Request
-```json
-{
-  "adapter": "au-accu-livestock-v1",
-  "institution_profile": {}
-}
-```
-
-### Response (201)
-```json
-{
-  "id": "DET-123",
-  "project_id": "PRJ-123",
-  "adapter_id": "au-accu-livestock-v1",
-  "country_code": "AU",
-  "status": "completed",
-  "classification": "program_interpretation",
-  "authority": "authority",
-  "limitations": [],
-  "created_at": "2026-08-18T08:00:00Z"
-}
-```
-
-## Pricing Quote
-
-### Request
-```json
-{
-  "project_id": "PRJ-123",
-  "product_code": "reliance_artifact",
-  "scope": {}
-}
-```
-
-### Response (201)
-```json
-{
-  "quote_id": "QUOTE-123",
-  "product_code": "reliance_artifact",
-  "currency": "USD",
-  "amount": 2500000,
-  "pricing_version": "2026-08",
-  "breakdown": [],
-  "status": "quoted",
-  "expires_at": "2026-09-18T08:00:00Z",
-  "accepted_at": null,
-  "notice": "Pricing is planning guidance until a quote is accepted."
-}
-```
-
-## Artifact Order
-
-### Request
-```json
-{
-  "quote_id": "QUOTE-123",
-  "product_code": "reliance_artifact",
-  "scope": {}
-}
-```
-
-### Response (200)
-```json
-{
-  "order_id": "ORDER-123",
-  "status": "checkout_completed",
-  "checkout_completed_at": "2026-08-18T08:05:00Z"
-}
-```
-
-## Integration Event
-
-### Request
-```json
-{
-  "source": "python_sdk",
-  "event_type": "artifact.ready",
-  "payload": {
-    "artifact_id": "ART-123",
-    "project_id": "PRJ-123"
+  "contract_version": "api-envelope.v1",
+  "request_id": "request-id",
+  "data": {
+    "record_code": "SR-DIT-SDK",
+    "project_code": "PRJ-AU-00041",
+    "status": "received"
   }
 }
 ```
 
-### Response (201)
+## Verify An Artifact
+
+```http
+POST /api/v1/artifacts/AE-AU-000184/verify
+Authorization: Bearer agev_test_demo_2a10
+```
+
+Successful response:
+
 ```json
 {
-  "event_id": "EVENT-123",
-  "status": "accepted",
-  "duplicate": false,
-  "operation_id": "OP-456"
+  "contract_version": "api-envelope.v1",
+  "request_id": "request-id",
+  "data": {
+    "artifact_code": "AE-AU-000184",
+    "verifier_result_status": "locally_consistent"
+  }
 }
+```
+
+The verifier result is an AgEvidence placeholder. It is not independent
+third-party cryptographic verification.
+
+## Record Reliance
+
+```http
+POST /api/v1/artifacts/AE-AU-000184/reliance-events
+Authorization: Bearer agev_test_demo_2a10
+Content-Type: application/json
+```
+
+```json
+{
+  "relying_party": "Recipient application",
+  "relying_party_role": "recipient",
+  "reliance_kind": "assurance",
+  "status": "recorded"
+}
+```
+
+Successful response:
+
+```json
+{
+  "contract_version": "api-envelope.v1",
+  "request_id": "request-id",
+  "data": {
+    "contract_version": "reliance-event.v0",
+    "artifact_code": "AE-AU-000184",
+    "relying_party": "Recipient application",
+    "reliance_kind": "assurance",
+    "status": "recorded"
+  }
+}
+```
+
+## Fetch A Contract Schema
+
+```http
+GET /api/v1/schemas/artifact-manifest.v0
+Authorization: Bearer agev_live_demo_7f91
+```
+
+Successful response:
+
+```json
+{
+  "contract_version": "api-envelope.v1",
+  "request_id": "request-id",
+  "data": {
+    "contract_version": "artifact-manifest.v0"
+  }
+}
+```

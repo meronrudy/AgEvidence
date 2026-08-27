@@ -15,10 +15,9 @@ reported SEM
 Run:
 
 ```bash
-python research/studies/kebreab/methane-database-2024/run.py
+python3 research/studies/kebreab/methane-database-2024/run.py
 ```
 
 The output bundle keeps the original workbook commitment and records
 transformation and exclusion decisions before computing a derived sample-size
 result.
-

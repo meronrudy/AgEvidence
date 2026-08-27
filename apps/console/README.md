@@ -59,7 +59,7 @@ bundle exec rubocop --fail-level fatal
 
 The Rails app deploys from `apps/console` using `Dockerfile`, `Procfile`, and
 `bin/release`. Required production settings are documented in
-`docs/production.md`.
+`apps/console/docs/production.md`.
 
 Production and staging URLs are intentionally not listed until DNS and deploy targets are verified.
 

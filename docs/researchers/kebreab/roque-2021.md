@@ -11,7 +11,7 @@ Asparagopsis beef-steer experiment.
 Run:
 
 ```bash
-python research/studies/kebreab/roque-2021/run.py
+python3 research/studies/kebreab/roque-2021/run.py
 ```
 
 The reconstruction maps:

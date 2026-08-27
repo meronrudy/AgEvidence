@@ -1,18 +1,21 @@
 # AgEvidence Python SDK and CLI
 
-This is the canonical Python package for the AgEvidence Developer OS.
+This is the canonical Python package for AgEvidence.
 
-It wraps the Rails `/api/v1` API for projects, source records, model runs,
-candidate review, quotes, artifact orders, artifacts, integration events,
-webhooks, and operations. Receipt issuance and cryptographic verification stay
-behind `ink_receipts` and the Rust trust boundary.
+It provides local research helpers, the `agevidence` CLI, and compatibility
+clients for the archived Developer OS `/v1` surface. The current Rails partner
+API is documented separately in `../../docs/api/sdk-contract` and served from
+`/api/v1`.
+
+Receipt issuance and cryptographic verification stay behind `ink_receipts` and
+the Rust trust boundary.
 
 Sandbox pricing and orders are illustrative planning records. They are not
 booked, collected, or recognized revenue.
 
 ## Researchers
 
-The `researchers` branch adds documentation and executable examples for
+The research workspace contains documentation and executable examples for
 reconstructing published livestock research with the existing SDK boundary.
 
 Start with [AgEvidence for Researchers](../../docs/researchers/index.md), then
@@ -20,7 +23,7 @@ run the Roque et al. 2021 reconstruction:
 
 ```bash
 python3 -m pip install -e "packages/python[research,test]"
-python research/studies/kebreab/roque-2021/run.py
+python3 research/studies/kebreab/roque-2021/run.py
 ```
 
 ## Install
@@ -175,7 +178,8 @@ agevidence replay project-4030
 ```
 
 The CLI signs each event with HMAC-SHA256 for integration authentication and
-submits it to `/v1/integrations/events`.
+submits it through the archived Developer OS `/v1/integrations/events`
+compatibility client.
 
 Integration event signing is not receipt signing. The SDK does not issue or
 sign receipts.
@@ -263,7 +267,8 @@ collected or recognized revenue.
 
 The package ships a `py.typed` marker for Python 3.11+ type consumers. Request
 models are strict about unknown fields; response models remain additive so the
-Rails `/v1` scaffold can add compatible fields without breaking SDK consumers.
+The archived Developer OS `/v1` scaffold can add compatible fields without
+breaking SDK consumers.
 
 ## Test
 

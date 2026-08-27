@@ -15,7 +15,7 @@ published livestock research from UC Davis.
 - [Understand the evidence model](concepts/source-records.md)
 
 Researchers do not need to start with commercial console vocabulary. The
-researcher branch treats AgEvidence as a local evidence-object toolkit: source
+research workspace treats AgEvidence as a local evidence-object toolkit: source
 records, observations, interventions, operational events, model runs, and
 example scientific statements are assembled into reproducible bundles.
 
@@ -40,4 +40,3 @@ example scientific statements are assembled into reproducible bundles.
 
 The first two paths execute from public workbooks. Later paths are case-study
 reconstructions until row-level public datasets are available.
-

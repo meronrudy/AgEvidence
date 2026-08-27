@@ -9,7 +9,7 @@ production, yield, and intensity using an intercontinental database.
 Run:
 
 ```bash
-python research/studies/kebreab/intercontinental-model/run.py
+python3 research/studies/kebreab/intercontinental-model/run.py
 ```
 
 The case study maps:
@@ -24,4 +24,3 @@ The case study maps:
 The public article describes the database architecture and model findings. The
 branch does not include the raw consolidated database because a public copy was
 not located.
-

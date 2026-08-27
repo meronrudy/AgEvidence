@@ -10,7 +10,7 @@ four-week periods, GreenFeed gas measurement, and milk sampling.
 Run:
 
 ```bash
-python research/studies/kebreab/grape-pomace-2025/run.py
+python3 research/studies/kebreab/grape-pomace-2025/run.py
 ```
 
 Public-data boundary:
@@ -26,4 +26,3 @@ The case study still preserves:
 - GreenFeed calibration context
 - SAS 9.4 / PROC GLIMMIX statistical lineage
 - the explicit limitation that no private raw rows are reconstructed
-

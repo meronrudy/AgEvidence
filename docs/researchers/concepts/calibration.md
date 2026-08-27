@@ -12,6 +12,5 @@ The GreenFeed case study represents:
 - CO2 recovery calibration before each period
 - reported recovery metadata
 
-The current branch uses existing calibration-record-shaped objects inside
+The research workspace uses existing calibration-record-shaped objects inside
 example bundles. It does not add a new `CalibrationEnvelope` primitive.
-

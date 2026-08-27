@@ -11,7 +11,7 @@ Africa and Asia.
 Run:
 
 ```bash
-python research/studies/kebreab/rationsmart/run.py
+python3 research/studies/kebreab/rationsmart/run.py
 ```
 
 Evidence architecture:
@@ -28,4 +28,3 @@ feed sample
 ```
 
 This is an architecture case study, not a country-specific feed-library export.
-

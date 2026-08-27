@@ -12,7 +12,7 @@ yield and variability.
 Run:
 
 ```bash
-python research/studies/kebreab/methane-database-2024/run.py
+python3 research/studies/kebreab/methane-database-2024/run.py
 ```
 
 The tutorial records:

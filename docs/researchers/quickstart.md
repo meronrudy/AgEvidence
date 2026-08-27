@@ -17,7 +17,7 @@ python3 -m pip install -e "packages/python[research,test]"
 ## Run The First Reconstruction
 
 ```bash
-python research/studies/kebreab/roque-2021/run.py
+python3 research/studies/kebreab/roque-2021/run.py
 ```
 
 Expected shape:
@@ -49,7 +49,7 @@ reconstructs evidence records from the workbook, and writes a local bundle.
 ## Run The Meta-Analysis Workflow
 
 ```bash
-python research/studies/kebreab/methane-database-2024/run.py
+python3 research/studies/kebreab/methane-database-2024/run.py
 ```
 
 This downloads Zenodo v2, verifies SHA-256 and MD5 commitments, records

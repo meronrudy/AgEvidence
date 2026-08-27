@@ -1,96 +1,37 @@
 # Error Contract
 
-All errors follow this format:
+Current Rails API errors use `error-response.v0` envelopes:
+
 ```json
 {
-  "error": {
-    "code": "<error_code>",
-    "message": "<human-readable explanation>",
-  }
-}
-```
-
-## Required Error Codes
-
-| Code | Description | Example Message |
-|------|-------------|----------------|
-| unauthorized | Invalid or missing API key | "API key not provided or invalid" |
-| forbidden | Insufficient permissions | "Missing required scope" |
-| not_found | Resource not found | "Project or candidate not found" |
-| validation_failed | Input validation error | "Invalid project name format" |
-| invalid_request | Malformed request | "Missing required parameters" |
-| conflict | Resource conflict | "Duplicate source record" |
-| idempotency_conflict | Idempotency key conflict | "Request already processed" |
-| runtime_unavailable | Service unavailable | "Model runtime not available" |
-| operation_failed | Background operation failed | "Model execution error" |
-
-## Error Response Examples
-
-### 401 Unauthorized
-```json
-{
-  "error": {
-    "code": "unauthorized",
-    "message": "Invalid API key or missing scope"
-  }
-}
-```
-
-### 403 Forbidden
-```json
-{
-  "error": {
-    "code": "forbidden",
-    "message": "Missing required scope: projects:create"
-  }
-}
-```
-
-### 404 Not Found
-```json
-{
-  "error": {
-    "code": "not_found",
-    "message": "Project PRJ-123 not found"
-  }
-}
-```
-
-### 422 Validation Failed
-```json
-{
+  "contract_version": "error-response.v0",
+  "request_id": "request-id",
   "error": {
     "code": "validation_failed",
-    "message": "Project name must be 3-20 characters"
+    "message": "Human-readable explanation."
   }
 }
 ```
 
-### 409 Conflict
+## Common Codes
+
+| Code | HTTP status | Meaning |
+| --- | --- | --- |
+| `unauthorized` | 401 | Missing, revoked, or invalid bearer API key. |
+| `forbidden` | 403 | API key lacks the required scope or policy access. |
+| `not_found` | 404 | The requested project, artifact, record, or schema was not found. |
+| `bad_request` | 400 | Request parameters could not be parsed. |
+| `validation_failed` | 422 | Request payload failed model validation. |
+
+## Example
+
 ```json
 {
+  "contract_version": "error-response.v0",
+  "request_id": "27c5b4e8-1a6d-4b77-b9ad-648018d0a0de",
   "error": {
-    "code": "idempotency_conflict",
-    "message": "Source record already exists with same document ID"
+    "code": "forbidden",
+    "message": "The API key is not authorized for this resource."
   }
 }
 ```
-
-### 503 Runtime Unavailable
-```json
-{
-  "error": {
-    "code": "runtime_unavailable",
-    "message": "Model runtime service is down"
-  }
-}
-```
-
-### 500 Operation Failed
-```json
-{
-  "error": {
-    "code": "operation_failed",
-    "message": "Candidate review failed: insufficient evidence"
-  }
-}

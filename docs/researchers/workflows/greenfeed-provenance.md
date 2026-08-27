@@ -17,9 +17,8 @@ instrument
 Run:
 
 ```bash
-python research/studies/kebreab/greenfeed/run.py
+python3 research/studies/kebreab/greenfeed/run.py
 ```
 
 The bundle uses protocol-level records because the public grape-pomace paper
 does not provide row-level GreenFeed exports.
-
