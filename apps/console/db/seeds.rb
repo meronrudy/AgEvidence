@@ -97,8 +97,13 @@ org.api_logs.destroy_all
 org.webhook_endpoints.destroy_all
 org.integrations.destroy_all
 org.api_keys.destroy_all
+org.invitations.destroy_all
+User.where(email: "review.partner@agevidence.example").destroy_all
 
-ProgramProfile.where.not(code: [CANONICAL_PROFILE_CODE, PENDING_PROFILE_CODE]).destroy_all
+stale_profiles = ProgramProfile.where.not(code: [CANONICAL_PROFILE_CODE, PENDING_PROFILE_CODE])
+Determination.where(program_profile: stale_profiles).destroy_all
+Evaluation.where(program_profile: stale_profiles).destroy_all
+stale_profiles.destroy_all
 
 profile = upsert(
   ProgramProfile,
@@ -476,6 +481,8 @@ statement_184 = upsert(
     status: "ready_with_qualification",
     issued: false,
     issued_at: nil,
+    created_at: t("2026-08-14 21:04:20"),
+    updated_at: t("2026-08-14 21:04:20"),
     artifact: statement_payload.merge("digest" => statement_digest),
     integrity: [
       { "label" => "Statement digest", "ok" => true },
@@ -523,6 +530,8 @@ statement_184 = upsert(
       issued: issued,
       issued_at: t(issued_at),
       issued_by_user: admin,
+      created_at: t(issued_at),
+      updated_at: t(issued_at),
       artifact: payload.merge("digest" => digest),
       integrity: [
         { "label" => "Statement digest", "ok" => true },
@@ -659,3 +668,17 @@ end
 ].each do |code, name, token, hint, status, last, scopes|
   upsert(ApiKey, { key_code: code }, { organization: org, name: name, token_hint: hint, token_digest: ApiKey.digest_token(token), scopes: scopes, status: status, last_used_at: t(last) })
 end
+
+upsert(
+  Invitation,
+  { token: "demo-reviewer-invite" },
+  {
+    organization: org,
+    email: "review.partner@agevidence.example",
+    role: reviewer_role,
+    invited_by_user: admin,
+    status: "pending",
+    expires_at: 7.days.from_now,
+    accepted_at: nil
+  }
+)
