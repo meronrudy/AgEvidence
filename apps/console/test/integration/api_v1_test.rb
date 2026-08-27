@@ -98,8 +98,6 @@ class ApiV1Test < ActionDispatch::IntegrationTest
   test "api records reliance event without changing artifact" do
     artifact = Artifact.find_by!(artifact_code: "AE-AU-000184")
     original_digest = artifact.digest
-    puts "DEBUG: Starting test, RelianceEvent.count = #{RelianceEvent.count}"
-    puts "DEBUG: Artifact found: #{artifact.inspect}"
 
     assert_difference -> { RelianceEvent.count }, 1 do
       post "/api/v1/artifacts/AE-AU-000184/reliance-events",
@@ -113,11 +111,8 @@ class ApiV1Test < ActionDispatch::IntegrationTest
           "Authorization" => "Bearer agev_test_demo_2a10",
           "Content-Type" => "application/json"
         }
-      puts "DEBUG: Response status: #{response.status}"
-      puts "DEBUG: Response body: #{response.body}"
     end
 
-    puts "DEBUG: After test, RelianceEvent.count = #{RelianceEvent.count}"
     assert_response :created
     assert_equal original_digest, artifact.reload.digest
   end

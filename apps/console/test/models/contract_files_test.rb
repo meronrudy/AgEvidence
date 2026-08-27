@@ -10,7 +10,7 @@ class ContractFilesTest < ActiveSupport::TestCase
 
   test "contract files are versioned with positive and negative fixtures" do
     CONTRACTS.each do |filename|
-      contract = JSON.parse(Rails.root.join("docs/contracts", filename).read)
+      contract = JSON.parse(protocol_schema_path(filename).read)
 
       assert contract.fetch("$schema").present?, filename
       assert contract.fetch("$id").present?, filename
@@ -36,5 +36,11 @@ class ContractFilesTest < ActiveSupport::TestCase
     assert_equal "hmac-sha256", envelope.dig("signature", "algorithm")
     assert_equal "whsec_test", envelope.dig("signature", "key_id")
     assert envelope.dig("signature", "value").present?
+  end
+
+  private
+
+  def protocol_schema_path(filename)
+    Rails.root.join("..", "..", "protocol", "schemas", filename).expand_path
   end
 end

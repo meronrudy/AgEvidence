@@ -11,7 +11,7 @@ module Api
       def show
         require_scope!("schemas:read")
         filename = CONTRACTS.fetch(params[:contract_version])
-        path = Rails.root.join("docs/contracts", filename)
+        path = Rails.root.join("..", "..", "protocol", "schemas", filename).expand_path
         envelope(JSON.parse(path.read))
       rescue KeyError
         not_found
