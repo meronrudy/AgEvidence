@@ -1,20 +1,16 @@
 from __future__ import annotations
 
 import math
-import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-SHARED = REPO_ROOT / "examples" / "researchers" / "_shared"
-if str(SHARED) not in sys.path:
-    sys.path.insert(0, str(SHARED))
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
-from data_sources import ensure_download, load_excel, normalize_columns  # noqa: E402
-from research_bundle import (  # noqa: E402
+from agevidence.research.datasets import ensure_download, load_excel, normalize_columns
+from agevidence.research.bundles import (
     clean_text,
     derived_observation,
     model_run,
@@ -33,7 +29,7 @@ from research_bundle import (  # noqa: E402
 DATA_URL = "https://zenodo.org/records/10832823/files/Enteric%20CH4%20yield%20and%20its%20variability%20in%20dairy%20cows.xlsx?download=1"
 DATA_SHA256 = "sha256:b5a5064306bbaedb778a4177d4de31a4a6d0742440e0e013a92b36edf9017b2e"
 DATA_MD5 = "md5:2c98c4b5042606fb80606793e7ddd4f0"
-DATA_PATH = REPO_ROOT / "fixtures" / "researchers" / "methane_database_2024" / "Enteric CH4 yield and its variability in dairy cows.xlsx"
+DATA_PATH = REPO_ROOT / "research" / ".data" / "kebreab" / "methane-database-2024" / "Enteric CH4 yield and its variability in dairy cows.xlsx"
 OUTPUT_PATH = Path(__file__).resolve().parent / "output" / "methane_database_2024.agevidence.json"
 PUBLISHED_AT = "2024-03-21"
 STUDY_ID = "ramirez-agudelo-kebreab-2024-methane-database"

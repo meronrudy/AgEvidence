@@ -17,7 +17,7 @@ instrument
 Run:
 
 ```bash
-python examples/researchers/03_greenfeed_provenance/run.py
+python research/studies/kebreab/greenfeed/run.py
 ```
 
 The bundle uses protocol-level records because the public grape-pomace paper

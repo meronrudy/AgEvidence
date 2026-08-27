@@ -46,7 +46,7 @@ def login(
     base_url: str = typer.Option("http://localhost:3000", help="Rails Developer OS base URL."),
     api_token: str | None = typer.Option(None, help="Reserved for future authenticated deployments."),
     integration_source: str | None = typer.Option(None, help="Default integration source for event commands."),
-    verifier_command: str | None = typer.Option(None, help="External verifier command, for example target/debug/baink-cli."),
+    verifier_command: str | None = typer.Option(None, help="External verifier command, for example target/debug/agevidence."),
 ) -> None:
     """Write local CLI configuration."""
 

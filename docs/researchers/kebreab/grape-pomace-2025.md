@@ -5,12 +5,12 @@ multiparous Holstein cows, three treatments, a 3 x 3 Latin-square design, three
 four-week periods, GreenFeed gas measurement, and milk sampling.
 
 - Article: https://doi.org/10.3168/jds.2024-25419
-- Example: ../../../examples/researchers/04_grape_pomace/
+- Example: ../../../research/studies/kebreab/grape-pomace-2025/
 
 Run:
 
 ```bash
-python examples/researchers/04_grape_pomace/run.py
+python research/studies/kebreab/grape-pomace-2025/run.py
 ```
 
 Public-data boundary:

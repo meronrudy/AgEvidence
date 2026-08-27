@@ -4,12 +4,12 @@ Niu et al. 2018 developed prediction models for dairy-cow enteric methane
 production, yield, and intensity using an intercontinental database.
 
 - Article DOI: https://doi.org/10.1111/gcb.14094
-- Example: ../../../examples/researchers/05_intercontinental_prediction/
+- Example: ../../../research/studies/kebreab/intercontinental-model/
 
 Run:
 
 ```bash
-python examples/researchers/05_intercontinental_prediction/run.py
+python research/studies/kebreab/intercontinental-model/run.py
 ```
 
 The case study maps:

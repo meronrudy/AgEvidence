@@ -1,19 +1,15 @@
 from __future__ import annotations
 
-import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-SHARED = REPO_ROOT / "examples" / "researchers" / "_shared"
-if str(SHARED) not in sys.path:
-    sys.path.insert(0, str(SHARED))
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
-from data_sources import ensure_download, load_excel, normalize_columns  # noqa: E402
-from research_bundle import (  # noqa: E402
+from agevidence.research.datasets import ensure_download, load_excel, normalize_columns
+from agevidence.research.bundles import (
     clean_text,
     intervention_event,
     model_run,
@@ -29,7 +25,7 @@ from research_bundle import (  # noqa: E402
 
 DATA_URL = "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0247820.s001&type=supplementary"
 DATA_SHA256 = "sha256:f8c90ca7b106d95abc2df4c316ac520b482a47350ab2ea0f3647a1442181b409"
-DATA_PATH = REPO_ROOT / "fixtures" / "researchers" / "roque_2021" / "pone.0247820.s001.xlsx"
+DATA_PATH = REPO_ROOT / "research" / ".data" / "kebreab" / "roque-2021" / "pone.0247820.s001.xlsx"
 OUTPUT_PATH = Path(__file__).resolve().parent / "output" / "roque_2021.agevidence.json"
 PUBLISHED_AT = "2021-03-17"
 STUDY_ID = "roque-2021-asparagopsis-beef-steers"

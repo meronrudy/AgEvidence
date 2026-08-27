@@ -5,13 +5,13 @@ Asparagopsis beef-steer experiment.
 
 - Publication: https://doi.org/10.1371/journal.pone.0247820
 - Supporting data: https://doi.org/10.1371/journal.pone.0247820.s001
-- Fixture manifest: ../../../fixtures/researchers/roque_2021/SOURCE.md
-- Example: ../../../examples/researchers/01_roque_2021/
+- Fixture manifest: ../../../research/studies/kebreab/roque-2021/source.yml
+- Example: ../../../research/studies/kebreab/roque-2021/
 
 Run:
 
 ```bash
-python examples/researchers/01_roque_2021/run.py
+python research/studies/kebreab/roque-2021/run.py
 ```
 
 The reconstruction maps:
@@ -24,4 +24,3 @@ The reconstruction maps:
 
 This is the canonical first tutorial because it starts from real public source
 data, not a synthetic methane CSV.
-

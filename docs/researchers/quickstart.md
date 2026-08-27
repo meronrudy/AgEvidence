@@ -11,13 +11,13 @@ pip install agevidence
 For executable research notebooks and Excel workbooks:
 
 ```bash
-python3 -m pip install -e "sdks/python[research,test]"
+python3 -m pip install -e "packages/python[research,test]"
 ```
 
 ## Run The First Reconstruction
 
 ```bash
-python examples/researchers/01_roque_2021/run.py
+python research/studies/kebreab/roque-2021/run.py
 ```
 
 Expected shape:
@@ -49,7 +49,7 @@ reconstructs evidence records from the workbook, and writes a local bundle.
 ## Run The Meta-Analysis Workflow
 
 ```bash
-python examples/researchers/02_methane_database_2024/run.py
+python research/studies/kebreab/methane-database-2024/run.py
 ```
 
 This downloads Zenodo v2, verifies SHA-256 and MD5 commitments, records

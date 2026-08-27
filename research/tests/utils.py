@@ -6,9 +6,8 @@ from pathlib import Path
 from types import ModuleType
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-SDK_SRC = REPO_ROOT / "sdks" / "python" / "src"
-SHARED = REPO_ROOT / "examples" / "researchers" / "_shared"
-for path in (SDK_SRC, SHARED, REPO_ROOT):
+SDK_SRC = REPO_ROOT / "packages" / "python" / "src"
+for path in (SDK_SRC, REPO_ROOT):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))
 
@@ -39,4 +38,3 @@ def bundle_ids(bundle: dict) -> set[str]:
     ):
         ids.update(item["id"] for item in bundle.get(key, []) if "id" in item)
     return ids
-

@@ -15,7 +15,7 @@ reported SEM
 Run:
 
 ```bash
-python examples/researchers/02_methane_database_2024/run.py
+python research/studies/kebreab/methane-database-2024/run.py
 ```
 
 The output bundle keeps the original workbook commitment and records

@@ -225,7 +225,7 @@ def test_async_client_mirrors_resource_namespace_and_headers():
 def test_package_build_install_and_cli_help_smoke(tmp_path):
     pytest.importorskip("build")
     repo_root = __import__("pathlib").Path(__file__).resolve().parents[3]
-    sdk_root = repo_root / "sdks" / "python"
+    sdk_root = repo_root / "packages" / "python"
     dist_dir = tmp_path / "dist"
     result = subprocess.run(
         [sys.executable, "-m", "build", "--sdist", "--wheel", "--outdir", str(dist_dir)],

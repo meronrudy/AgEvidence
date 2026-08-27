@@ -1,15 +1,11 @@
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import Any
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-SHARED = REPO_ROOT / "examples" / "researchers" / "_shared"
-if str(SHARED) not in sys.path:
-    sys.path.insert(0, str(SHARED))
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
-from research_bundle import model_run, object_commitment, research_bundle, source_record, statement, transformation, write_bundle  # noqa: E402
+from agevidence.research.bundles import model_run, object_commitment, research_bundle, source_record, statement, transformation, write_bundle  # noqa: E402
 
 OUTPUT_PATH = Path(__file__).resolve().parent / "output" / "intercontinental_prediction.agevidence.json"
 

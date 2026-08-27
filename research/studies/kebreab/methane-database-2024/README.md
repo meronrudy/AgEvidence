@@ -3,8 +3,8 @@
 Run from the repository root:
 
 ```bash
-python3 -m pip install -e "sdks/python[research,test]"
-python examples/researchers/02_methane_database_2024/run.py
+python3 -m pip install -e "packages/python[research,test]"
+python research/studies/kebreab/methane-database-2024/run.py
 ```
 
 The script downloads Zenodo record v2, verifies the workbook checksum, preserves

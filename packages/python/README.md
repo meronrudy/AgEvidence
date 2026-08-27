@@ -2,7 +2,7 @@
 
 This is the canonical Python package for the AgEvidence Developer OS.
 
-It wraps the Rails `/v1` API for projects, source records, model runs,
+It wraps the Rails `/api/v1` API for projects, source records, model runs,
 candidate review, quotes, artifact orders, artifacts, integration events,
 webhooks, and operations. Receipt issuance and cryptographic verification stay
 behind `ink_receipts` and the Rust trust boundary.
@@ -19,8 +19,8 @@ Start with [AgEvidence for Researchers](../../docs/researchers/index.md), then
 run the Roque et al. 2021 reconstruction:
 
 ```bash
-python3 -m pip install -e "sdks/python[research,test]"
-python examples/researchers/01_roque_2021/run.py
+python3 -m pip install -e "packages/python[research,test]"
+python research/studies/kebreab/roque-2021/run.py
 ```
 
 ## Install
@@ -28,7 +28,7 @@ python examples/researchers/01_roque_2021/run.py
 From the repository root:
 
 ```bash
-python3 -m pip install -e "sdks/python[test]"
+python3 -m pip install -e "packages/python[test]"
 ```
 
 Check the CLI:
@@ -185,7 +185,7 @@ sign receipts.
 Configure the Rust verifier command:
 
 ```bash
-agevidence login --base-url http://localhost:3000 --verifier-command "target/debug/baink-cli"
+agevidence login --base-url http://localhost:3000 --verifier-command "target/debug/agevidence"
 ```
 
 Then delegate verification:
@@ -268,6 +268,6 @@ Rails `/v1` scaffold can add compatible fields without breaking SDK consumers.
 ## Test
 
 ```bash
-cd sdks/python
+cd packages/python
 python3 -m pytest
 ```

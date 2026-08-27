@@ -11,7 +11,7 @@ from agevidence.plugins import registry
 
 def test_client_method_inventory_matches_openapi_paths():
     repo_root = Path(__file__).resolve().parents[3]
-    openapi = (repo_root / "docs/openapi/agevidence.v1.yaml").read_text(encoding="utf-8")
+    openapi = (repo_root / "protocol/openapi/legacy/athian-evidence-bazaar/agevidence.v1.yaml").read_text(encoding="utf-8")
     required_paths = [
         "/v1/developer/projects",
         "/v1/developer/projects/{project_id}/source_records",
@@ -82,7 +82,7 @@ def test_v1_public_exports_and_typed_marker():
     assert agevidence.__version__ == "0.1.0"
     assert AsyncClient is not None
     assert RetryPolicy(max_attempts=1).max_attempts == 1
-    assert (repo_root / "sdks" / "python" / "src" / "agevidence" / "py.typed").exists()
+    assert (repo_root / "packages" / "python" / "src" / "agevidence" / "py.typed").exists()
 
 
 def test_livestock_value_objects_are_lightweight_and_typed():

@@ -5,6 +5,6 @@ measurements, and statistical lineage into evidence records. It does not create
 fictional cow-level rows.
 
 ```bash
-python examples/researchers/04_grape_pomace/run.py
+python research/studies/kebreab/grape-pomace-2025/run.py
 ```
 

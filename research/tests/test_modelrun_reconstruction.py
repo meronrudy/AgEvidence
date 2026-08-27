@@ -4,7 +4,7 @@ from utils import load_example
 
 
 def test_methane_database_sem_to_sd_and_exclusions():
-    module = load_example("examples/researchers/02_methane_database_2024/run.py")
+    module = load_example("research/studies/kebreab/methane-database-2024/run.py")
     bundle = module.build_bundle()
 
     assert bundle["bundle_type"] == "agevidence.research_bundle.v0"

@@ -1,0 +1,12 @@
+title: "S1 Table. Original data."
+study: "Roque et al. 2021 Asparagopsis beef steers"
+authors:
+  - "Breanna M. Roque"
+  - "Ermias Kebreab"
+publication_doi: "10.1371/journal.pone.0247820"
+dataset_doi: "10.1371/journal.pone.0247820.s001"
+source_url: "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0247820.s001&type=supplementary"
+license: "CC BY"
+expected_sha256: "sha256:f8c90ca7b106d95abc2df4c316ac520b482a47350ab2ea0f3647a1442181b409"
+retrieved_as: "pone.0247820.s001.xlsx"
+local_path: "research/.data/kebreab/roque-2021/pone.0247820.s001.xlsx"

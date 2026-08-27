@@ -6,12 +6,12 @@ Africa and Asia.
 
 - UC Davis project page: https://caes.ucdavis.edu/outreach/geo/projects/FDROP
 - UC Davis news: https://caes.ucdavis.edu/news/new-mobile-app-seeks-reduce-dairy-methane-emissions-africa-asia
-- Example: ../../../examples/researchers/06_rationsmart/
+- Example: ../../../research/studies/kebreab/rationsmart/
 
 Run:
 
 ```bash
-python examples/researchers/06_rationsmart/run.py
+python research/studies/kebreab/rationsmart/run.py
 ```
 
 Evidence architecture:

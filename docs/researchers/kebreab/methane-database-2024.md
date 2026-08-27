@@ -6,13 +6,13 @@ yield and variability.
 - Zenodo v2 dataset: https://doi.org/10.5281/zenodo.10832823
 - Concept DOI: https://doi.org/10.5281/zenodo.10356505
 - Publication DOI: https://doi.org/10.3168/jds.2023-24529
-- Fixture manifest: ../../../fixtures/researchers/methane_database_2024/SOURCE.md
-- Example: ../../../examples/researchers/02_methane_database_2024/
+- Fixture manifest: ../../../research/studies/kebreab/methane-database-2024/source.yml
+- Example: ../../../research/studies/kebreab/methane-database-2024/
 
 Run:
 
 ```bash
-python examples/researchers/02_methane_database_2024/run.py
+python research/studies/kebreab/methane-database-2024/run.py
 ```
 
 The tutorial records:
@@ -27,4 +27,3 @@ The tutorial records:
 This chapter is the evidence-DAG tutorial: source claim, transformation,
 derived observation, exclusion decision, analysis population, and derived model
 result.
-

@@ -177,7 +177,7 @@ def test_packaged_manifest_snapshot_matches_repo_specs():
 
     for snapshot in country_manifest_snapshots():
         country_code = snapshot["adapter"]["country_code"]
-        path = repo_root / "specs" / "agevidence" / "country_adapters" / country_dirs[country_code] / "adapter.yml"
+        path = repo_root / "protocol" / "country_adapters" / country_dirs[country_code] / "adapter.yml"
         manifest = yaml.safe_load(path.read_text(encoding="utf-8"))
 
         for key in ["adapter", "global_contract", "method", "required_evidence", "claim_policy", "limitations"]:

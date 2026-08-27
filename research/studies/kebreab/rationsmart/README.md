@@ -5,6 +5,6 @@ evidence bundle that runs from feed sampling to ration recommendation and
 predicted methane intensity.
 
 ```bash
-python examples/researchers/06_rationsmart/run.py
+python research/studies/kebreab/rationsmart/run.py
 ```
 

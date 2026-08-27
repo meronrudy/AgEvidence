@@ -7,7 +7,7 @@ from pathlib import Path
 import httpx
 import pandas as pd
 
-from research_bundle import verify_checksum
+from .bundles import verify_checksum
 
 
 def ensure_download(

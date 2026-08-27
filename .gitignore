@@ -61,3 +61,4 @@ node_modules/
 apps/console/node_modules/
 research/.data/
 research/notebooks/.ipynb_checkpoints/
+research/studies/**/output/

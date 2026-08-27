@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from research_bundle import sha256_file, verify_checksum
+from agevidence.research.bundles import sha256_file, verify_checksum
 from utils import load_example
 
 
@@ -19,7 +19,7 @@ def test_checksum_enforcement_rejects_mismatch(tmp_path):
 
 
 def test_roque_reconstruction_counts_and_lineage():
-    module = load_example("examples/researchers/01_roque_2021/run.py")
+    module = load_example("research/studies/kebreab/roque-2021/run.py")
     bundle = module.build_bundle()
 
     assert bundle["bundle_type"] == "agevidence.research_bundle.v0"

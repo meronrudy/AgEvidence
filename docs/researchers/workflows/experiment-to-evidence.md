@@ -16,7 +16,7 @@ published XLSX
 Run:
 
 ```bash
-python examples/researchers/01_roque_2021/run.py
+python research/studies/kebreab/roque-2021/run.py
 ```
 
 The workbook sheets are mapped as follows:

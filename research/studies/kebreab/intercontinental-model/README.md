@@ -5,6 +5,6 @@ a model-provenance bundle. It represents the published architecture and model
 lineage, not the private consolidated row-level database.
 
 ```bash
-python examples/researchers/05_intercontinental_prediction/run.py
+python research/studies/kebreab/intercontinental-model/run.py
 ```
 

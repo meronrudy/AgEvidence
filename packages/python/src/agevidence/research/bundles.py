@@ -1,21 +1,15 @@
-"""Research example helpers built outside the stable SDK package."""
+"""Evidence object builders for research examples."""
 
 from __future__ import annotations
 
 import hashlib
 import json
 import math
-import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
-SDK_SRC = REPO_ROOT / "sdks" / "python" / "src"
-if str(SDK_SRC) not in sys.path:
-    sys.path.insert(0, str(SDK_SRC))
-
-from agevidence.events import canonical_json, canonical_value  # noqa: E402
+from agevidence.events import canonical_json, canonical_value
 
 
 def now_utc() -> str:
