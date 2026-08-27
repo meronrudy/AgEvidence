@@ -10,9 +10,9 @@ from typing import Any
 import yaml
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-VOCAB_ROOT = REPO_ROOT / "specs" / "agevidence" / "vocabulary"
-ADAPTER_ROOT = REPO_ROOT / "specs" / "agevidence" / "country_adapters"
+REPO_ROOT = Path(__file__).resolve().parents[3]
+VOCAB_ROOT = REPO_ROOT / "protocol" / "vocabulary"
+ADAPTER_ROOT = REPO_ROOT / "protocol" / "country_adapters"
 
 EXPECTED_FILES = {
     "species": "species.yml",

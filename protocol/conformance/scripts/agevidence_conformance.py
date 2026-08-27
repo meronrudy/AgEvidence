@@ -8,8 +8,8 @@ import sys
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-SDK_SRC = REPO_ROOT / "sdks" / "python" / "src"
+REPO_ROOT = Path(__file__).resolve().parents[3]
+SDK_SRC = REPO_ROOT / "packages" / "python" / "src"
 sys.path.insert(0, str(SDK_SRC))
 
 from agevidence.adapters.registry import default_registry  # noqa: E402

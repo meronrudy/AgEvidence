@@ -7,14 +7,14 @@ import re
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[3]
 GENERIC_RUST_CRATES = {
-    "baink-core",
-    "baink-schema",
-    "baink-canonical",
-    "baink-crypto",
-    "baink-bundle",
-    "baink-verify",
+    "agevidence-core",
+    "agevidence-schema",
+    "agevidence-canonical",
+    "agevidence-crypto",
+    "agevidence-bundle",
+    "agevidence-verify",
 }
 METHOD_PATTERNS = [
     "AU-GOV-IND-LIVESTOCK-PILOT",
@@ -36,7 +36,7 @@ def read(path: Path) -> str:
 def scan_generic_rust() -> list[str]:
     errors: list[str] = []
     for crate in GENERIC_RUST_CRATES:
-        for path in (REPO_ROOT / "crates" / crate / "src").glob("**/*.rs"):
+        for path in (REPO_ROOT / "packages" / "rust" / "crates" / crate / "src").glob("**/*.rs"):
             source = read(path)
             if COUNTRY_BRANCH_RE.search(source):
                 errors.append(f"country-code branch in generic Rust crate: {path.relative_to(REPO_ROOT)}")
@@ -46,7 +46,7 @@ def scan_generic_rust() -> list[str]:
 
 
 def scan_receipt_envelope() -> list[str]:
-    path = REPO_ROOT / "specs" / "agevidence" / "schemas" / "ink.receipt_envelope.v2.json"
+    path = REPO_ROOT / "protocol" / "schemas" / "ink.receipt_envelope.v2.json"
     source = read(path)
     forbidden = ["country_code", "adapter_id", "method_id", "jurisdiction", "institution_profile"]
     return [f"global receipt envelope contains country-specific property: {value}" for value in forbidden if value in source]
@@ -54,7 +54,7 @@ def scan_receipt_envelope() -> list[str]:
 
 def scan_rails_controllers() -> list[str]:
     errors: list[str] = []
-    for path in (REPO_ROOT / "athian_ink_rails_bootstrap" / "app" / "controllers").glob("**/*.rb"):
+    for path in (REPO_ROOT / "apps" / "console" / "app" / "controllers").glob("**/*.rb"):
         source = read(path)
         for pattern in METHOD_PATTERNS:
             if pattern.lower() in source.lower():
@@ -72,7 +72,7 @@ def scan_model_service() -> list[str]:
 
 def scan_determination_mutation() -> list[str]:
     errors: list[str] = []
-    app_root = REPO_ROOT / "athian_ink_rails_bootstrap" / "app"
+    app_root = REPO_ROOT / "apps" / "console" / "app"
     for path in app_root.glob("**/*.rb"):
         if path.name == "country_determination.rb":
             continue
@@ -100,4 +100,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

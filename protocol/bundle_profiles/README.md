@@ -1,6 +1,6 @@
 # AgEvidence Bundle Profiles
 
-This directory defines premium artifact bundle profiles. Fractional developers should add one versioned YAML file per profile and keep profile names aligned with `athian_ink_rails_bootstrap/config/agevidence/products.yml`.
+This directory defines premium artifact bundle profiles. Fractional developers should add one versioned YAML file per profile and keep profile names aligned with AgEvidence product configuration in `apps/console`.
 
 Initial profile responsibilities:
 

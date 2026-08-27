@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate country adapter paths in the OpenAPI document."""
+"""Validate canonical Rails API paths in the OpenAPI document."""
 
 from __future__ import annotations
 
@@ -8,13 +8,15 @@ from pathlib import Path
 import yaml
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-OPENAPI_PATH = REPO_ROOT / "docs" / "openapi" / "agevidence.v1.yaml"
+REPO_ROOT = Path(__file__).resolve().parents[3]
+OPENAPI_PATH = REPO_ROOT / "protocol" / "openapi" / "agevidence-v1.yaml"
 REQUIRED_PATHS = {
-    "/v1/country_adapters",
-    "/v1/country_adapters/{adapter_id}",
-    "/v1/country_adapters/{adapter_id}/validate",
-    "/v1/developer/projects/{project_id}/country_determinations",
+    "/projects/{project_code}/source-records",
+    "/projects/{project_code}/source-records/{record_code}",
+    "/artifacts/{artifact_code}",
+    "/artifacts/{artifact_code}/verify",
+    "/artifacts/{artifact_code}/reliance-events",
+    "/schemas/{contract_version}",
 }
 
 
@@ -24,12 +26,11 @@ def main() -> int:
     missing = sorted(REQUIRED_PATHS - paths)
     if missing:
         for path in missing:
-            print(f"missing OpenAPI country path: {path}")
+            print(f"missing canonical OpenAPI path: {path}")
         return 1
-    print("AgEvidence OpenAPI country paths passed")
+    print("AgEvidence canonical OpenAPI paths passed")
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

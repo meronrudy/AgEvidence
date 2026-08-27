@@ -5,9 +5,10 @@
 #![deny(clippy::expect_used)]
 #![deny(clippy::panic)]
 
-//! Deterministic JSON canonicalization for the BAINK kernel.
+//! Deterministic JSON canonicalization for the AgEvidence verifier core.
 
 use serde::Serialize;
+use serde_json::Value;
 use thiserror::Error;
 
 /// Error during canonicalization.
@@ -37,13 +38,97 @@ impl CanonicalJson {
 }
 
 /// Canonicalize a serializable value.
-///
-/// For v0.1, we use `serde_json::to_vec` which is deterministic enough for simple structs
-/// if we don't use maps with arbitrary key ordering (or if we use BTreeMap).
-/// A true canonical JSON implementation (like RFC 8785) would be better for production.
 pub fn canonicalize<T: Serialize>(value: &T) -> Result<CanonicalJson, CanonicalError> {
-    // In a real implementation, this should strictly follow RFC 8785 (JCS).
-    // For now, serde_json::to_vec is deterministic for structs.
-    let bytes = serde_json::to_vec(value)?;
+    let value = serde_json::to_value(value)?;
+    let mut bytes = Vec::new();
+    write_canonical_value(&value, &mut bytes)?;
     Ok(CanonicalJson { bytes })
+}
+
+fn write_canonical_value(value: &Value, bytes: &mut Vec<u8>) -> Result<(), serde_json::Error> {
+    match value {
+        Value::Null | Value::Bool(_) | Value::Number(_) | Value::String(_) => {
+            serde_json::to_writer(bytes, value)?;
+        }
+        Value::Array(items) => {
+            bytes.push(b'[');
+            for (index, item) in items.iter().enumerate() {
+                if index > 0 {
+                    bytes.push(b',');
+                }
+                write_canonical_value(item, bytes)?;
+            }
+            bytes.push(b']');
+        }
+        Value::Object(map) => {
+            bytes.push(b'{');
+            let mut keys = map.keys().collect::<Vec<_>>();
+            keys.sort();
+            for (index, key) in keys.iter().enumerate() {
+                if index > 0 {
+                    bytes.push(b',');
+                }
+                serde_json::to_writer(&mut *bytes, key)?;
+                bytes.push(b':');
+                if let Some(nested) = map.get(*key) {
+                    write_canonical_value(nested, bytes)?;
+                }
+            }
+            bytes.push(b'}');
+        }
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn recursively_sorts_object_keys_without_whitespace() {
+        let value = json!({
+            "z": 1,
+            "a": {
+                "b": [3, {"y": true, "x": null}],
+                "a": "first"
+            }
+        });
+
+        let canonical = match canonicalize(&value) {
+            Ok(value) => value,
+            Err(error) => panic!("{}", error),
+        };
+        assert_eq!(
+            canonical.as_bytes(),
+            br#"{"a":{"a":"first","b":[3,{"x":null,"y":true}]},"z":1}"#
+        );
+    }
+
+    #[test]
+    fn matches_shared_canonicalization_fixture() {
+        let value: Value = match serde_json::from_str(include_str!(
+            "../../../../../protocol/conformance/fixtures/canonicalization/input.json"
+        )) {
+            Ok(value) => value,
+            Err(error) => panic!("{}", error),
+        };
+        let expected = match include_bytes!(
+            "../../../../../protocol/conformance/fixtures/canonicalization/expected.json"
+        )
+        .strip_suffix(b"\n")
+        {
+            Some(bytes) => bytes,
+            None => include_bytes!(
+                "../../../../../protocol/conformance/fixtures/canonicalization/expected.json"
+            ),
+        };
+
+        let canonical = match canonicalize(&value) {
+            Ok(value) => value,
+            Err(error) => panic!("{}", error),
+        };
+
+        assert_eq!(canonical.as_bytes(), expected);
+    }
 }

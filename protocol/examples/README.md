@@ -1,6 +1,6 @@
 # AgEvidence Spec Examples
 
-Use this directory for minimal schema fixtures that exercise the Rust `baink-agevidence` validator. The funded-startup end-to-end story lives in `examples/funded_startup`.
+Use this directory for minimal schema fixtures that exercise the Rust `agevidence` validator. The funded-startup end-to-end story lives in `examples/funded_startup`.
 
 Recommended fixtures:
 

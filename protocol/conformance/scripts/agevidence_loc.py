@@ -8,20 +8,14 @@ import subprocess
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_BASELINE = "f4ec679c2dd6a2c40e3dced61c81e8f59f90a397"
+REPO_ROOT = Path(__file__).resolve().parents[3]
+DEFAULT_BASELINE = "pre-monorepo-2026-08-25"
 PLOC = {".py", ".rb", ".rs", ".ts", ".js", ".sql", ".sh"}
 CLOC = {".yml", ".yaml", ".json"}
 DLOC = {".md", ".txt"}
 EXCLUDED = {"package-lock.json", "Gemfile.lock", "Cargo.lock"}
-COUNTRY_PREFIXES = (
-    "athian_ink_rails_bootstrap/app/controllers/v1/country_adapters_controller.rb",
-    "athian_ink_rails_bootstrap/app/controllers/v1/developer/country_determinations_controller.rb",
-    "athian_ink_rails_bootstrap/app/models/agevidence/country_",
-    "athian_ink_rails_bootstrap/app/services/agevidence/country_",
-    "athian_ink_rails_bootstrap/app/services/agevidence/policy_",
-    "athian_ink_rails_bootstrap/test/integration/agevidence_flow_test.rb",
-    "athian_ink_rails_bootstrap/test/services/agevidence_country_policy_test.rb",
+ACTIVE_PREFIXES = (
+    "apps/console/",
     "docs/adr/",
     "docs/comparison/",
     "docs/country/",
@@ -31,23 +25,23 @@ COUNTRY_PREFIXES = (
     "examples/countries/",
     "examples/python_plugins/",
     "papers/",
-    "scripts/agevidence_",
-    "sdks/python/src/agevidence/adapters/",
-    "sdks/python/src/agevidence/countries/",
-    "sdks/python/src/agevidence/country_cli.py",
-    "sdks/python/src/agevidence/identifiers/",
-    "sdks/python/src/agevidence/policies/",
-    "sdks/python/src/agevidence/sources/",
-    "sdks/python/tests/test_adapters_runtime.py",
-    "specs/agevidence/",
+    "protocol/conformance/scripts/agevidence_",
+    "packages/python/src/agevidence/adapters/",
+    "packages/python/src/agevidence/countries/",
+    "packages/python/src/agevidence/country_cli.py",
+    "packages/python/src/agevidence/identifiers/",
+    "packages/python/src/agevidence/policies/",
+    "packages/python/src/agevidence/sources/",
+    "packages/python/tests/test_adapters_runtime.py",
+    "protocol/",
 )
 CAMPAIGN_MARKERS = (
     "/campaign/",
     "campaign/",
     "Campaign",
     "CAMPAIGN",
-    "sdks/python/src/agevidence/campaign/",
-    "sdks/python/tests/test_campaign.py",
+    "packages/python/src/agevidence/campaign/",
+    "packages/python/tests/test_campaign.py",
     "specs/campaign/",
 )
 
@@ -73,7 +67,7 @@ def include_path(path: str, *, include_all: bool = False) -> bool:
         return True
     if any(marker in path for marker in CAMPAIGN_MARKERS):
         return False
-    return path.startswith(COUNTRY_PREFIXES)
+    return path.startswith(ACTIVE_PREFIXES)
 
 
 def main() -> int:

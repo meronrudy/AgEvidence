@@ -36,6 +36,17 @@ def test_canonical_event_payload_excludes_signature_and_digest():
     assert json.loads(canonical)["integrity"]["signature_algorithm"] == "hmac-sha256"
 
 
+def test_canonical_json_matches_shared_fixture():
+    from agevidence.events import canonical_json
+
+    root = Path(__file__).resolve().parents[3]
+    fixture_dir = root / "protocol" / "conformance" / "fixtures" / "canonicalization"
+    value = json.loads((fixture_dir / "input.json").read_text(encoding="utf-8"))
+    expected = (fixture_dir / "expected.json").read_bytes().removesuffix(b"\n")
+
+    assert canonical_json(value).encode("utf-8") == expected
+
+
 def test_sign_hmac_event_sets_digest_and_signature():
     signed = sign_hmac_event(event_payload(), source="source-a", secret="secret")
 

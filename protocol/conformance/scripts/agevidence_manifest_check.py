@@ -13,13 +13,13 @@ import sys
 from pathlib import Path
 
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT / "sdks" / "python" / "src"))
+REPO_ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(REPO_ROOT / "packages" / "python" / "src"))
 
 from agevidence.adapters.manifest_validation import validate_manifest_root  # noqa: E402
 
-DEFAULT_ROOT = REPO_ROOT / "specs" / "agevidence" / "country_adapters"
-DEFAULT_SCHEMA = REPO_ROOT / "specs" / "agevidence" / "schemas" / "athian.country_adapter_manifest.v1.json"
+DEFAULT_ROOT = REPO_ROOT / "protocol" / "country_adapters"
+DEFAULT_SCHEMA = REPO_ROOT / "protocol" / "schemas" / "athian.country_adapter_manifest.v1.json"
 
 
 def main() -> int:
