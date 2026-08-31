@@ -1,11 +1,36 @@
 # AgEvidence Console
 
-AgEvidence Console is the commercial Rails application for evidence intake,
-normalization, evaluation, determination, artifact issuance, access,
+AgEvidence Console is the reference implementation of an evidence-native
+agriculture company. It is the commercial Rails application for evidence
+intake, normalization, evaluation, determination, artifact issuance, access,
 verification status, and reliance records.
 
 In the monorepo it lives under `apps/console`. The canonical protocol, SDKs,
 fixtures, and verifier live at repository root outside this Rails app.
+
+Use it as a working product surface that founders can inspect, clone, strip
+down, specialize, and commercialize. The seeded demo shows a DIT Production
+Evidence project moving through source records, normalized evidence, gaps,
+evaluation, human review, determination, immutable artifact issuance,
+verification status, and reliance.
+
+## Reference Business Flow
+
+```text
+source records
+  -> normalized evidence
+  -> evaluations and gaps
+  -> human review
+  -> determinations
+  -> immutable artifacts
+  -> verification and reliance
+```
+
+Keep the evidence identities, provenance, evaluation lifecycle, determination
+lifecycle, artifact structure, verification contract, and reliance records.
+Configure ProgramProfiles, requirements, evidence vocabulary, jurisdiction, and
+buyer workflow. Replace vertical integrations, pricing, brand, proprietary
+analytics, and domain-specific models.
 
 ## Local Setup
 

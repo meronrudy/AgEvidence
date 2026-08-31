@@ -1,0 +1,44 @@
+screens:
+  - id: overview
+    route: /app
+    file: docs/screenshots/00-overview.png
+  - id: project
+    route: /app/projects/dit-production
+    file: docs/screenshots/01-project.png
+  - id: source-records
+    route: /app/projects/dit-production/source_records
+    file: docs/screenshots/02-source-records.png
+  - id: evidence
+    route: /app/projects/dit-production/evidence
+    file: docs/screenshots/03-evidence.png
+  - id: gaps
+    route: /app/projects/dit-production/gaps
+    file: docs/screenshots/04-gaps.png
+  - id: assessment
+    route: /app/projects/dit-production/assessment
+    file: docs/screenshots/05-assessment.png
+  - id: review
+    route: /app/projects/dit-production/review
+    file: docs/screenshots/06-review.png
+  - id: artifact
+    route: /app/projects/dit-production/artifact
+    file: docs/screenshots/07-artifact.png
+  - id: reliance
+    route: /app/projects/dit-production/reliance
+    file: docs/screenshots/08-reliance.png
+  - id: verification
+    route: /verify/AE-AU-000184
+    file: docs/screenshots/09-verification.png
+    public: true
+  - id: program-profile
+    route: /app/programs/profiles
+    file: docs/screenshots/10-program-profile.png
+  - id: developer
+    route: /app/developer
+    file: docs/screenshots/11-developer.png
+  - id: webhooks
+    route: /app/developer/webhooks
+    file: docs/screenshots/12-webhooks.png
+  - id: openapi
+    route: /app/developer/openapi
+    file: docs/screenshots/13-openapi.png

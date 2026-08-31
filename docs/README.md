@@ -2,6 +2,13 @@
 
 This directory contains human-facing documentation for the monorepo.
 
+## Startup Factory
+
+- [Start here](START-HERE.md)
+- [Startup map](STARTUP_MAP.md)
+- [Startup recipes](startup-recipes/README.md)
+- [Screenshot suite](screenshots/README.md)
+
 ## API
 
 - [Current API contract](api/sdk-contract/README.md)

@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+APP_DIR="$ROOT_DIR/apps/console"
+export RAILS_ENV=development
+export DATABASE_URL="${DATABASE_URL:-postgres://postgres:postgres@127.0.0.1:5432/agevidence_development}"
+REQUESTED_PORT="${PORT:-}"
+
+ok() {
+  printf "OK %s\n" "$1"
+}
+
+fail() {
+  printf "ERROR: %s\n" "$1" >&2
+  exit 1
+}
+
+command -v ruby >/dev/null 2>&1 || fail "Ruby is not installed or not on PATH."
+
+port_available() {
+  ruby -rsocket -e 'server = TCPServer.new("127.0.0.1", ARGV.fetch(0).to_i); server.close' "$1" >/dev/null 2>&1
+}
+
+if [ -n "$REQUESTED_PORT" ]; then
+  PORT="$REQUESTED_PORT"
+  port_available "$PORT" || fail "Port $PORT is already in use."
+else
+  PORT=3000
+  while ! port_available "$PORT"; do
+    PORT=$((PORT + 1))
+    if [ "$PORT" -gt 3010 ]; then
+      fail "No open port found between 3000 and 3010."
+    fi
+  done
+fi
+export PORT
+
+cd "$APP_DIR"
+
+printf "AgEvidence Developer Environment\n"
+
+RUBY_VERSION="$(ruby -e 'print RUBY_VERSION')"
+if [ "$RUBY_VERSION" != "3.4.10" ]; then
+  fail "Ruby $RUBY_VERSION found, but Rails app requires Ruby 3.4.10."
+fi
+ok "Ruby $RUBY_VERSION"
+
+command -v bundle >/dev/null 2>&1 || fail "Bundler is not installed or not on PATH."
+ok "$(bundle -v)"
+
+if command -v pg_isready >/dev/null 2>&1; then
+  if pg_isready -h 127.0.0.1 -p 5432 -U postgres >/dev/null 2>&1; then
+    ok "PostgreSQL"
+  else
+    fail "PostgreSQL is not reachable at 127.0.0.1:5432 as user postgres."
+  fi
+else
+  printf "INFO pg_isready is not installed; Rails will check PostgreSQL during db:prepare.\n"
+fi
+
+if bundle check >/dev/null 2>&1; then
+  ok "Rails dependencies"
+else
+  bundle install
+  ok "Rails dependencies installed"
+fi
+
+bin/rails db:prepare db:seed
+ok "Database"
+ok "Demo organization"
+ok "Demo evidence project"
+
+rm -f tmp/pids/server.pid
+
+printf "\nRails Console\n"
+printf "http://127.0.0.1:%s\n" "$PORT"
+if [ -z "$REQUESTED_PORT" ] && [ "$PORT" != "3000" ]; then
+  printf "Port 3000 was busy, so bin/demo selected %s.\n" "$PORT"
+fi
+printf "\nLogin\n"
+printf "demo / demo\n"
+printf "\nTry next:\n"
+printf "  bin/doctor\n"
+printf "  bin/reset-demo\n"
+printf "  bin/screenshots\n"
+printf "  agevidence --help\n\n"
+
+exec bin/rails server -b 127.0.0.1 -p "$PORT"

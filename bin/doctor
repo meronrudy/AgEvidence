@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+APP_DIR="$ROOT_DIR/apps/console"
+export RAILS_ENV="${RAILS_ENV:-development}"
+export DATABASE_URL="${DATABASE_URL:-postgres://postgres:postgres@127.0.0.1:5432/agevidence_development}"
+
+ok() {
+  printf "OK %s\n" "$1"
+}
+
+fail() {
+  printf "ERROR: %s\n" "$1" >&2
+  exit 1
+}
+
+cd "$APP_DIR"
+
+printf "AgEvidence Developer Environment\n"
+
+command -v ruby >/dev/null 2>&1 || fail "Ruby is not installed or not on PATH."
+RUBY_VERSION="$(ruby -e 'print RUBY_VERSION')"
+if [ "$RUBY_VERSION" != "3.4.10" ]; then
+  fail "Ruby $RUBY_VERSION found, but Rails app requires Ruby 3.4.10."
+fi
+ok "Ruby $RUBY_VERSION"
+
+command -v bundle >/dev/null 2>&1 || fail "Bundler is not installed or not on PATH."
+ok "$(bundle -v)"
+
+if bundle check >/dev/null 2>&1; then
+  ok "Rails dependencies"
+else
+  fail "Bundler dependencies are missing. Run bin/demo or cd apps/console && bundle install."
+fi
+
+if command -v pg_isready >/dev/null 2>&1; then
+  if pg_isready -h 127.0.0.1 -p 5432 -U postgres >/dev/null 2>&1; then
+    ok "PostgreSQL"
+  else
+    fail "PostgreSQL is not reachable at 127.0.0.1:5432 as user postgres."
+  fi
+else
+  printf "INFO pg_isready is not installed; checking PostgreSQL through Rails.\n"
+fi
+
+if bin/rails runner 'ActiveRecord::Base.connection.execute("select 1")' >/dev/null 2>&1; then
+  ok "Rails boot and database connection"
+else
+  fail "Rails could not boot or connect to the database. Run bin/reset-demo."
+fi
+
+if bin/rails runner 'User.find_by!(email: User::DEMO_LOGIN_EMAIL); Project.find_by!(slug: "dit-production")' >/dev/null 2>&1; then
+  ok "Demo organization and project"
+else
+  fail "Demo seed data is missing. Run bin/reset-demo."
+fi
+
+printf "\nNext:\n"
+printf "  bin/demo\n"
+printf "  open http://127.0.0.1:3000\n"
