@@ -1,0 +1,11 @@
+claim_policy:
+  id: au-shared-supply-chain-claims-v1
+  version: v1
+  evaluates:
+    - contractual right
+    - supply-chain relationship
+    - claim period
+    - geographic scope
+    - exclusive/shared status
+  invariants:
+    - funding_share_is_not_claim_authority

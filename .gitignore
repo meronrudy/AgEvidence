@@ -6,31 +6,59 @@
 
 # Ignore bundler config.
 /.bundle
+apps/console/.bundle
 
-# Ignore the default SQLite database.
+# Ignore SQLite databases.
 /db/*.sqlite3
 /db/*.sqlite3-*
+apps/console/db/*.sqlite3
+apps/console/db/*.sqlite3-*
 
 # Ignore all logfiles and tempfiles.
 /log/*
 /tmp/*
+apps/console/log/*
+apps/console/tmp/*
 !/log/.keep
 !/tmp/.keep
+!apps/console/log/.keep
+!apps/console/tmp/.keep
 
 # Ignore pidfiles, but keep the directory.
 /tmp/pids/*
+apps/console/tmp/pids/*
 !/tmp/pids/
 !/tmp/pids/.keep
+!apps/console/tmp/pids/
+!apps/console/tmp/pids/.keep
 
 # Ignore uploaded files in development.
 /storage/*
+apps/console/storage/*
 !/storage/.keep
+!apps/console/storage/.keep
 
 /public/assets
+apps/console/public/assets
 .byebug_history
 .env
 .env.*
 !.env.example
+!apps/console/.env.example
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+apps/console/config/master.key
+
+# Monorepo package/build caches.
+target/
+**/target/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+node_modules/
+apps/console/node_modules/
+research/.data/
+research/notebooks/.ipynb_checkpoints/
+research/studies/**/output/

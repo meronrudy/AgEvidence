@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "athian.agevidence.human_review.v1",
+  "title": "Athian AgEvidence Human Review Receipt Payload",
+  "type": "object",
+  "required": [
+    "candidate_receipt",
+    "reviewer_role",
+    "decision",
+    "reason",
+    "protocol_version",
+    "policy_version",
+    "timestamp",
+    "signer"
+  ],
+  "properties": {
+    "candidate_receipt": { "type": "string" },
+    "reviewer_role": { "type": "string" },
+    "decision": { "type": "string" },
+    "reason": { "type": "string" },
+    "protocol_version": { "type": "string" },
+    "policy_version": { "type": "string" },
+    "unresolved_gaps": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "timestamp": { "type": "string" },
+    "signer": { "type": "string" }
+  },
+  "additionalProperties": true
+}

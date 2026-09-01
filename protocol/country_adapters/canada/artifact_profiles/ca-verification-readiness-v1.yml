@@ -1,0 +1,20 @@
+profile:
+  id: ca-verification-readiness-v1
+  audience: federal_offset_verifier
+required_receipts:
+  - authority_receipt
+  - intervention_receipt
+  - measurement_receipt
+  - model_execution_receipt
+  - human_review_receipt
+  - country_compatibility_determination_receipt
+required_documents:
+  - animal_cohort_manifest
+  - baseline_ration_records
+  - intervention_delivery_records
+  - calculation_report
+  - verification_readiness_report
+verification:
+  local_verifier_required: true
+  missing_parent_failure: true
+  tamper_test_required: true

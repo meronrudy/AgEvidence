@@ -1,0 +1,38 @@
+adapter:
+  id: athian-country-ie-eu-crcf-v1
+  version: v1
+  status: scaffold
+  country_code: IE-EU
+global_contract:
+  receipt_envelope: ink.receipt.v2
+  agricultural_vocabulary: athian.agevidence.v1
+  verifier_contract: ink.verify.v1
+method:
+  id: EU-CRCF-CARBON-FARMING
+  version: v0.1
+  authority: Ireland and EU carbon-farming workflow
+applicability:
+  required_context:
+    species:
+      - species.beef_cattle
+      - species.dairy_cattle
+    production_system:
+      - production.pasture_based
+      - production.confined_feeding
+  excluded_context:
+    species: []
+    production_system: []
+required_evidence:
+  - evidence.animal_cohort
+  - evidence.remote_sensing
+  - evidence.land_registry
+claim_policy:
+  profile: ie-eu-carbon-farming-claims-v1
+verification_profile:
+  profile: ie-eu-carbon-farming-verification-v1
+data_policy:
+  profile: ie-eu-controlled-evidence-v1
+artifact_profiles:
+  - ie-eu-crcf-readiness-v1
+limitations:
+  - Placeholder scaffold; EU or national authority reliance remains external.

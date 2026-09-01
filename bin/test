@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+APP_DIR="$ROOT_DIR/apps/console"
+export RAILS_ENV=test
+export DATABASE_URL="${DATABASE_URL:-postgres://postgres:postgres@127.0.0.1:5432/agevidence_test}"
+
+cd "$APP_DIR"
+
+bundle check >/dev/null 2>&1 || bundle install
+bin/rails db:prepare
+bin/rails test "$@"

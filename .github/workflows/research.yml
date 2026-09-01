@@ -1,0 +1,45 @@
+name: Research Examples
+
+on:
+  pull_request:
+    paths:
+      - "docs/researchers/**"
+      - "research/**"
+      - "packages/python/**"
+      - ".github/workflows/research.yml"
+  push:
+    branches:
+      - researchers
+    paths:
+      - "docs/researchers/**"
+      - "research/**"
+      - "packages/python/**"
+      - ".github/workflows/research.yml"
+  workflow_dispatch:
+
+jobs:
+  research-examples:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install SDK with research dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e "packages/python[research,test]"
+
+      - name: Research tests
+        run: python -m pytest research/tests
+
+      - name: Canonical research examples
+        run: |
+          python research/studies/kebreab/roque-2021/run.py
+          python research/studies/kebreab/methane-database-2024/run.py
+
+      - name: Research notebooks
+        run: |
+          jupyter nbconvert --execute research/notebooks/*.ipynb --to notebook --output-dir /tmp/agevidence-research-notebooks

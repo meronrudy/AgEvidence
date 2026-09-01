@@ -1,0 +1,19 @@
+{
+  "zeta": [
+    {
+      "b": 2,
+      "a": 1
+    },
+    true,
+    null,
+    "café"
+  ],
+  "number": 12.5,
+  "alpha": {
+    "delta": 4,
+    "beta": {
+      "z": "last",
+      "a": "first"
+    }
+  }
+}

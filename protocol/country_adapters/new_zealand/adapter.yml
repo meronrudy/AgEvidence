@@ -1,0 +1,38 @@
+adapter:
+  id: athian-country-nz-processor-v1
+  version: v1
+  status: scaffold
+  country_code: NZ
+global_contract:
+  receipt_envelope: ink.receipt.v2
+  agricultural_vocabulary: athian.agevidence.v1
+  verifier_contract: ink.verify.v1
+method:
+  id: NZ-PROCESSOR-PROGRAM
+  version: v0.1
+  authority: New Zealand processor program
+applicability:
+  required_context:
+    species:
+      - species.beef_cattle
+      - species.dairy_cattle
+    production_system:
+      - production.pasture_based
+      - production.confined_feeding
+  excluded_context:
+    species: []
+    production_system: []
+required_evidence:
+  - evidence.animal_cohort
+  - evidence.feed_record
+  - evidence.land_registry
+claim_policy:
+  profile: nz-processor-claims-v1
+verification_profile:
+  profile: nz-processor-verification-v1
+data_policy:
+  profile: nz-controlled-evidence-v1
+artifact_profiles:
+  - nz-processor-readiness-v1
+limitations:
+  - Placeholder scaffold; processor and local authority reliance remains external.

@@ -1,0 +1,26 @@
+version: athian.agevidence.vocabulary.authority_roles.v1
+authority_roles:
+  authority.producer:
+    label: Producer
+  authority.producer_implementation:
+    label: Producer implementation authority
+  authority.scientific_reviewer:
+    label: Scientific reviewer
+  authority.verifier:
+    label: Verifier
+  authority.registry:
+    label: Registry
+  authority.buyer:
+    label: Buyer
+  authority.data_use:
+    label: Data use authority
+  authority.payment:
+    label: Payment authority
+  authority.property:
+    label: Property authority
+  authority.herd:
+    label: Herd authority
+  authority.maori_land_governance:
+    label: Maori land governance
+  authority.maori_data_governance:
+    label: Maori data governance

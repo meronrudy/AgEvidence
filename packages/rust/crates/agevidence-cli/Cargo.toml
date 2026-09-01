@@ -1,0 +1,20 @@
+[package]
+name = "agevidence-cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "agevidence"
+path = "src/main.rs"
+
+[dependencies]
+agevidence-core = { path = "../agevidence-core" }
+agevidence-schema = { path = "../agevidence-schema" }
+agevidence-canonical = { path = "../agevidence-canonical" }
+agevidence-crypto = { path = "../agevidence-crypto" }
+agevidence-bundle = { path = "../agevidence-bundle" }
+agevidence-verify = { path = "../agevidence-verify" }
+agevidence-domain = { path = "../agevidence-domain" }
+clap = { workspace = true }
+anyhow = { workspace = true }
+serde_json = { workspace = true }

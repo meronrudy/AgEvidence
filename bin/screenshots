@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+APP_DIR="$ROOT_DIR/apps/console"
+MANIFEST="$ROOT_DIR/docs/screenshots/manifest.yml"
+export RAILS_ENV=development
+export DATABASE_URL="${DATABASE_URL:-postgres://postgres:postgres@127.0.0.1:5432/agevidence_development}"
+
+fail() {
+  printf "ERROR: %s\n" "$1" >&2
+  exit 1
+}
+
+command -v ruby >/dev/null 2>&1 || fail "Ruby is not installed or not on PATH."
+
+port_available() {
+  ruby -rsocket -e 'server = TCPServer.new("127.0.0.1", ARGV.fetch(0).to_i); server.close' "$1" >/dev/null 2>&1
+}
+
+REQUESTED_PORT="${AGEVIDENCE_SCREENSHOT_PORT:-}"
+if [ -n "$REQUESTED_PORT" ]; then
+  AGEVIDENCE_SCREENSHOT_PORT="$REQUESTED_PORT"
+  port_available "$AGEVIDENCE_SCREENSHOT_PORT" || fail "Port $AGEVIDENCE_SCREENSHOT_PORT is already in use."
+else
+  AGEVIDENCE_SCREENSHOT_PORT=3001
+  while ! port_available "$AGEVIDENCE_SCREENSHOT_PORT"; do
+    AGEVIDENCE_SCREENSHOT_PORT=$((AGEVIDENCE_SCREENSHOT_PORT + 1))
+    if [ "$AGEVIDENCE_SCREENSHOT_PORT" -gt 3015 ]; then
+      fail "No open port found between 3001 and 3015."
+    fi
+  done
+fi
+export AGEVIDENCE_SCREENSHOT_PORT
+export AGEVIDENCE_SCREENSHOT_BASE_URL="http://127.0.0.1:${AGEVIDENCE_SCREENSHOT_PORT}"
+export AGEVIDENCE_SCREENSHOT_MANIFEST="$MANIFEST"
+export AGEVIDENCE_REPO_ROOT="$ROOT_DIR"
+
+cd "$APP_DIR"
+
+bundle check >/dev/null 2>&1 || bundle install
+bin/rails db:prepare db:seed
+mkdir -p "$ROOT_DIR/docs/screenshots"
+
+rm -f tmp/pids/server.pid
+bin/rails server -b 127.0.0.1 -p "$AGEVIDENCE_SCREENSHOT_PORT" >/tmp/agevidence-screenshots.log 2>&1 &
+SERVER_PID=$!
+
+cleanup() {
+  kill "$SERVER_PID" >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+
+for _ in $(seq 1 60); do
+  if curl -fsS "$AGEVIDENCE_SCREENSHOT_BASE_URL/health" >/dev/null 2>&1; then
+    break
+  fi
+  sleep 1
+done
+
+if ! curl -fsS "$AGEVIDENCE_SCREENSHOT_BASE_URL/health" >/dev/null 2>&1; then
+  printf "ERROR: Rails did not start. See /tmp/agevidence-screenshots.log\n" >&2
+  exit 1
+fi
+
+bin/rails runner - <<'RUBY'
+require "fileutils"
+require "yaml"
+require "selenium-webdriver"
+
+Selenium::WebDriver.logger.level = :warn
+
+repo_root = ENV.fetch("AGEVIDENCE_REPO_ROOT")
+base_url = ENV.fetch("AGEVIDENCE_SCREENSHOT_BASE_URL")
+manifest_path = ENV.fetch("AGEVIDENCE_SCREENSHOT_MANIFEST")
+manifest = YAML.load_file(manifest_path).fetch("screens")
+
+options = Selenium::WebDriver::Chrome::Options.new
+options.add_argument("--headless=new")
+options.add_argument("--disable-gpu")
+options.add_argument("--no-sandbox")
+options.add_argument("--window-size=1440,1200")
+
+driver = Selenium::WebDriver.for(:chrome, options: options)
+wait = Selenium::WebDriver::Wait.new(timeout: 10)
+
+begin
+  sign_in_needed = manifest.any? { |screen| !screen["public"] }
+  if sign_in_needed
+    driver.navigate.to("#{base_url}/users/sign_in")
+    wait.until { driver.find_element(name: "user[email]") }
+    email = driver.find_element(name: "user[email]")
+    password = driver.find_element(name: "user[password]")
+    email.clear
+    password.clear
+    email.send_keys("demo")
+    password.send_keys("demo")
+    driver.find_element(css: "input[type='submit'], button[type='submit']").click
+    wait.until { !driver.current_url.include?("/users/sign_in") }
+  end
+
+  manifest.each do |screen|
+    target = File.join(repo_root, screen.fetch("file"))
+    FileUtils.mkdir_p(File.dirname(target))
+    driver.navigate.to("#{base_url}#{screen.fetch("route")}")
+    wait.until { driver.find_elements(css: "body").any? }
+    if !screen["public"] && driver.current_url.include?("/users/sign_in")
+      raise "Authentication failed before capturing #{screen.fetch("id")}"
+    end
+    sleep 0.5
+    driver.save_screenshot(target)
+    puts "Captured #{screen.fetch("id")} -> #{screen.fetch("file")}"
+  end
+ensure
+  driver.quit
+end
+RUBY

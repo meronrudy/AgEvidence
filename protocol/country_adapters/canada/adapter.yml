@@ -1,0 +1,47 @@
+adapter:
+  id: athian-country-ca-beef-v1
+  version: v1
+  status: active
+  country_code: CA
+global_contract:
+  receipt_envelope: ink.receipt.v2
+  agricultural_vocabulary: athian.agevidence.v1
+  verifier_contract: ink.verify.v1
+method:
+  id: CA-FED-REME-BC
+  version: v1.0
+  authority: Government of Canada federal offset system
+applicability:
+  required_context:
+    species:
+      - species.beef_cattle
+    production_system:
+      - production.confined_feeding
+    intervention_class:
+      - intervention.ration_reformulation
+      - intervention.feed_additive
+  excluded_context:
+    species:
+      - species.dairy_cattle
+    production_system:
+      - production.grazing
+required_evidence:
+  - evidence.animal_cohort
+  - evidence.baseline_performance
+  - evidence.baseline_ration
+  - evidence.intervention_delivery
+  - evidence.feed_record
+  - evidence.weight_record
+claim_policy:
+  profile: ca-federal-offset-and-scope3-v1
+verification_profile:
+  profile: ca-federal-beef-verification-v1
+data_policy:
+  profile: ca-controlled-evidence-v1
+artifact_profiles:
+  - ca-method-compatibility-v1
+  - ca-verification-readiness-v1
+  - ca-federal-submission-v1
+limitations:
+  - Final eligibility remains with the applicable program authority.
+  - This is an Athian compatibility assessment only.

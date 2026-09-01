@@ -1,0 +1,12 @@
+title: "Enteric CH4 yield and its variability in dairy cows"
+study: "Ramirez-Agudelo and Kebreab 2024 methane database"
+authors:
+  - "Juan F. Ramirez-Agudelo"
+  - "Ermias Kebreab"
+publication_doi: "10.3168/jds.2023-24529"
+source_url: "https://zenodo.org/records/10832823/files/Enteric%20CH4%20yield%20and%20its%20variability%20in%20dairy%20cows.xlsx?download=1"
+license: "See Zenodo record"
+expected_sha256: "sha256:b5a5064306bbaedb778a4177d4de31a4a6d0742440e0e013a92b36edf9017b2e"
+expected_md5: "md5:2c98c4b5042606fb80606793e7ddd4f0"
+retrieved_as: "Enteric CH4 yield and its variability in dairy cows.xlsx"
+local_path: "research/.data/kebreab/methane-database-2024/Enteric CH4 yield and its variability in dairy cows.xlsx"

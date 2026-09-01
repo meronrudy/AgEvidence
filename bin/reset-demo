@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+APP_DIR="$ROOT_DIR/apps/console"
+export RAILS_ENV=development
+export DATABASE_URL="${DATABASE_URL:-postgres://postgres:postgres@127.0.0.1:5432/agevidence_development}"
+
+cd "$APP_DIR"
+
+printf "Resetting AgEvidence demo database\n"
+bundle check >/dev/null 2>&1 || bundle install
+bin/rails db:drop db:create db:migrate db:seed
+
+printf "\nDemo ready\n"
+printf "Login: demo / demo\n"
+printf "Project: http://127.0.0.1:3000/app/projects/dit-production\n"

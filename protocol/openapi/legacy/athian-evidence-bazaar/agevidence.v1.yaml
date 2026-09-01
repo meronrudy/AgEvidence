@@ -1,0 +1,1153 @@
+openapi: 3.1.0
+info:
+  title: Athian AgEvidence Developer OS API
+  version: 1.0.0
+  summary: Source records, evidence events, model runs, quotes, artifact orders, and result callbacks.
+  description: >
+    Scaffold API for the AgEvidence developer operating system. Rails is an
+    orchestration and projection layer. Source records and operational events
+    become append-only evidence projections, while receipt issuance and
+    verification stay behind the ink_receipts and Rust trust boundary.
+servers:
+  - url: http://localhost:3000
+    description: Local Rails scaffold
+tags:
+  - name: Developer
+  - name: Country Adapters
+  - name: Pricing
+  - name: Artifact Orders
+  - name: Integrations
+  - name: Campaign
+paths:
+  /v1/developer/projects:
+    post:
+      tags: [Developer]
+      summary: Create a sandbox developer project.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProjectRequest"
+      responses:
+        "201":
+          description: Project created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeveloperProject"
+  /v1/developer/projects/{project_id}:
+    get:
+      tags: [Developer]
+      summary: Retrieve a developer project evidence map.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: Project evidence map.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeveloperProjectDetail"
+  /v1/developer/projects/{project_id}/source_records:
+    get:
+      tags: [Developer]
+      summary: List controlled source references for a project.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: Source record list.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [source_records]
+                properties:
+                  source_records:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SourceRecord"
+    post:
+      tags: [Developer]
+      summary: Submit a controlled source reference through the event inbox.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateSourceRecordRequest"
+      responses:
+        "201":
+          description: Source record accepted and projected through the inbox.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SourceRecord"
+  /v1/developer/projects/{project_id}/model_runs:
+    post:
+      tags: [Developer]
+      summary: Run fixture-backed evidence extraction for a project.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                adapter_id:
+                  type: string
+                  default: qwen3.5-4b-reference
+      responses:
+        "201":
+          description: Model run with review-required candidates and gaps.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelRun"
+  /v1/developer/projects/{project_id}/model_runs/{id}:
+    get:
+      tags: [Developer]
+      summary: Retrieve a model run.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Model run.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModelRun"
+  /v1/developer/projects/{project_id}/country_determinations:
+    get:
+      tags: [Country Adapters]
+      summary: List append-only country determinations for a project.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: Country determinations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryDetermination"
+    post:
+      tags: [Country Adapters]
+      summary: Append a country determination for a project.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [adapter]
+              properties:
+                adapter:
+                  type: string
+                  description: Country code or adapter id.
+                institution_profile:
+                  type: object
+      responses:
+        "201":
+          description: Determination appended.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CountryDetermination"
+  /v1/country_adapters:
+    get:
+      tags: [Country Adapters]
+      summary: List country adapter manifest projections.
+      responses:
+        "200":
+          description: Country adapters.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountryAdapter"
+  /v1/country_adapters/{adapter_id}:
+    get:
+      tags: [Country Adapters]
+      summary: Retrieve one country adapter projection.
+      parameters:
+        - name: adapter_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Country adapter.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CountryAdapter"
+  /v1/country_adapters/{adapter_id}/validate:
+    post:
+      tags: [Country Adapters]
+      summary: Validate a country adapter manifest projection.
+      parameters:
+        - name: adapter_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Validation report.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CountryAdapterValidation"
+  /v1/developer/candidates/{id}:
+    get:
+      tags: [Developer]
+      summary: Retrieve an evidence candidate.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Candidate detail.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvidenceCandidate"
+    patch:
+      tags: [Developer]
+      summary: Append a human review decision.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReviewDecisionRequest"
+      responses:
+        "200":
+          description: Updated candidate projection.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvidenceCandidate"
+  /v1/pricing/products:
+    get:
+      tags: [Pricing]
+      summary: List AgEvidence artifact products.
+      responses:
+        "200":
+          description: Product price book.
+  /v1/pricing/products/{code}:
+    get:
+      tags: [Pricing]
+      summary: Retrieve one product.
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Product detail.
+  /v1/pricing/quotes:
+    post:
+      tags: [Pricing]
+      summary: Create a versioned sandbox quote.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateQuoteRequest"
+      responses:
+        "201":
+          description: Quote created.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PricingQuote"
+  /v1/pricing/quotes/{quote_id}:
+    get:
+      tags: [Pricing]
+      summary: Retrieve a quote.
+      parameters:
+        - name: quote_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Quote detail.
+  /v1/artifact-orders:
+    post:
+      tags: [Artifact Orders]
+      summary: Create an artifact order from an accepted or pending quote.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateArtifactOrderRequest"
+      responses:
+        "201":
+          description: Artifact order created.
+  /v1/artifact-orders/{order_id}:
+    get:
+      tags: [Artifact Orders]
+      summary: Retrieve an artifact order.
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Artifact order detail.
+  /v1/artifact-orders/{order_id}/checkout:
+    post:
+      tags: [Artifact Orders]
+      summary: Complete sandbox checkout for an artifact order.
+      parameters:
+        - name: order_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Sandbox checkout completed.
+  /v1/developer/projects/{project_id}/artifacts:
+    post:
+      tags: [Developer]
+      summary: Request artifact assembly metadata for a project.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_code:
+                  type: string
+                quote_id:
+                  type: string
+                order_id:
+                  type: string
+                sandbox_checkout:
+                  type: boolean
+                scope:
+                  type: object
+      responses:
+        "201":
+          description: Artifact assembled.
+        "202":
+          description: Order accepted and awaiting sandbox checkout.
+  /v1/developer/projects/{project_id}/artifacts/{artifact_id}:
+    get:
+      tags: [Developer]
+      summary: Retrieve artifact metadata.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - name: artifact_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Artifact metadata.
+  /v1/developer/projects/{project_id}/artifacts/{artifact_id}/download:
+    get:
+      tags: [Developer]
+      summary: Retrieve artifact download metadata and local verifier command.
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - name: artifact_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Download metadata.
+  /v1/integrations/events:
+    post:
+      tags: [Integrations]
+      summary: Accept a signed upstream evidence event.
+      parameters:
+        - $ref: "#/components/parameters/IntegrationSourceHeader"
+        - $ref: "#/components/parameters/IntegrationTimestampHeader"
+        - $ref: "#/components/parameters/IntegrationSignatureHeader"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "202":
+          description: Event accepted asynchronously.
+  /v1/integrations/events/{event_id}:
+    get:
+      tags: [Integrations]
+      summary: Retrieve an integration event status.
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event status.
+  /v1/integrations/events/{event_id}/replay:
+    post:
+      tags: [Integrations]
+      summary: Replay a preserved event without creating a duplicate inbox row.
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Replay accepted.
+  /v1/integrations/operations/{operation_id}:
+    get:
+      tags: [Integrations]
+      summary: Retrieve an integration operation.
+      parameters:
+        - name: operation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Operation status.
+  /v1/integrations/webhook_endpoints:
+    get:
+      tags: [Integrations]
+      summary: List outbound webhook endpoints for an integration source.
+      parameters:
+        - $ref: "#/components/parameters/IntegrationSourceHeader"
+      responses:
+        "200":
+          description: Webhook endpoint list.
+    post:
+      tags: [Integrations]
+      summary: Register an outbound webhook endpoint.
+      parameters:
+        - $ref: "#/components/parameters/IntegrationSourceHeader"
+      responses:
+        "201":
+          description: Webhook endpoint registered.
+  /v1/campaign/accounts:
+    get:
+      tags: [Campaign]
+      summary: List campaign target accounts.
+      responses:
+        "200":
+          description: Campaign accounts.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accounts:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CampaignAccount"
+    post:
+      tags: [Campaign]
+      summary: Create a bounded campaign account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [campaign_account]
+              properties:
+                campaign_account:
+                  $ref: "#/components/schemas/CampaignAccountInput"
+      responses:
+        "201":
+          description: Campaign account created.
+  /v1/campaign/accounts/{account_id}:
+    get:
+      tags: [Campaign]
+      summary: Retrieve a campaign account.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Campaign account detail.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CampaignAccount"
+    patch:
+      tags: [Campaign]
+      summary: Update bounded campaign account fields.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Campaign account updated.
+  /v1/campaign/accounts/{account_id}/activations:
+    get:
+      tags: [Campaign]
+      summary: List activation paths for a campaign account.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Activation paths.
+    post:
+      tags: [Campaign]
+      summary: Start or record an activation path.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Activation path recorded.
+  /v1/campaign/accounts/{account_id}/qualifications:
+    get:
+      tags: [Campaign]
+      summary: List immutable qualification snapshots.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Qualification snapshots.
+    post:
+      tags: [Campaign]
+      summary: Evaluate evidence-grounded campaign qualification.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Qualification snapshot created.
+  /v1/campaign/accounts/{account_id}/handoffs:
+    get:
+      tags: [Campaign]
+      summary: List commercial handoffs.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Commercial handoffs.
+    post:
+      tags: [Campaign]
+      summary: Create an idempotent Salesforce handoff for a commercially qualified account.
+      parameters:
+        - name: account_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Handoff created and connector outbox queued.
+  /v1/campaign/dashboard:
+    get:
+      tags: [Campaign]
+      summary: Retrieve campaign dashboard summary.
+      responses:
+        "200":
+          description: Campaign dashboard.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CampaignDashboard"
+  /v1/campaign/connectors/salesforce/events:
+    post:
+      tags: [Campaign]
+      summary: Accept bounded Salesforce connector signals.
+      responses:
+        "202":
+          description: Salesforce signal accepted.
+components:
+  parameters:
+    ProjectId:
+      name: project_id
+      in: path
+      required: true
+      schema:
+        type: string
+    IntegrationSourceHeader:
+      name: X-Athian-Integration-Source
+      in: header
+      required: true
+      schema:
+        type: string
+    IntegrationTimestampHeader:
+      name: X-Athian-Timestamp
+      in: header
+      required: true
+      schema:
+        type: string
+        format: date-time
+    IntegrationSignatureHeader:
+      name: X-Athian-Signature
+      in: header
+      required: true
+      schema:
+        type: string
+  schemas:
+    CreateProjectRequest:
+      type: object
+      required: [developer_account, project]
+      properties:
+        developer_account:
+          type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+            website:
+              type: string
+            funding_stage:
+              type: string
+            primary_segment:
+              type: string
+        project:
+          type: object
+          required: [name]
+          properties:
+            name:
+              type: string
+            external_project_id:
+              type: string
+            project_type:
+              type: string
+              default: intervention
+            target_claim:
+              type: string
+            country_context:
+              type: object
+    DeveloperProject:
+      type: object
+      required: [id, name, integration_status]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        developer_account:
+          type: string
+        target_claim:
+          type: string
+        integration_status:
+          type: string
+        evidence_graph_root:
+          type: string
+    DeveloperProjectDetail:
+      allOf:
+        - $ref: "#/components/schemas/DeveloperProject"
+        - type: object
+          properties:
+            source_records:
+              type: array
+              items:
+                $ref: "#/components/schemas/SourceRecord"
+            model_runs:
+              type: array
+              items:
+                $ref: "#/components/schemas/ModelRun"
+            quotes:
+              type: array
+              items:
+                $ref: "#/components/schemas/PricingQuote"
+    CreateSourceRecordRequest:
+      type: object
+      required: [source_record]
+      properties:
+        source_record:
+          type: object
+          required: [document_id, evidence_type, controlled_uri, commitment]
+          properties:
+            document_id:
+              type: string
+            evidence_type:
+              type: string
+            evidence_class:
+              type: string
+              default: source_record
+            source_system:
+              type: string
+            controlled_uri:
+              type: string
+            commitment:
+              type: string
+              description: Namespace-prefixed source commitment such as source:demo-record.
+            disclosure_status:
+              type: string
+              enum: [public, selective, restricted, withheld]
+    SourceRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        document_id:
+          type: string
+        evidence_type:
+          type: string
+        controlled_uri:
+          type: string
+        commitment:
+          type: string
+        status:
+          type: string
+        event_id:
+          type: string
+        operation_id:
+          type: string
+    ModelRun:
+      type: object
+      properties:
+        id:
+          type: integer
+        adapter_id:
+          type: string
+        status:
+          type: string
+        candidates:
+          type: array
+          items:
+            $ref: "#/components/schemas/EvidenceCandidate"
+        gaps:
+          type: array
+          items:
+            $ref: "#/components/schemas/EvidenceGap"
+    EvidenceCandidate:
+      type: object
+      properties:
+        id:
+          type: integer
+        candidate_type:
+          type: string
+        claim_text:
+          type: string
+        source_references:
+          type: array
+          items:
+            type: object
+        model_confidence:
+          type: number
+        review_status:
+          type: string
+          enum: [review_required, accepted, rejected, needs_more_evidence, superseded]
+    EvidenceGap:
+      type: object
+      properties:
+        id:
+          type: integer
+        gap_type:
+          type: string
+        requirement:
+          type: string
+        severity:
+          type: string
+        resolution_status:
+          type: string
+    CountryAdapter:
+      type: object
+      required: [adapter_id, country_code, version, status]
+      properties:
+        adapter_id:
+          type: string
+        country_code:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+          enum: [active, pilot, scaffold, research, superseded, retired]
+        method_id:
+          type: string
+        method_version:
+          type: string
+        authority:
+          type: string
+        classification:
+          type: string
+          enum: [active, pilot, scaffold, research, invalid]
+        limitations:
+          type: array
+          items:
+            type: string
+    CountryAdapterValidation:
+      type: object
+      required: [classification, errors]
+      properties:
+        adapter_id:
+          type: string
+        country_code:
+          type: string
+        status:
+          type: string
+        classification:
+          type: string
+          enum: [active, pilot, scaffold, research, invalid]
+        errors:
+          type: array
+          items:
+            type: string
+        manifest_path:
+          type: string
+    CountryDetermination:
+      type: object
+      required: [adapter_id, country_code, status, normalized_result]
+      properties:
+        id:
+          type: integer
+        project_id:
+          type: integer
+        adapter_id:
+          type: string
+        country_code:
+          type: string
+        adapter_version:
+          type: string
+        method_id:
+          type: string
+        method_version:
+          type: string
+        status:
+          type: string
+        normalized_result:
+          type: object
+        receipt_id:
+          type: integer
+        result_digest:
+          type: string
+        supersedes:
+          type: integer
+        evaluated_at:
+          type: string
+          format: date-time
+    CreateReviewDecisionRequest:
+      type: object
+      required: [review_decision]
+      properties:
+        review_decision:
+          type: object
+          required: [decision]
+          properties:
+            reviewer_role:
+              type: string
+            decision:
+              type: string
+              enum: [accepted, rejected, needs_more_evidence, superseded]
+            reason:
+              type: string
+            policy_version:
+              type: string
+    CreateQuoteRequest:
+      type: object
+      required: [quote]
+      properties:
+        quote:
+          type: object
+          required: [project_id, product_code]
+          properties:
+            project_id:
+              type: string
+            product_code:
+              type: string
+            scope:
+              type: object
+              properties:
+                protocol_complexity:
+                  type: string
+                evidence_classes:
+                  type: integer
+                source_systems:
+                  type: integer
+                countries:
+                  type: integer
+                relying_parties:
+                  type: integer
+                selective_disclosure:
+                  type: boolean
+                turnaround_days:
+                  type: integer
+    PricingQuote:
+      type: object
+      properties:
+        quote_id:
+          type: string
+        product_code:
+          type: string
+        currency:
+          type: string
+        amount:
+          type: integer
+        pricing_version:
+          type: string
+        breakdown:
+          type: array
+          items:
+            type: object
+        status:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+    CreateArtifactOrderRequest:
+      type: object
+      required: [artifact_order]
+      properties:
+        artifact_order:
+          type: object
+          required: [quote_id]
+          properties:
+            quote_id:
+              type: string
+            artifact_scope:
+              type: object
+    CampaignAccountInput:
+      type: object
+      required: [name, country_code]
+      properties:
+        external_id:
+          type: string
+        name:
+          type: string
+        domain:
+          type: string
+        country_code:
+          type: string
+          pattern: "^[A-Z]{2}$"
+        subsector:
+          type: string
+        funding_stage:
+          type: string
+        capital_raised_cents:
+          type: integer
+          minimum: 0
+        status:
+          type: string
+          enum: [identified, researched, approved_for_outreach, activation_invited, developer_activated, evidence_qualified, reliance_qualified, commercially_qualified, handed_to_salesforce, contracted, active_customer, paused, disqualified, archived]
+        qualification_level:
+          type: string
+          enum: [unqualified, market_qualified, developer_activated, evidence_qualified, reliance_qualified, commercially_qualified]
+        priority_score:
+          type: integer
+          minimum: 0
+          maximum: 100
+        authoritative_system:
+          type: string
+        evidence_obligation_code:
+          type: string
+        evidence_obligation_summary:
+          type: string
+        salesforce_account_id:
+          type: string
+        apollo_account_id:
+          type: string
+        developer_account_id:
+          type: integer
+        metadata_json:
+          type: object
+    CampaignAccount:
+      allOf:
+        - $ref: "#/components/schemas/CampaignAccountInput"
+        - type: object
+          properties:
+            account_id:
+              type: string
+            contacts:
+              type: array
+              items:
+                $ref: "#/components/schemas/CampaignContactRef"
+            activations:
+              type: array
+              items:
+                $ref: "#/components/schemas/ActivationPath"
+            qualifications:
+              type: array
+              items:
+                $ref: "#/components/schemas/TechnicalQualification"
+            handoffs:
+              type: array
+              items:
+                $ref: "#/components/schemas/CommercialHandoff"
+            authority_boundary:
+              type: string
+    CampaignContactRef:
+      type: object
+      properties:
+        contact_id:
+          type: string
+        display_name:
+          type: string
+        role_category:
+          type: string
+        email_domain:
+          type: string
+        salesforce_contact_id:
+          type: string
+        apollo_person_id:
+          type: string
+        technical_authority:
+          type: boolean
+        commercial_authority:
+          type: boolean
+        scientific_authority:
+          type: boolean
+        contactability_status:
+          type: string
+    ActivationPath:
+      type: object
+      properties:
+        activation_id:
+          type: string
+        account_id:
+          type: string
+        path_type:
+          type: string
+          enum: [customer_quickstart, developer_quickstart, python_sdk, cli_project_4030, source_record_browser, source_record_api, event_inbox, artifact_verification, webhook_integration]
+        status:
+          type: string
+          enum: [invited, started, completed, failed, ignored]
+        repository_sha:
+          type: string
+        developer_project_external_id:
+          type: string
+        support_minutes:
+          type: integer
+    TechnicalQualification:
+      type: object
+      properties:
+        qualification_id:
+          type: string
+        account_id:
+          type: string
+        developer_project_id:
+          type: integer
+        status:
+          type: string
+        qualification_level:
+          type: string
+        evidence_gap_count:
+          type: integer
+        qualification_reason:
+          type: string
+        snapshot:
+          type: object
+    CommercialHandoff:
+      type: object
+      properties:
+        handoff_id:
+          type: string
+        account_id:
+          type: string
+        qualification_id:
+          type: string
+        product_code:
+          type: string
+        status:
+          type: string
+        scope_digest:
+          type: string
+        planning_value_cents:
+          type: integer
+        contracted_value_cents:
+          type: integer
+        cash_collected_cents:
+          type: integer
+        salesforce_opportunity_id:
+          type: string
+        salesforce_proposal_id:
+          type: string
+        proposal_reference:
+          type: string
+        proposal_terms_digest:
+          type: string
+          pattern: "^sha256:[a-f0-9]{64}$"
+        contract_reference:
+          type: string
+        contract_terms_digest:
+          type: string
+          pattern: "^sha256:[a-f0-9]{64}$"
+        invoice_reference:
+          type: string
+        cash_collection_reference:
+          type: string
+        revenue_system:
+          type: string
+        last_revenue_signal_at:
+          type: string
+          format: date-time
+    CampaignDashboard:
+      type: object
+      properties:
+        counts:
+          type: object
+        phase10:
+          type: object
+          description: Strict gate and reference-only Phase 10 visibility.
+        recent_accounts:
+          type: array
+          items:
+            $ref: "#/components/schemas/CampaignAccount"

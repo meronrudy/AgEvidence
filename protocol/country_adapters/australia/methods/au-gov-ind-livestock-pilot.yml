@@ -1,0 +1,14 @@
+method:
+  id: AU-GOV-IND-LIVESTOCK-PILOT
+  version: v1.0
+  label: Australia livestock government-industry pilot scaffold
+  authority: Australia government-industry pilot
+  method_scope:
+    species:
+      - species.beef_cattle
+      - species.dairy_cattle
+    production_system:
+      - production.confined_feeding
+      - production.pasture_based
+  limitations:
+    - Synthetic scaffold; not a government determination.

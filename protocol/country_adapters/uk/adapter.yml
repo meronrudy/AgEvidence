@@ -1,0 +1,42 @@
+adapter:
+  id: athian-country-uk-common-v1
+  version: v1
+  status: research
+  country_code: UK
+global_contract:
+  receipt_envelope: ink.receipt.v2
+  agricultural_vocabulary: athian.agevidence.v1
+  verifier_contract: ink.verify.v1
+method:
+  id: UK-COMMON-DEVOLVED-SCAFFOLD
+  version: v0.1
+  authority: UK common and devolved profile scaffold
+applicability:
+  required_context:
+    species:
+      - species.beef_cattle
+      - species.dairy_cattle
+    production_system:
+      - production.pasture_based
+      - production.confined_feeding
+    intervention_class:
+      - intervention.feed_additive
+      - intervention.ration_reformulation
+  excluded_context:
+    species: []
+    production_system: []
+required_evidence:
+  - evidence.animal_cohort
+  - evidence.verification_readiness_report
+claim_policy:
+  profile: uk-common-devolved-scaffold-v1
+verification_profile:
+  profile: uk-statutory-private-separation-v1
+data_policy:
+  profile: uk-controlled-evidence-v1
+artifact_profiles:
+  - uk-research-readiness-v1
+limitations:
+  - UK integrations remain research until source contracts are validated.
+  - Statutory traceability and private assurance remain separate determinations.
+
