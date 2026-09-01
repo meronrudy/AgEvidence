@@ -5,12 +5,16 @@ class AppController < ApplicationController
   before_action :use_app_shell
 
   def overview
-    @project = current_organization.projects.find_by!(slug: "dit-production")
-    @profile = ProgramProfile.find_by!(code: CANONICAL_PROFILE_CODE)
+    @project = current_organization.projects.find_by(slug: "dit-production") || current_organization.projects.order(:created_at).first!
+    @profile = if current_product_pack.program_profiles.any?
+      ProgramProfile.find_by(code: current_product_pack.program_profiles.first) || ProgramProfile.find_by!(code: CANONICAL_PROFILE_CODE)
+    else
+      ProgramProfile.find_by!(code: CANONICAL_PROFILE_CODE)
+    end
     @open_review_count = current_organization.reviews.open.count
     @webhook_failure_count = WebhookDelivery.joins(webhook_endpoint: :organization).where(webhook_endpoints: { organization_id: current_organization.id }).where("webhook_deliveries.status >= 400").count
     @activities = current_organization.activities.order(occurred_at: :desc).limit(8)
-    @statement = current_organization.artifacts.find_by!(artifact_code: "AE-AU-000184")
+    @statement = current_organization.artifacts.find_by(artifact_code: "AE-AU-000184") || current_organization.artifacts.order(updated_at: :desc).first!
     @evidence_records = current_organization.evidence_records
     @statements = policy_scope(Artifact)
     @plane_metrics = {
@@ -21,7 +25,7 @@ class AppController < ApplicationController
       ],
       evaluation: [
         ["1", "active profile"],
-        [@profile.requirements_count.to_s, "requirements"],
+        [@profile.requirements_count.to_s, current_product_pack.term("Requirement").downcase.pluralize],
         ["2", "requiring attention"]
       ],
       governance: [
@@ -29,8 +33,8 @@ class AppController < ApplicationController
         ["1", "qualification"]
       ],
       statements: [
-        ["4", "ready"],
-        ["11", "issued"]
+        [current_organization.artifacts.where(issued: false).count.to_s, "ready"],
+        [current_organization.artifacts.where(issued: true).count.to_s, "issued"]
       ]
     }
     @operational_health = [
@@ -44,7 +48,7 @@ class AppController < ApplicationController
       ["Machine gap", "AE-METH-008 calibration evidence requires attention", app_gaps_path, "material_gap"],
       ["Human review", "#{@open_review_count} decisions awaiting institutional judgment", app_reviews_path, "human_review"],
       ["Integration exceptions", "#{@webhook_failure_count} failed webhook deliveries", app_integrations_path, @webhook_failure_count.positive? ? "material_gap" : "valid"],
-      ["Statements ready", "4 Evidence Statements ready for issue", app_statements_path, "draft"]
+      ["Statements ready", "#{current_organization.artifacts.where(issued: false).count} #{current_product_pack.term("Artifact").pluralize} ready for issue", app_statements_path, "draft"]
     ]
   end
 
@@ -87,5 +91,13 @@ class AppController < ApplicationController
       ["Default jurisdiction", "Australia"],
       ["Signed in as", current_user.full_name]
     ]
+  end
+
+  def pricing
+    require_product_capability!("pricing")
+    @title = "Product Catalogue"
+    @description = "Organization-owned evidence products and active price versions."
+    @products = current_product_pack.catalog.active
+    @price_versions = current_organization.price_versions.active.index_by(&:product_code)
   end
 end

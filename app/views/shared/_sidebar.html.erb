@@ -1,58 +1,27 @@
 <div class="sidebar-brand">
   <%= link_to app_home_path, class: "brand-link" do %>
     <span class="brand-mark" aria-hidden="true"></span>
-    <span>AgEvidence</span>
+    <span><%= brand_product_name %></span>
   <% end %>
   <button class="icon-button mobile-only" type="button" data-sidebar-close aria-label="Close navigation">x</button>
 </div>
 
 <nav class="sidebar-nav">
-  <div class="nav-section">
-    <div class="nav-heading">Overview</div>
-    <%= nav_link app_home_path, "Overview", exact: true, icon: "O" %>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-heading">Evidence</div>
-    <% attention_count = current_organization ? current_organization.evidence_records.where(status: ["needs_mapping", "schema_error", "needs_review"]).count : 0 %>
-    <% gap_count = current_organization ? current_organization.gaps.open.count : 0 %>
-    <%= nav_link app_evidence_path, "Ingestion", badge: attention_count, icon: "I" %>
-    <%= nav_link app_evidence_records_path, "Records", icon: "R" %>
-    <%= nav_link app_gaps_path, "Gaps", badge: gap_count, icon: "G" %>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-heading">Evaluation</div>
-    <% review_count = current_organization ? current_organization.reviews.open.count : 0 %>
-    <%= nav_link app_evaluations_path, "Evaluations", icon: "E" %>
-    <%= nav_link app_program_requirements_path, "Requirements", icon: "Q" %>
-    <%= nav_link app_reviews_path, "Reviews", badge: review_count, icon: "R" %>
-    <%= nav_link app_determinations_path, "Determinations", icon: "D" %>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-heading">Statements</div>
-    <%= nav_link app_statements_path, "Statements", icon: "S" %>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-heading">Developer</div>
-    <%= nav_link app_developer_path, "SDK Integration", exact: true, icon: "S" %>
-    <%= nav_link app_developer_logs_path, "API Logs", icon: "L" %>
-    <%= nav_link app_developer_webhooks_path, "Webhooks", icon: "W" %>
-    <%= nav_link app_developer_keys_path, "API Keys", icon: "K" %>
-    <%= nav_link app_developer_schemas_path, "Schemas", icon: "C" %>
-  </div>
-
-  <div class="nav-section">
-    <div class="nav-heading">Operations</div>
-    <%= nav_link app_integrations_path, "Integrations", icon: "N" %>
-    <%= nav_link app_integrity_path, "Integrity", icon: "Y" %>
-  </div>
+  <% current_product_pack.navigation.visible_for(current_product_pack).each do |section| %>
+    <div class="nav-section">
+      <div class="nav-heading"><%= section.label %></div>
+      <% section.items.each do |item| %>
+        <%= nav_link portfolio_nav_path(item.target), item.label, badge: portfolio_nav_badge(item.target), exact: item.target == "dashboard", icon: item.label.first %>
+      <% end %>
+    </div>
+  <% end %>
 </nav>
 
 <nav class="sidebar-bottom">
   <div class="nav-heading">Settings</div>
   <%= nav_link app_organization_path, "Organization", icon: "B" %>
   <%= nav_link app_settings_path, "Settings", icon: "S" %>
+  <% if brand_attribution.present? %>
+    <div class="nav-heading"><%= brand_attribution %></div>
+  <% end %>
 </nav>

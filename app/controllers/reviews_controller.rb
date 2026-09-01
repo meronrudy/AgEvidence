@@ -1,6 +1,7 @@
 class ReviewsController < ApplicationController
   before_action :authenticate_app_user!
   before_action :use_app_shell
+  before_action -> { require_product_capability!("reviews") }
 
   def index
     @reviews = current_organization.reviews

@@ -22,6 +22,11 @@ module Api
 
         @current_api_key.touch(:last_used_at)
         @current_organization = @current_api_key.organization
+        return unauthorized unless @current_organization
+
+        Current.api_key = @current_api_key
+        Current.organization = @current_organization
+        Current.product_pack = PortfolioProducts::Registry.fetch_for_organization(@current_organization)
       end
 
       def api_actor
@@ -110,6 +115,7 @@ module Api
             trace: [{ "step" => "api_request", "ok" => response.status < 500 }]
           )
         end
+        Current.reset
       end
 
       def redacted_request_summary

@@ -43,6 +43,23 @@ class ArtifactIssuanceService
         metadata: @metadata
       )
 
+      CommercialTelemetry::Recorder.record!(
+        event_type: "artifact_issued",
+        organization: @artifact.organization,
+        project: @artifact.project,
+        product_code: product_code,
+        value: {
+          "organization_class" => "portfolio_company",
+          "product_code" => product_code,
+          "artifacts_generated" => @artifact.project.artifacts.count,
+          "source_records_ingested" => @artifact.project.source_records.count,
+          "evidence_records_generated" => @artifact.project.evidence_records.count,
+          "model_or_evaluation_runs" => @artifact.project.model_runs.count + @artifact.project.evaluations.count,
+          "reviewer_actions" => @artifact.project.reviews.joins(:review_decisions).count,
+          "reliance_events" => @artifact.project.reliance_events.count
+        }
+      )
+
       @artifact
     end
   end
@@ -60,5 +77,12 @@ class ArtifactIssuanceService
     raise ArgumentError, "non-stale evaluation is required" unless evaluation && !evaluation.stale?
     raise ArgumentError, "blocking gaps remain" if @artifact.project.gaps.open.blocking.exists?
     raise ArgumentError, "required human reviews are open" if @artifact.project.reviews.open.exists?
+  end
+
+  def product_code
+    @metadata[:product_code] ||
+      @metadata["product_code"] ||
+      @artifact.artifact["portfolio_product_code"] ||
+      @artifact.project.metadata["product_code"]
   end
 end

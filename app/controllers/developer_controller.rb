@@ -1,6 +1,7 @@
 class DeveloperController < ApplicationController
   before_action :authenticate_app_user!
   before_action :use_app_shell
+  before_action :require_developer_capability
 
   def index
     @stats = {
@@ -47,5 +48,12 @@ class DeveloperController < ApplicationController
 
   def openapi
     @endpoints = ApiLog.where(organization: current_organization).order(:endpoint).pluck(:method, :endpoint).uniq
+  end
+
+  private
+
+  def require_developer_capability
+    capability = action_name == "webhooks" || action_name == "retry_webhook" ? "webhooks" : "developer_api"
+    require_product_capability!(capability)
   end
 end

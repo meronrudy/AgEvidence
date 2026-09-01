@@ -1,0 +1,40 @@
+telemetry:
+  commercial_events: true
+  workload_metrics: true
+  customer_identity: false
+  raw_evidence: false
+  source_metadata: false
+  include:
+    - organization_class
+    - product_code
+    - product_version
+    - period
+    - customer_segment
+    - geography
+    - pricing_unit
+    - currency
+    - list_price
+    - offered_price
+    - accepted_price
+    - quote_outcome
+    - sales_cycle_days
+    - source_records_ingested
+    - evidence_records_generated
+    - model_or_evaluation_runs
+    - artifacts_generated
+    - reviewer_actions
+    - reviewer_minutes
+    - support_minutes
+    - api_requests
+    - exports_or_external_recipients
+    - reliance_events
+    - infrastructure_cost
+    - renewal
+    - expansion
+    - recurring_value
+  exclude:
+    - customer_identity
+    - raw_evidence_payloads
+    - proprietary_model_parameters
+    - contract_text
+    - confidential_geometries

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title><%= content_for?(:title) ? "#{yield(:title)} - AgEvidence" : "AgEvidence" %></title>
+  <title><%= content_for?(:title) ? "#{yield(:title)} - #{brand_product_name}" : brand_product_name %></title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <%= stylesheet_link_tag 'application' %>
   <%= javascript_include_tag 'application' %>

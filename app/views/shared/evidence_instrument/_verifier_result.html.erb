@@ -1,6 +1,6 @@
 <section class="ei-verifier">
   <header>
-    <div class="ei-kicker">AgEvidence / Verify</div>
+    <div class="ei-kicker"><%= brand_product_name %> / Verify</div>
     <h1 class="mono"><%= artifact&.artifact_code || identifier %></h1>
     <%= ei_status(artifact ? (artifact.issued? ? "Valid issued statement" : "Valid draft statement") : "Statement not found", status: artifact ? "valid" : "material_gap") %>
   </header>
@@ -17,7 +17,7 @@
     </div>
 
     <dl class="ei-plate-meta ei-verifier-meta">
-      <div><dt>Statement hash</dt><dd class="mono"><%= artifact.digest %></dd></div>
+      <div><dt><%= portfolio_term("Artifact") %> hash</dt><dd class="mono"><%= artifact.digest %></dd></div>
       <div><dt>Profile</dt><dd class="mono"><%= artifact.program %></dd></div>
       <div><dt>Boundary</dt><dd class="mono"><%= artifact.boundary %></dd></div>
       <div><dt>Issued</dt><dd class="mono"><%= artifact.issued? ? format_utc(artifact.issued_at) : "Not issued" %></dd></div>
@@ -34,6 +34,6 @@
       </div>
     </div>
   <% else %>
-    <p>No Evidence Statement exists for <span class="mono"><%= identifier %></span> in this demo workspace.</p>
+    <p>No <%= portfolio_term("Artifact") %> exists for <span class="mono"><%= identifier %></span> in this demo workspace.</p>
   <% end %>
 </section>

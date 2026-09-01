@@ -1,0 +1,93 @@
+products:
+  - code: application_qualification
+    name: Biobarc Application Qualification
+    product_version: "1.2"
+    product_family: Earthodic Qualification Cloud
+    program_profiles:
+      - earthodic.application.v1
+    artifact_profile: application_qualification_pack
+    pricing_units:
+      - application
+      - qualification_event
+      - annual_maintained_approval
+    pricing_model: fixed
+    currency: AUD
+    active: true
+  - code: recyclability_claim_evidence
+    name: Recyclability Claim Evidence
+    product_version: "1.0"
+    product_family: Earthodic Qualification Cloud
+    program_profiles:
+      - earthodic.recyclability.v1
+    artifact_profile: batch_claim_passport
+    pricing_units:
+      - material_sku
+      - customer_program
+    pricing_model: quote_only
+    currency: AUD
+    active: true
+  - code: pfas_barrier_transition
+    name: PFAS Barrier Transition Evidence
+    product_version: "1.0"
+    product_family: Earthodic Qualification Cloud
+    program_profiles:
+      - earthodic.application.v1
+    artifact_profile: application_qualification_pack
+    pricing_units:
+      - application
+      - production_line
+    pricing_model: quote_only
+    currency: AUD
+    active: true
+  - code: commercial_line_qualification
+    name: Commercial Line Qualification Passport
+    product_version: "1.0"
+    product_family: Earthodic Qualification Cloud
+    program_profiles:
+      - earthodic.application.v1
+    artifact_profile: qualification_delta
+    pricing_units:
+      - converter
+      - production_line
+    pricing_model: quote_only
+    currency: AUD
+    active: true
+  - code: environmental_claim_substantiation
+    name: Environmental Claim Substantiation
+    product_version: "1.0"
+    product_family: Earthodic Qualification Cloud
+    program_profiles:
+      - earthodic.recyclability.v1
+    artifact_profile: batch_claim_passport
+    pricing_units:
+      - customer_program
+      - qualification_event
+    pricing_model: quote_only
+    currency: AUD
+    active: true
+  - code: qualification_maintenance_delta
+    name: Qualification Maintenance / Evidence Delta
+    product_version: "1.0"
+    product_family: Earthodic Qualification Cloud
+    program_profiles:
+      - earthodic.maintenance.v1
+    artifact_profile: qualification_delta
+    pricing_units:
+      - annual_maintained_approval
+      - annual_workspace
+    pricing_model: quote_only
+    currency: AUD
+    active: true
+  - code: batch_to_claim_passport
+    name: Batch-to-Claim Passport
+    product_version: "1.0"
+    product_family: Earthodic Qualification Cloud
+    program_profiles:
+      - earthodic.recyclability.v1
+    artifact_profile: batch_claim_passport
+    pricing_units:
+      - material_sku
+      - qualification_event
+    pricing_model: quote_only
+    currency: AUD
+    active: true

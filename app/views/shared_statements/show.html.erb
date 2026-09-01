@@ -3,17 +3,17 @@
 <div class="landing-main">
   <div class="brand-link">
     <span class="brand-mark" aria-hidden="true"></span>
-    <span>AgEvidence</span>
+    <span><%= brand_product_name %></span>
   </div>
 
-  <h1 class="landing-title">Evidence Statement <%= @statement.artifact_code %></h1>
+  <h1 class="landing-title"><%= portfolio_term("Artifact") %> <%= @statement.artifact_code %></h1>
   <p class="lead"><%= @statement.claim %> · <%= @statement.boundary %></p>
 
   <section class="panel" style="margin-top:32px">
-    <div class="section-title">Statement</div>
+    <div class="section-title"><%= portfolio_term("Artifact") %></div>
     <%= key_values([
       ["State", @statement.status.upcase, true],
-      ["Program", @statement.program, false],
+        [portfolio_term("Program"), @statement.program, false],
       ["Digest", @statement.digest, true],
       ["Issued", @statement.issued_at ? format_utc(@statement.issued_at) : "Not issued", false],
       ["Access", @share.access_level.humanize, false]
@@ -23,12 +23,15 @@
   <% if @evaluation && @determination %>
     <section class="panel" style="margin-top:16px">
       <div class="section-title">Summary</div>
-      <%= key_values([
+      <% limitation = @statement.limitations.first || {} %>
+      <% summary_rows = [
         ["Evaluation", @evaluation.outcome, false],
         ["Profile version", @evaluation.profile_version, true],
-        ["Determination", @determination.outcome, false],
-        ["Qualification", @statement.limitations.first&.dig("detail") || "None", false]
-      ]) %>
+        ["Determination", @determination.outcome, false]
+      ] %>
+      <% summary_rows << ["Limitation", limitation["statement"], false] if limitation["statement"].present? %>
+      <% summary_rows << ["Qualification", limitation["detail"], false] if limitation["detail"].present? %>
+      <%= key_values(summary_rows) %>
     </section>
   <% end %>
 

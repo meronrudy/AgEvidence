@@ -3,6 +3,7 @@ class ProgramsController < ApplicationController
 
   before_action :authenticate_app_user!
   before_action :use_app_shell
+  before_action -> { require_product_capability!("programs") }
   before_action :load_australia_profile, only: [
     :australia, :australia_requirements, :australia_profiles, :australia_versions,
     :australia_evaluations, :australia_determinations

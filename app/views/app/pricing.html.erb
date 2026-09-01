@@ -1,0 +1,39 @@
+<% page_title @title %>
+<%= render "shared/page_header", title: @title, description: @description %>
+
+<section class="panel flush">
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Unit</th>
+          <th>Price</th>
+          <th>Model</th>
+          <th>Artifact profile</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @products.each do |product| %>
+          <% price = @price_versions[product.code] %>
+          <tr>
+            <td>
+              <%= product.name %>
+              <div class="mono muted"><%= product.code %></div>
+            </td>
+            <td><%= Array(price&.pricing_unit || product.pricing_units).join(", ") %></td>
+            <td>
+              <% if price&.list_price_cents %>
+                <%= price.currency %> <%= number_with_delimiter(price.list_price_cents / 100) %>
+              <% else %>
+                Quote only
+              <% end %>
+            </td>
+            <td><%= product.pricing_model.humanize %></td>
+            <td class="mono muted"><%= product.artifact_profile %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

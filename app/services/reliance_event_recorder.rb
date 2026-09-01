@@ -1,9 +1,6 @@
 class RelianceEventRecorder
   def self.record!(artifact:, actor:, attributes:, metadata: {})
-    puts "DEBUG: RelianceEventRecorder.record! called with artifact=#{artifact.artifact_code}, actor=#{actor.inspect}"
-    result = new(artifact: artifact, actor: actor, attributes: attributes, metadata: metadata).record!
-    puts "DEBUG: RelianceEventRecorder.record! finished, result=#{result.inspect}"
-    result
+    new(artifact: artifact, actor: actor, attributes: attributes, metadata: metadata).record!
   end
 
   def initialize(artifact:, actor:, attributes:, metadata:)
@@ -14,7 +11,6 @@ class RelianceEventRecorder
   end
 
   def record!
-    puts "DEBUG: Creating reliance event with attributes: #{@attributes.inspect}"
     RelianceEvent.transaction do
       reliance_event = @artifact.reliance_events.create!(
         @attributes.merge(
@@ -25,7 +21,6 @@ class RelianceEventRecorder
           occurred_at: @attributes[:occurred_at] || @attributes["occurred_at"] || Time.current
         )
       )
-      puts "DEBUG: Created reliance event: #{reliance_event.inspect}"
 
       AuditEvent.log!(
         action: "reliance_event_recorded",
@@ -35,7 +30,31 @@ class RelianceEventRecorder
         metadata: @metadata.merge(artifact_code: @artifact.artifact_code, event_code: reliance_event.event_code)
       )
 
+      CommercialTelemetry::Recorder.record!(
+        event_type: "reliance_recorded",
+        organization: @artifact.organization,
+        project: @artifact.project,
+        product_code: product_code,
+        value: {
+          "organization_class" => "portfolio_company",
+          "product_code" => product_code,
+          "artifacts_generated" => @artifact.project.artifacts.count,
+          "source_records_ingested" => @artifact.project.source_records.count,
+          "evidence_records_generated" => @artifact.project.evidence_records.count,
+          "model_or_evaluation_runs" => @artifact.project.model_runs.count + @artifact.project.evaluations.count,
+          "reviewer_actions" => @artifact.project.reviews.joins(:review_decisions).count,
+          "reliance_events" => @artifact.project.reliance_events.count
+        }
+      )
+
       reliance_event
     end
+  end
+
+  def product_code
+    @metadata[:product_code] ||
+      @metadata["product_code"] ||
+      @artifact.artifact["portfolio_product_code"] ||
+      @artifact.project.metadata["product_code"]
   end
 end

@@ -1,0 +1,35 @@
+navigation:
+  - label: Overview
+    items:
+      - target: dashboard
+        label: Dashboard
+  - label: Qualification
+    items:
+      - target: qualifications
+        label: Qualifications
+      - target: evidence
+        label: Test Evidence
+      - target: reviews
+        label: Reviews
+      - target: artifacts
+        label: Qualification Packs
+  - label: Requirement Sets
+    items:
+      - target: programs
+        label: Requirement Sets
+        capability: programs
+  - label: Commerce
+    items:
+      - target: pricing
+        label: Product Catalogue
+        capability: pricing
+  - label: Operations
+    items:
+      - target: integrations
+        label: Integrations
+      - target: developer
+        label: Developer API
+        capability: developer_api
+      - target: webhooks
+        label: Webhooks
+        capability: webhooks

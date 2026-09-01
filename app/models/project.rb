@@ -11,7 +11,7 @@ class Project < ApplicationRecord
   has_many :gaps, dependent: :destroy
   has_many :reviews, dependent: :destroy
   has_many :artifacts, dependent: :destroy
-  has_one :artifact, -> { order(created_at: :desc) }, class_name: "Artifact", inverse_of: :project
+  has_one :artifact, -> { where.not(status: "superseded").order(issued_at: :desc, created_at: :desc) }, class_name: "Artifact", inverse_of: :project
   has_many :evidence_cases, dependent: :destroy
   has_many :evaluations, dependent: :destroy
   has_many :determinations, dependent: :destroy

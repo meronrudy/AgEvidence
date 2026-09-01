@@ -1,8 +1,8 @@
 <header class="topbar">
   <button class="icon-button mobile-only" type="button" data-sidebar-open aria-label="Open navigation">menu</button>
   <div class="org-switcher">
-    <span class="org-initials">DA</span>
-    <span><%= current_organization&.name || "DIT AgTech" %></span>
+    <span class="org-initials"><%= brand_company_name.split.map { |part| part.first }.join.first(2).upcase.presence || "AE" %></span>
+    <span><%= brand_company_name %></span>
     <span class="switcher-chevrons" aria-hidden="true">v</span>
   </div>
   <%= badge(current_organization&.environment || "Production", tone: "success", dot: true) %>
@@ -12,7 +12,7 @@
     <span class="search-label">Search evidence, IDs, endpoints</span>
     <kbd class="kbd">Cmd K</kbd>
   <% end %>
-  <%= link_to "Public verification", verify_path, class: "button secondary small" %>
+  <%= link_to "Public verification", verify_path, class: "button secondary small" if current_product_pack.enabled?("public_verification") %>
   <% if user_signed_in? %>
     <%= button_to "Sign out", destroy_user_session_path, method: :delete, class: "button secondary small" %>
     <%= link_to app_settings_path, class: "avatar-link", title: current_user.full_name do %>

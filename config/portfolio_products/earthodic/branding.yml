@@ -1,0 +1,11 @@
+product_name: Biobarc Qualification
+company_name: Earthodic
+accent_token: earthodic_green
+logo: earthodic-logo.svg
+favicon: earthodic-favicon.ico
+attribution: powered_by_agevidence
+footer:
+  legal: Earthodic qualification evidence is issued by Earthodic under the configured program profile.
+support:
+  email: support@earthodic.example
+  label: Earthodic support

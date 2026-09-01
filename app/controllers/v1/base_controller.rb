@@ -1,40 +1,45 @@
 module V1
   class BaseController < ActionController::API
-    include ApiAuthentication
-    include ApiScopeAuthorization
-    include ApiRequestLogging
-    include ApiIdempotency
+    rescue_from ActiveRecord::RecordNotFound, with: :not_found_error
+    rescue_from ActiveRecord::RecordInvalid, with: :record_invalid_error
+    rescue_from KeyError, ArgumentError, with: :bad_request_error
 
-    before_action :set_request_start_time
-    after_action :verify_authorized, except: :index
-    after_action :store_idempotency_response, if: -> { request.post? || request.put? || request.patch? }
+    before_action :authenticate_api_key!
+    around_action :record_api_log
 
-    def set_request_start_time
-      @request_start_time = Time.current
+    attr_reader :current_api_key, :current_organization
+
+    private
+
+    def authenticate_api_key!
+      token = request.authorization.to_s.delete_prefix("Bearer ").strip
+      token = request.headers["X-AgEvidence-API-Key"].to_s.strip if token.blank?
+      @current_api_key = ApiKey.authenticate(token)
+      return render_error("unauthorized", "A valid API key is required.", :unauthorized) unless @current_api_key
+
+      @current_api_key.touch(:last_used_at)
+      @current_organization = @current_api_key.organization
+      return render_error("unauthorized", "The API key is not attached to an organization.", :unauthorized) unless @current_organization
+
+      Current.api_key = @current_api_key
+      Current.organization = @current_organization
+      Current.product_pack = current_product_pack
     end
 
-    def verify_authorized
-      # Skip authorization check for index actions
-      return if action_name == 'index'
-      # Skip if no policy is defined
+    def current_product_pack
+      @current_product_pack ||= PortfolioProducts::Registry.fetch_for_organization(current_organization)
     end
 
-    def store_idempotency_response
-      return unless @api_key && request.headers['Idempotency-Key']
-      
-      response_body = response.body
-      status = response.status
-      
-      ApiIdempotencyKey.create!(
-        organization_id: @api_key.organization_id,
-        idempotency_key: request.headers['Idempotency-Key'],
-        http_method: request.request_method,
-        request_path: request.path,
-        response_json: response_body,
-        response_status: status
-      )
-    rescue => e
-      logger.error "Failed to store idempotency response: #{e.message}"
+    def require_scope!(scope)
+      return if current_api_key&.allows?(scope)
+
+      render_error("insufficient_scope", "Missing required scope: #{scope}", :forbidden)
+    end
+
+    def require_product_capability!(capability)
+      return if current_product_pack.enabled?(capability)
+
+      render_error("feature_unavailable", "Feature not available for this product pack.", :service_unavailable)
     end
 
     def render_error(code, message, status = :unprocessable_entity)
@@ -46,58 +51,39 @@ module V1
       }, status: status
     end
 
-    def unauthorized_error
-      render json: {
-        error: {
-          code: 'unauthorized',
-          message: 'Invalid or missing API key'
-        }
-      }, status: :unauthorized
+    def not_found_error
+      render_error("not_found", "Resource not found.", :not_found)
     end
 
-    def forbidden_error(message = 'Forbidden')
-      render json: {
-        error: {
-          code: 'forbidden',
-          message: message
-        }
-      }, status: :forbidden
+    def record_invalid_error(error)
+      render_error("validation_failed", error.record.errors.full_messages.to_sentence, :unprocessable_entity)
     end
 
-    def not_found_error(message = 'Resource not found')
-      render json: {
-        error: {
-          code: 'not_found',
-          message: message
-        }
-      }, status: :not_found
+    def bad_request_error(error)
+      render_error("bad_request", error.message, :bad_request)
     end
 
-    def unprocessable_entity_error(message = 'Unprocessable entity')
-      render json: {
-        error: {
-          code: 'validation_error',
-          message: message
-        }
-      }, status: :unprocessable_entity
-    end
-
-    def conflict_error(message = 'Conflict')
-      render json: {
-        error: {
-          code: 'conflict',
-          message: message
-        }
-      }, status: :conflict
-    end
-
-    def feature_unavailable_error(message = 'Feature not available')
-      render json: {
-        error: {
-          code: 'feature_unavailable',
-          message: message
-        }
-      }, status: :service_unavailable
+    def record_api_log
+      started_at = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      yield
+    ensure
+      if current_api_key
+        duration_ms = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at) * 1000).round
+        ApiLog.create!(
+          organization: current_organization,
+          log_code: "LOG-#{SecureRandom.hex(5).upcase}",
+          method: request.request_method,
+          endpoint: request.path,
+          status: response.status,
+          duration_ms: duration_ms,
+          occurred_at: Time.current,
+          operation_id: request.request_id,
+          request: params.to_unsafe_h.except("controller", "action", "password", "token", "authorization"),
+          response: { "status" => response.status },
+          trace: [{ "step" => "v1_api_request", "ok" => response.status < 500 }]
+        )
+      end
+      Current.reset
     end
   end
 end

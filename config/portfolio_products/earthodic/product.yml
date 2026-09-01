@@ -1,0 +1,38 @@
+id: earthodic.biobarc_qualification
+company_code: earthodic
+version: "1.0.0"
+display_name: Biobarc Qualification
+product_family: Earthodic Qualification Cloud
+custom_domain: qualification.earthodic.com
+deployment_mode: shared_managed
+lifecycle: sandbox
+workflows:
+  - material_qualification
+  - recyclability_claim
+  - qualification_maintenance
+artifact_profiles:
+  - application_qualification_pack
+  - batch_claim_passport
+  - qualification_delta
+program_profiles:
+  - earthodic.application.v1
+  - earthodic.recyclability.v1
+  - earthodic.maintenance.v1
+terminology:
+  Project: Qualification
+  Projects: Qualifications
+  Evidence: Test Evidence
+  Artifact: Qualification Pack
+  Artifacts: Qualification Packs
+  Program: Requirement Set
+  Programs: Requirement Sets
+feature_flags:
+  - reviews
+  - programs
+  - artifact_orders
+  - reliance
+  - developer_api
+  - webhooks
+  - pricing
+  - public_verification
+  - customer_portal

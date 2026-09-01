@@ -37,6 +37,26 @@ module ApplicationHelper
     content_for(:title, title)
   end
 
+  def resolved_brand
+    @brand || BrandResolver.resolve(organization: current_organization)
+  end
+
+  def brand_product_name
+    resolved_brand.product_name
+  end
+
+  def brand_company_name
+    resolved_brand.company_name
+  end
+
+  def brand_attribution
+    resolved_brand.attribution_label
+  end
+
+  def portfolio_term(canonical)
+    resolved_brand.pack.term(canonical)
+  end
+
   def nav_active?(path, exact: false)
     current = request.path.chomp("/")
     target = path.chomp("/")
@@ -52,6 +72,24 @@ module ApplicationHelper
         content_tag(:span, label, class: "truncate"),
         (content_tag(:span, badge, class: "nav-badge") if badge)
       ].compact)
+    end
+  end
+
+  def portfolio_nav_path(target)
+    helper_name = PortfolioProducts::Registry::NAV_TARGETS.fetch(target)
+    public_send(helper_name)
+  end
+
+  def portfolio_nav_badge(target)
+    return unless current_organization
+
+    case target
+    when "evidence"
+      current_organization.evidence_records.where(status: ["needs_mapping", "schema_error", "needs_review"]).count
+    when "reviews"
+      current_organization.reviews.open.count
+    else
+      nil
     end
   end
 

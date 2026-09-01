@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_15_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_20_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -77,6 +77,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_120000) do
     t.index ["organization_id"], name: "index_api_logs_on_organization_id"
   end
 
+  create_table "artifact_orders", force: :cascade do |t|
+    t.string "artifact_profile_code"
+    t.datetime "checkout_completed_at"
+    t.datetime "created_at", null: false
+    t.text "metadata_json", default: "{}", null: false
+    t.string "order_id", null: false
+    t.bigint "organization_id", null: false
+    t.bigint "pricing_quote_id"
+    t.string "product_code", null: false
+    t.bigint "project_id"
+    t.integer "quantity", default: 1, null: false
+    t.string "status", default: "created", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_artifact_orders_on_order_id", unique: true
+    t.index ["organization_id", "product_code", "status"], name: "idx_on_organization_id_product_code_status_39ac8fccaa"
+    t.index ["organization_id"], name: "index_artifact_orders_on_organization_id"
+    t.index ["pricing_quote_id"], name: "index_artifact_orders_on_pricing_quote_id"
+    t.index ["project_id"], name: "index_artifact_orders_on_project_id"
+  end
+
   create_table "artifact_profiles", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "layout_json", default: "{}", null: false
@@ -136,6 +156,47 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_120000) do
     t.index ["organization_id"], name: "index_audit_events_on_organization_id"
   end
 
+  create_table "commercial_events", force: :cascade do |t|
+    t.bigint "artifact_order_id"
+    t.datetime "created_at", null: false
+    t.string "event_type", null: false
+    t.datetime "occurred_at", null: false
+    t.bigint "organization_id", null: false
+    t.bigint "pricing_quote_id"
+    t.string "product_code"
+    t.bigint "project_id"
+    t.datetime "updated_at", null: false
+    t.text "value_json", default: "{}", null: false
+    t.index ["artifact_order_id"], name: "index_commercial_events_on_artifact_order_id"
+    t.index ["organization_id", "event_type", "occurred_at"], name: "idx_on_organization_id_event_type_occurred_at_1c9d61b059"
+    t.index ["organization_id", "product_code", "occurred_at"], name: "idx_on_organization_id_product_code_occurred_at_47aa885da0"
+    t.index ["organization_id"], name: "index_commercial_events_on_organization_id"
+    t.index ["pricing_quote_id"], name: "index_commercial_events_on_pricing_quote_id"
+    t.index ["project_id"], name: "index_commercial_events_on_project_id"
+  end
+
+  create_table "commercial_outcomes", force: :cascade do |t|
+    t.integer "accepted_price_cents"
+    t.bigint "artifact_order_id"
+    t.datetime "created_at", null: false
+    t.text "metadata_json", default: "{}", null: false
+    t.datetime "occurred_at", null: false
+    t.bigint "organization_id", null: false
+    t.bigint "pricing_experiment_id"
+    t.bigint "pricing_quote_id"
+    t.string "product_code", null: false
+    t.string "reason"
+    t.integer "recurring_value_cents"
+    t.integer "sales_cycle_days"
+    t.string "state", null: false
+    t.datetime "updated_at", null: false
+    t.index ["artifact_order_id"], name: "index_commercial_outcomes_on_artifact_order_id"
+    t.index ["organization_id", "product_code", "state"], name: "idx_on_organization_id_product_code_state_80fa69b31b"
+    t.index ["organization_id"], name: "index_commercial_outcomes_on_organization_id"
+    t.index ["pricing_experiment_id"], name: "index_commercial_outcomes_on_pricing_experiment_id"
+    t.index ["pricing_quote_id"], name: "index_commercial_outcomes_on_pricing_quote_id"
+  end
+
   create_table "determinations", id: :serial, force: :cascade do |t|
     t.string "adapter", null: false
     t.datetime "created_at", null: false
@@ -158,6 +219,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_120000) do
     t.index ["project_id", "program_profile_id", "published_at"], name: "index_determinations_on_project_profile_published"
     t.index ["project_id"], name: "index_determinations_on_project_id"
     t.index ["supersedes_determination_id"], name: "index_determinations_on_supersedes_determination_id"
+  end
+
+  create_table "domain_mappings", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "hostname", null: false
+    t.bigint "organization_id", null: false
+    t.boolean "primary", default: false, null: false
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "verified_at"
+    t.index ["hostname"], name: "index_domain_mappings_on_hostname", unique: true
+    t.index ["organization_id", "primary"], name: "index_domain_mappings_on_organization_id_and_primary"
+    t.index ["organization_id"], name: "index_domain_mappings_on_organization_id"
   end
 
   create_table "evaluations", id: :serial, force: :cascade do |t|
@@ -363,10 +437,90 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_120000) do
   end
 
   create_table "organizations", force: :cascade do |t|
+    t.string "brand_domain"
+    t.string "brand_name"
     t.datetime "created_at", null: false
+    t.string "default_currency", default: "USD", null: false
+    t.string "default_locale", default: "en", null: false
+    t.string "deployment_mode", default: "shared_managed", null: false
     t.string "environment", default: "Production", null: false
+    t.string "legal_entity_name"
     t.string "name", null: false
+    t.string "portfolio_product_pack"
+    t.string "portfolio_product_pack_version"
+    t.string "support_email"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "price_versions", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "currency", null: false
+    t.datetime "effective_from", null: false
+    t.datetime "effective_to"
+    t.integer "list_price_cents"
+    t.text "metadata_json", default: "{}", null: false
+    t.integer "minimum_price_cents"
+    t.bigint "organization_id", null: false
+    t.text "pricing_formula_json", default: "{}", null: false
+    t.string "pricing_unit", null: false
+    t.string "product_code", null: false
+    t.string "product_version", null: false
+    t.string "status", default: "active", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "product_code", "product_version", "currency", "pricing_unit"], name: "index_price_versions_on_org_product_version_unit"
+    t.index ["organization_id", "product_code", "status"], name: "idx_on_organization_id_product_code_status_b9185d4d77"
+    t.index ["organization_id"], name: "index_price_versions_on_organization_id"
+  end
+
+  create_table "pricing_experiments", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "customer_segment"
+    t.datetime "ended_at"
+    t.string "geography"
+    t.text "hypothesis"
+    t.text "metadata_json", default: "{}", null: false
+    t.string "name", null: false
+    t.bigint "organization_id", null: false
+    t.bigint "price_version_id"
+    t.string "pricing_unit", null: false
+    t.string "product_code", null: false
+    t.string "product_version", null: false
+    t.datetime "started_at"
+    t.string "status", default: "active", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "product_code", "status"], name: "index_pricing_experiments_on_org_product_status"
+    t.index ["organization_id"], name: "index_pricing_experiments_on_organization_id"
+    t.index ["price_version_id"], name: "index_pricing_experiments_on_price_version_id"
+  end
+
+  create_table "pricing_quotes", force: :cascade do |t|
+    t.datetime "accepted_at"
+    t.text "breakdown_json", default: "[]", null: false
+    t.text "commercial_terms_json", default: "{}", null: false
+    t.datetime "created_at", null: false
+    t.string "currency", null: false
+    t.integer "discount_cents"
+    t.datetime "expires_at"
+    t.integer "list_price_cents"
+    t.integer "offered_price_cents"
+    t.bigint "organization_id", null: false
+    t.bigint "price_version_id", null: false
+    t.bigint "pricing_experiment_id"
+    t.string "pricing_unit", null: false
+    t.string "product_code", null: false
+    t.string "product_version", null: false
+    t.bigint "project_id"
+    t.integer "quantity", default: 1, null: false
+    t.string "quote_id", null: false
+    t.datetime "quoted_at", null: false
+    t.string "status", default: "quoted", null: false
+    t.datetime "updated_at", null: false
+    t.index ["organization_id", "product_code", "status"], name: "idx_on_organization_id_product_code_status_af2db5573b"
+    t.index ["organization_id"], name: "index_pricing_quotes_on_organization_id"
+    t.index ["price_version_id"], name: "index_pricing_quotes_on_price_version_id"
+    t.index ["pricing_experiment_id"], name: "index_pricing_quotes_on_pricing_experiment_id"
+    t.index ["project_id"], name: "index_pricing_quotes_on_project_id"
+    t.index ["quote_id"], name: "index_pricing_quotes_on_quote_id", unique: true
   end
 
   create_table "program_profiles", force: :cascade do |t|
@@ -674,16 +828,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_120000) do
   add_foreign_key "api_idempotency_keys", "organizations"
   add_foreign_key "api_keys", "organizations"
   add_foreign_key "api_logs", "organizations"
+  add_foreign_key "artifact_orders", "organizations"
+  add_foreign_key "artifact_orders", "pricing_quotes"
+  add_foreign_key "artifact_orders", "projects"
   add_foreign_key "artifact_profiles", "program_profiles"
   add_foreign_key "artifacts", "artifacts", column: "supersedes_artifact_id"
   add_foreign_key "artifacts", "projects"
   add_foreign_key "artifacts", "users", column: "issued_by_user_id"
   add_foreign_key "audit_events", "organizations"
   add_foreign_key "audit_events", "users", column: "actor_id"
+  add_foreign_key "commercial_events", "artifact_orders"
+  add_foreign_key "commercial_events", "organizations"
+  add_foreign_key "commercial_events", "pricing_quotes"
+  add_foreign_key "commercial_events", "projects"
+  add_foreign_key "commercial_outcomes", "artifact_orders"
+  add_foreign_key "commercial_outcomes", "organizations"
+  add_foreign_key "commercial_outcomes", "pricing_experiments"
+  add_foreign_key "commercial_outcomes", "pricing_quotes"
   add_foreign_key "determinations", "determinations", column: "supersedes_determination_id"
   add_foreign_key "determinations", "evaluations"
   add_foreign_key "determinations", "program_profiles"
   add_foreign_key "determinations", "projects"
+  add_foreign_key "domain_mappings", "organizations"
   add_foreign_key "evaluations", "program_profiles"
   add_foreign_key "evaluations", "projects"
   add_foreign_key "evidence_candidate_dispositions", "evidence_candidates"
@@ -708,6 +874,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_120000) do
   add_foreign_key "organization_memberships", "organizations"
   add_foreign_key "organization_memberships", "roles"
   add_foreign_key "organization_memberships", "users"
+  add_foreign_key "price_versions", "organizations"
+  add_foreign_key "pricing_experiments", "organizations"
+  add_foreign_key "pricing_experiments", "price_versions"
+  add_foreign_key "pricing_quotes", "organizations"
+  add_foreign_key "pricing_quotes", "price_versions"
+  add_foreign_key "pricing_quotes", "pricing_experiments"
+  add_foreign_key "pricing_quotes", "projects"
   add_foreign_key "projects", "organizations"
   add_foreign_key "reliance_events", "artifacts"
   add_foreign_key "reliance_events", "organizations"

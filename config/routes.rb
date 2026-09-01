@@ -35,6 +35,7 @@ Rails.application.routes.draw do
     post "organization/switch", to: "organizations#switch", as: :app_organization_switch
     post "organization/invitations", to: "invitations#create", as: :app_organization_invitations
     get "settings", to: "app#settings", as: :app_settings
+    get "pricing", to: "app#pricing", as: :app_pricing
 
     get "evidence", to: "evidence#index", as: :app_evidence
     get "evidence/records", to: "evidence#records", as: :app_evidence_records
@@ -102,36 +103,37 @@ Rails.application.routes.draw do
       get "schemas/:contract_version", to: "schemas#show", constraints: { contract_version: /[^\/]+/ }, format: false
     end
   end
-end
-namespace :v1 do
-  namespace :developer do
-    resources :projects, only: [:create, :show] do
-      resources :source_records, only: [:create]
-      resources :model_runs, only: [:create]
-      resources :country_determinations, only: [:index, :create]
-      resources :artifacts, only: [:create, :show] do
-        get :download, on: :member
+
+  namespace :v1 do
+    namespace :developer do
+      resources :projects, only: [:create, :show] do
+        resources :source_records, only: [:create]
+        resources :model_runs, only: [:create]
+        resources :country_determinations, only: [:index, :create]
+        resources :artifacts, only: [:create, :show] do
+          get :download, on: :member
+        end
       end
+      resources :model_runs, only: [:show]
+      resources :candidates, only: [:show, :update]
+      resources :operations, only: [:show]
     end
-    resources :model_runs, only: [:show]
-    resources :candidates, only: [:show, :update]
-    resources :operations, only: [:show]
-  end
-  namespace :pricing do
-    resources :products, only: [:index]
-    resources :quotes, only: [:create, :show]
-  end
-  resources :artifact_orders, only: [:create, :show] do
-    post :checkout, on: :member
-  end
-  resources :country_adapters, only: [:index, :show] do
-    post :validate, on: :member
-  end
-  namespace :integrations do
-    resources :events, only: [:create, :show] do
-      post :replay, on: :member
+    namespace :pricing do
+      resources :products, only: [:index]
+      resources :quotes, only: [:create, :show]
     end
-    resources :operations, only: [:show]
-    resources :webhook_endpoints, only: [:create]
+    resources :artifact_orders, only: [:create, :show], path: "artifact-orders" do
+      post :checkout, on: :member
+    end
+    resources :country_adapters, only: [:index, :show] do
+      post :validate, on: :member
+    end
+    namespace :integrations do
+      resources :events, only: [:create, :show] do
+        post :replay, on: :member
+      end
+      resources :operations, only: [:show]
+      resources :webhook_endpoints, only: [:create]
+    end
   end
 end

@@ -1,8 +1,7 @@
 class VerificationController < ApplicationController
   def index
-    @recent_artifacts = Artifact.where(issued: true).order(updated_at: :desc).limit(5)
-    @issued_artifact_count = Artifact.where(issued: true).count
-    @ready_artifact_count = Artifact.where(issued: false).count
+    @brand = BrandResolver.resolve(organization: @domain_organization)
+    set_public_artifact_metrics
   end
 
   def lookup
@@ -14,9 +13,18 @@ class VerificationController < ApplicationController
 
   def show
     @artifact = Artifact.find_by(artifact_code: params[:id])
-    @recent_artifacts = Artifact.where(issued: true).order(updated_at: :desc).limit(5)
-    @issued_artifact_count = Artifact.where(issued: true).count
-    @ready_artifact_count = Artifact.where(issued: false).count
+    @brand = @artifact ? BrandResolver.resolve(artifact: @artifact) : BrandResolver.resolve(organization: @domain_organization)
+    set_public_artifact_metrics
     render status: (@artifact ? :ok : :not_found)
+  end
+
+  private
+
+  def set_public_artifact_metrics
+    organization = @artifact&.organization || @domain_organization
+    scope = organization ? organization.artifacts : Artifact.all
+    @recent_artifacts = scope.where(issued: true).order(updated_at: :desc).limit(5)
+    @issued_artifact_count = scope.where(issued: true).count
+    @ready_artifact_count = scope.where(issued: false).count
   end
 end
