@@ -6,13 +6,17 @@ AgEvidence shows what an evidence-native agtech company can become, then gives f
 
 Rails shows the company. `pip install agevidence` gives you the primitives. The repository teaches you how to specialize those primitives into a company.
 
-Hero screenshot: [docs/screenshots/00-overview.png](docs/screenshots/00-overview.png)
+![AgEvidence evidence workspace overview](docs/screenshots/00-overview.png)
 
 ## See -> Run -> Embed -> Fork -> Sell
 
 ### See It
 
 Inspect a complete evidence workspace in `apps/console`. It is seeded with a DIT Production Evidence project, an Australian methane intervention ProgramProfile, source records, SDK-produced evidence, intervention and operational events, measurement evidence, model runs, gaps, evaluation, review, determination, issued artifact, verification result, reliance event, API key, schemas, OpenAPI, logs, webhooks, and integrations.
+
+![AgEvidence project workspace](docs/screenshots/01-project.png)
+
+The reference company is deliberately complete enough to show the operating surface of an evidence-native agtech business before you specialize it into your own vertical.
 
 ### Run It
 
@@ -60,6 +64,18 @@ source = client.submit_source_record(
 ```
 
 Your product generated something valuable. Make it attributable, bounded, versioned, portable, reviewable, and independently reconstructable.
+
+#### Capture the source
+
+Source records preserve where evidence came from, how it is identified, and the custody/provenance information needed downstream.
+
+![AgEvidence source records](docs/screenshots/02-source-records.png)
+
+#### Normalize the evidence
+
+Product telemetry becomes typed evidence rather than a loose collection of application records.
+
+![AgEvidence normalized evidence](docs/screenshots/03-evidence.png)
 
 ### Fork It
 
@@ -127,36 +143,49 @@ YOUR AGTECH PRODUCT
 
 You do not need to rebuild this because your startup happens to sell feed additives, pasture intelligence, robotics, methane measurement, farm software, crop models, biological inputs, agricultural finance, or assurance.
 
-## Product Tour
+### Find what is missing
 
-The seeded Rails app is designed to produce a deterministic screenshot suite. Regenerate it with:
+The workspace can turn buyer, methodology, program, or assurance requirements into explicit evidence gaps.
 
-```sh
-bin/screenshots
-```
+![AgEvidence evidence gaps](docs/screenshots/04-gaps.png)
 
-| Screenshot | Route | What you are looking at | What you could turn it into |
-| --- | --- | --- | --- |
-| `00-overview.png` | `/app` | Evidence command center | Any evidence SaaS |
-| `01-project.png` | `/app/projects/dit-production` | One commercial evidence case | Enterprise workflow |
-| `02-source-records.png` | `/app/projects/dit-production/source_records` | Provenance and custody | Traceability infrastructure |
-| `03-evidence.png` | `/app/projects/dit-production/evidence` | Normalized product telemetry | IoT or MRV infrastructure |
-| `04-gaps.png` | `/app/projects/dit-production/gaps` | Evidence readiness gaps | Compliance/readiness startup |
-| `05-assessment.png` | `/app/projects/dit-production/assessment` | Machine evaluation | Regulatory automation |
-| `06-review.png` | `/app/projects/dit-production/review` | Human-in-the-loop assurance | Assurance platform |
-| `07-artifact.png` | `/app/projects/dit-production/artifact` | Portable issued statement | Evidence exchange |
-| `08-reliance.png` | `/app/projects/dit-production/reliance` | Downstream use of evidence | Bank, buyer, or insurer workflow |
-| `09-verification.png` | `/verify/AE-AU-000184` | Verification without app access | Verification API |
-| `10-program-profile.png` | `/app/programs/profiles` | Market rules as configuration | Compliance startup |
-| `11-developer.png` | `/app/developer` | Developer platform surface | API company |
-| `12-webhooks.png` | `/app/developer/webhooks` | Integration delivery | Embedded infrastructure |
-| `13-openapi.png` | `/app/developer/openapi` | Stable contracts | Ecosystem platform |
+### Evaluate against requirements
 
-Each screenshot should be documented as: what you are looking at, why it matters, and what a founder could turn it into.
+Machine-readable evidence and ProgramProfiles provide a repeatable assessment surface before a human reviewer makes a determination.
+
+![AgEvidence assessment](docs/screenshots/05-assessment.png)
+
+### Keep a human in the loop
+
+Review remains explicit and inspectable rather than disappearing inside an opaque score or model response.
+
+![AgEvidence review workflow](docs/screenshots/06-review.png)
+
+### Issue something portable
+
+The output is an artifact that can move beyond the application that produced it.
+
+![AgEvidence issued artifact](docs/screenshots/07-artifact.png)
+
+### Record downstream reliance
+
+A buyer, bank, insurer, auditor, processor, or other relying party can become part of the evidence chain instead of being an off-platform endpoint.
+
+![AgEvidence reliance record](docs/screenshots/08-reliance.png)
+
+### Verify without joining the platform
+
+Public verification gives downstream users a narrow surface for checking an issued record without needing access to the originating workspace.
+
+![AgEvidence public verification](docs/screenshots/09-verification.png)
+
+> Current Rails verifier results are AgEvidence placeholder records, not independent cryptographic verification. Do not claim independent verification until an external verifier exists.
 
 ## ProgramProfiles Are The Verticalization Layer
 
 AgEvidence primitives plus a ProgramProfile plus vertical UX becomes a new evidence company.
+
+![AgEvidence ProgramProfiles](docs/screenshots/10-program-profile.png)
 
 Examples:
 
@@ -166,6 +195,28 @@ Examples:
 - `AU Methane Intervention Profile` -> Crop insurance loss evidence profile
 
 Use ProgramProfiles to encode requirements, evidence classes, evaluation modes, version impacts, limitation templates, and artifact policy. Keep the evidence identities, artifact structure, verification contract, and reliance records interoperable.
+
+## Build On It Like Infrastructure
+
+The reference app includes the developer surfaces needed to embed the evidence layer in another product instead of forcing every company to use the Rails UI.
+
+### Developer workspace
+
+API keys, schemas, request surfaces, logs, and integration tooling are exposed as first-class product infrastructure.
+
+![AgEvidence developer workspace](docs/screenshots/11-developer.png)
+
+### Webhooks
+
+Push evidence workflow events into the rest of your startup's stack.
+
+![AgEvidence webhooks](docs/screenshots/12-webhooks.png)
+
+### OpenAPI
+
+Treat the evidence contract as an interface that other products can build against.
+
+![AgEvidence OpenAPI](docs/screenshots/13-openapi.png)
 
 ## What To Keep, Configure, And Replace
 
@@ -198,6 +249,33 @@ Short version:
 | Customer-facing brand | no | no | yes |
 | Proprietary analytics | no | no | yes |
 | Domain-specific models | no | no | yes |
+
+## Product Tour Reference
+
+The seeded Rails app is designed to produce a deterministic screenshot suite. Regenerate it with:
+
+```sh
+bin/screenshots
+```
+
+| Screenshot | Route | What you are looking at | What you could turn it into |
+| --- | --- | --- | --- |
+| `00-overview.png` | `/app` | Evidence command center | Any evidence SaaS |
+| `01-project.png` | `/app/projects/dit-production` | One commercial evidence case | Enterprise workflow |
+| `02-source-records.png` | `/app/projects/dit-production/source_records` | Provenance and custody | Traceability infrastructure |
+| `03-evidence.png` | `/app/projects/dit-production/evidence` | Normalized product telemetry | IoT or MRV infrastructure |
+| `04-gaps.png` | `/app/projects/dit-production/gaps` | Evidence readiness gaps | Compliance/readiness startup |
+| `05-assessment.png` | `/app/projects/dit-production/assessment` | Machine evaluation | Regulatory automation |
+| `06-review.png` | `/app/projects/dit-production/review` | Human-in-the-loop assurance | Assurance platform |
+| `07-artifact.png` | `/app/projects/dit-production/artifact` | Portable issued statement | Evidence exchange |
+| `08-reliance.png` | `/app/projects/dit-production/reliance` | Downstream use of evidence | Bank, buyer, or insurer workflow |
+| `09-verification.png` | `/verify/AE-AU-000184` | Verification without app access | Verification API |
+| `10-program-profile.png` | `/app/programs/profiles` | Market rules as configuration | Compliance startup |
+| `11-developer.png` | `/app/developer` | Developer platform surface | API company |
+| `12-webhooks.png` | `/app/developer/webhooks` | Integration delivery | Embedded infrastructure |
+| `13-openapi.png` | `/app/developer/openapi` | Stable contracts | Ecosystem platform |
+
+Each screenshot is now shown in context above; this table remains the route-level reference for developers regenerating or adapting the demo.
 
 ## Developer Commands
 
@@ -265,5 +343,3 @@ python3 -m pip install -e "packages/python[research,test]"
 - Rust binary: `agevidence verify bundle.json`
 
 Raw workbooks stay outside git under `research/.data/`; local generated research outputs stay ignored under `research/studies/**/output/`.
-
-Current Rails verifier results are AgEvidence placeholder records, not independent cryptographic verification. Do not claim independent verification until an external verifier exists.
