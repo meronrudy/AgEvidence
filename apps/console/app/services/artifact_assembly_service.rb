@@ -21,7 +21,7 @@ class ArtifactAssemblyService
       artifact = existing&.issued? ? nil : existing
       artifact ||= @project.artifacts.build(artifact_code: "RA-#{SecureRandom.hex(5).upcase}")
       manifest = build_manifest(artifact.artifact_code)
-      digest = CanonicalJson.digest(manifest)
+      digest = ApplicationDigest.sha256(manifest)
       manifest["digest"] = digest
       artifact.assign_attributes(
         claim: @determination.outcome,
@@ -57,7 +57,7 @@ class ArtifactAssemblyService
   def build_manifest(artifact_code)
     {
       "contract_version" => CONTRACT_VERSION,
-      "canonicalization" => "Rails JSON object keys sorted recursively before SHA-256 digest; not a cross-runtime verifier claim.",
+      "canonicalization" => "Rails StableJson object keys sorted recursively before app:sha256 digest; not a receipt commitment or cross-runtime verifier claim.",
       "artifact_code" => artifact_code,
       "project" => {
         "project_code" => @project.project_code,

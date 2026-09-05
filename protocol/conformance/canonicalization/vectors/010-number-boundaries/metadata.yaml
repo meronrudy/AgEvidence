@@ -1,0 +1,3 @@
+id: 010-number-boundaries
+description: Interoperable integer boundary and decimal trimming.
+canonicalization: agevidence.canonical.jcs.v1

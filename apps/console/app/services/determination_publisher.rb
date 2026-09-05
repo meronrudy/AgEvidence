@@ -44,7 +44,7 @@ class DeterminationPublisher
         project_name: @project.name,
         outcome: @outcome,
         adapter: "#{@profile.code} #{@profile.profile_version}",
-        digest: CanonicalJson.digest(result),
+        digest: ApplicationDigest.sha256(result),
         published_at: Time.current,
         status: "published",
         result: result

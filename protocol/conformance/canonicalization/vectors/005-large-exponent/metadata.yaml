@@ -1,0 +1,3 @@
+id: 005-large-exponent
+description: JCS exponent formatting for large numbers.
+canonicalization: agevidence.canonical.jcs.v1

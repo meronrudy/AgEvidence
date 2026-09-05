@@ -40,11 +40,17 @@ def test_canonical_json_matches_shared_fixture():
     from agevidence.events import canonical_json
 
     root = Path(__file__).resolve().parents[3]
-    fixture_dir = root / "protocol" / "conformance" / "fixtures" / "canonicalization"
-    value = json.loads((fixture_dir / "input.json").read_text(encoding="utf-8"))
-    expected = (fixture_dir / "expected.json").read_bytes().removesuffix(b"\n")
+    fixture_dir = root / "protocol" / "conformance" / "canonicalization" / "vectors"
+    for vector in sorted(path for path in fixture_dir.iterdir() if path.is_dir()):
+        metadata = (vector / "metadata.yaml").read_text(encoding="utf-8")
+        if "expected_error:" in metadata:
+            with pytest.raises((ValueError, json.JSONDecodeError)):
+                canonical_json(json.loads((vector / "input.json").read_text(encoding="utf-8")))
+            continue
+        value = json.loads((vector / "input.json").read_text(encoding="utf-8"))
+        expected = (vector / "expected.json").read_bytes().removesuffix(b"\n")
 
-    assert canonical_json(value).encode("utf-8") == expected
+        assert canonical_json(value).encode("utf-8") == expected, vector.name
 
 
 def test_sign_hmac_event_sets_digest_and_signature():
@@ -65,3 +71,20 @@ def test_verifier_missing_command_fails_clearly(monkeypatch):
 def test_verifier_missing_binary_fails_clearly():
     with pytest.raises(AgEvidenceError, match="VERIFIER_COMMAND_NOT_FOUND"):
         Verifier(command="/definitely/missing/agevidence-verifier").verify_bundle(Path("bundle.zip"))
+
+
+def test_verifier_delegates_to_stable_cli(tmp_path):
+    verifier = tmp_path / "agevidence"
+    bundle = tmp_path / "bundle.json"
+    bundle.write_text("{}", encoding="utf-8")
+    verifier.write_text(
+        "#!/bin/sh\n"
+        "printf '%s\\n' '{\"status\":\"pass\",\"cryptographic_status\":\"pass\",\"checks\":[],\"warnings\":[],\"errors\":[]}'\n",
+        encoding="utf-8",
+    )
+    verifier.chmod(0o755)
+
+    result = Verifier(command=str(verifier)).verify_bundle(bundle)
+
+    assert result.status == "pass"
+    assert result.command == [str(verifier), "verify", str(bundle), "--json"]

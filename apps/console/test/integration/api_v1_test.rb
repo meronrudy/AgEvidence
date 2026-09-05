@@ -86,13 +86,13 @@ class ApiV1Test < ActionDispatch::IntegrationTest
     assert_equal "error-response.v0", JSON.parse(response.body).fetch("contract_version")
   end
 
-  test "artifact verification records placeholder result" do
-    assert_difference -> { VerifierResult.where(status: "locally_consistent").count }, 1 do
+  test "artifact verification records delegated verifier result" do
+    assert_difference -> { VerifierResult.count }, 1 do
       post "/api/v1/artifacts/AE-AU-000184/verify", headers: { "Authorization" => "Bearer agev_test_demo_2a10" }
     end
 
     assert_response :success
-    assert_equal "locally_consistent", JSON.parse(response.body).dig("data", "verifier_result_status")
+    assert_includes %w[pending_external_verifier locally_consistent failed], JSON.parse(response.body).dig("data", "verifier_result_status")
   end
 
   test "api records reliance event without changing artifact" do

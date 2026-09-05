@@ -1,0 +1,4 @@
+id: 011-unsupported-nonfinite
+description: Non-finite number tokens are rejected.
+canonicalization: agevidence.canonical.jcs.v1
+expected_error: non_finite_number

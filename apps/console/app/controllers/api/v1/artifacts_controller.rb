@@ -12,10 +12,9 @@ module Api
         require_scope!("artifacts:verify")
         artifact = policy_scope(Artifact).find_by!(artifact_code: params[:artifact_code])
         authorize artifact
-        result = ArtifactVerifierPlaceholder.record!(
+        result = Trust::Verifier.record_artifact!(
           artifact: artifact,
           actor: api_actor,
-          status: "locally_consistent",
           metadata: audit_metadata
         )
         envelope(

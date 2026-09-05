@@ -16,6 +16,7 @@ Rust, and research workflows.
   boundary.
 - `conformance/`: local protocol validation scripts and shared fixtures.
 - `canonicalization.md`: JSON canonicalization rules.
+- `digests.md`: typed digest namespace rules.
 
 ## Conformance
 
@@ -26,5 +27,5 @@ bash protocol/conformance/scripts/agevidence_check_all.sh
 ```
 
 The conformance suite checks country adapter manifests, vocabulary references,
-architecture isolation, adapter behavior, current OpenAPI paths, and LOC
-accounting.
+architecture isolation, canonicalization vectors, adapter behavior, current
+OpenAPI paths, and LOC accounting.

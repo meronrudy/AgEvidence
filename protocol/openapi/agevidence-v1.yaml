@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: AgEvidence API
   version: v1
-  description: Versioned partner API for source intake, artifact verification, artifact retrieval, reliance, and contract schema access.
+  description: Versioned partner API for source intake, evidence projections, evaluations, reviews, statements, artifact verification, reliance, and contract schema access.
 servers:
   - url: /api/v1
     description: Relative API path. Add production and staging hosts only after DNS and deploy targets are verified.
@@ -13,7 +13,35 @@ components:
     bearerApiKey:
       type: http
       scheme: bearer
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+    ProjectCode:
+      name: project_code
+      in: path
+      required: true
+      schema:
+        type: string
+    ArtifactCode:
+      name: artifact_code
+      in: path
+      required: true
+      schema:
+        type: string
   schemas:
+    ApiEnvelope:
+      type: object
+      required: [contract_version, request_id, data]
+      properties:
+        contract_version:
+          const: api-envelope.v1
+        request_id:
+          type: string
+        data: {}
     ErrorEnvelope:
       type: object
       required: [contract_version, request_id, error]
@@ -30,21 +58,104 @@ components:
               type: string
             message:
               type: string
+    Digest:
+      type: string
+      pattern: "^([a-z_]+:)?sha256:[a-fA-F0-9]+$"
+    EvidenceRecord:
+      type: object
+      properties:
+        id: { type: string }
+        type: { type: string }
+        schema: { type: string }
+        status: { type: string }
+        digest: { $ref: "#/components/schemas/Digest" }
+        received_at: { type: string, format: date-time }
+        operation_id: { type: string }
+    SourceRecord:
+      type: object
+      properties:
+        id: { type: string }
+        document_id: { type: string }
+        evidence_type: { type: string }
+        controlled_uri: { type: string }
+        commitment: { $ref: "#/components/schemas/Digest" }
+        status: { type: string }
+    VerifierResult:
+      type: object
+      properties:
+        verifier_result_code: { type: string }
+        verifier_result_status:
+          type: string
+          enum: [pending_external_verifier, locally_consistent, failed, superseded]
+    RelianceEvent:
+      type: object
+      properties:
+        contract_version:
+          const: reliance-event.v0
+        event_code: { type: string }
+        artifact_code: { type: string }
+        relying_party: { type: string }
+        reliance_kind: { type: string }
+        status: { type: string }
+        occurred_at: { type: string, format: date-time }
+  responses:
+    Unauthorized:
+      description: Invalid API key.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorEnvelope"
 paths:
+  /evidence:
+    post:
+      summary: Intake an evidence payload
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "201":
+          description: Evidence record accepted.
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ApiEnvelope"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /evidence/{id}:
+    get:
+      summary: Retrieve an evidence record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Evidence record.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiEnvelope"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /projects/{project_code}/source-records:
     post:
       summary: Intake a source record
       parameters:
-        - name: project_code
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: Idempotency-Key
-          in: header
-          required: false
-          schema:
-            type: string
+        - $ref: "#/components/parameters/ProjectCode"
+        - $ref: "#/components/parameters/IdempotencyKey"
       requestBody:
         required: true
         content:
@@ -62,64 +173,132 @@ paths:
         "201":
           description: Source record intaked.
         "401":
-          description: Invalid API key.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorEnvelope"
+          $ref: "#/components/responses/Unauthorized"
   /projects/{project_code}/source-records/{record_code}:
     get:
       summary: Retrieve a public-safe source record summary
       parameters:
-        - name: project_code
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/ProjectCode"
         - name: record_code
           in: path
           required: true
-          schema:
-            type: string
+          schema: { type: string }
       responses:
         "200":
           description: Source record summary.
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /evaluations:
+    get:
+      summary: List project evaluations
+      responses:
+        "200":
+          description: Evaluation list.
+  /evaluations/{id}:
+    get:
+      summary: Retrieve an evaluation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Evaluation.
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /reviews:
+    get:
+      summary: List review state
+      responses:
+        "200":
+          description: Review list.
+  /program_profiles:
+    get:
+      summary: List program profiles
+      responses:
+        "200":
+          description: Program profile list.
+  /program_profiles/{id}:
+    get:
+      summary: Retrieve a program profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Program profile.
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /statements:
+    get:
+      summary: List statements
+      responses:
+        "200":
+          description: Statement list.
+  /statements/{id}:
+    get:
+      summary: Retrieve a statement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Statement.
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /statements/{id}/shares:
+    post:
+      summary: Create a statement share
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string }
+        - $ref: "#/components/parameters/IdempotencyKey"
+      responses:
+        "201":
+          description: Statement share created.
   /artifacts/{artifact_code}:
     get:
       summary: Retrieve a public-safe artifact summary
       parameters:
-        - name: artifact_code
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/ArtifactCode"
       responses:
         "200":
           description: Artifact summary.
+        "404":
+          $ref: "#/components/responses/NotFound"
   /artifacts/{artifact_code}/verify:
     post:
-      summary: Record an AgEvidence placeholder verifier result
+      summary: Record an AgEvidence verifier result
       parameters:
-        - name: artifact_code
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/ArtifactCode"
+        - $ref: "#/components/parameters/IdempotencyKey"
       responses:
         "200":
-          description: Verifier placeholder result recorded.
+          description: Verifier result recorded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiEnvelope"
   /artifacts/{artifact_code}/reliance-events:
     post:
       summary: Record reliance on an artifact
       parameters:
-        - name: artifact_code
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/ArtifactCode"
+        - $ref: "#/components/parameters/IdempotencyKey"
       responses:
         "201":
           description: Reliance event recorded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiEnvelope"
   /schemas/{contract_version}:
     get:
       summary: Retrieve a checked-in JSON contract
@@ -131,6 +310,7 @@ paths:
             enum:
               - artifact-manifest.v0
               - verifier-result.v0
+              - verifier-report.v1
               - webhook-envelope.v0
               - error-response.v0
       responses:

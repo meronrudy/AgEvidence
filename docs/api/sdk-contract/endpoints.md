@@ -34,7 +34,7 @@ All active Rails partner endpoints are prefixed with `/api/v1`.
 | `GET` | `/api/v1/statements/{id}` | `statements:read` | Retrieve a statement by artifact code. |
 | `POST` | `/api/v1/statements/{id}/shares` | `statements:share` | Create a statement share. |
 | `GET` | `/api/v1/artifacts/{artifact_code}` | `artifacts:read` | Retrieve a public-safe artifact summary. |
-| `POST` | `/api/v1/artifacts/{artifact_code}/verify` | `artifacts:verify` | Record an AgEvidence placeholder verifier result. |
+| `POST` | `/api/v1/artifacts/{artifact_code}/verify` | `artifacts:verify` | Record an AgEvidence verifier result. |
 | `POST` | `/api/v1/artifacts/{artifact_code}/reliance-events` | `reliance_events:create` | Record reliance on an artifact. |
 
 ## Contract Schemas
@@ -47,6 +47,7 @@ Supported `contract_version` values:
 
 - `artifact-manifest.v0`
 - `verifier-result.v0`
+- `verifier-report.v1`
 - `webhook-envelope.v0`
 - `error-response.v0`
 

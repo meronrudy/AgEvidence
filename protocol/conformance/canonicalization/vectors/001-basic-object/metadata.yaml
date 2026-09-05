@@ -1,0 +1,3 @@
+id: 001-basic-object
+description: Basic object sorting and scalar encoding.
+canonicalization: agevidence.canonical.jcs.v1

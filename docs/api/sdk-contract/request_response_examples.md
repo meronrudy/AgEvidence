@@ -52,13 +52,14 @@ Successful response:
   "request_id": "request-id",
   "data": {
     "artifact_code": "AE-AU-000184",
-    "verifier_result_status": "locally_consistent"
+    "verifier_result_status": "pending_external_verifier"
   }
 }
 ```
 
-The verifier result is an AgEvidence placeholder. It is not independent
-third-party cryptographic verification.
+The verifier result is recorded from the configured Rust verifier. If the
+verifier binary or trust material is unavailable, Rails records an
+indeterminate verifier result instead of performing receipt cryptography.
 
 ## Record Reliance
 

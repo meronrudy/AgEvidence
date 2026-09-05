@@ -1,24 +1,12 @@
-require "openssl"
-
 class WebhookEnvelopeSigner
-  CONTRACT_VERSION = "webhook-envelope.v0"
-
   def self.build(event_name:, organization:, payload:, secret:, key_id:, occurred_at: Time.current)
-    envelope = {
-      "contract_version" => CONTRACT_VERSION,
-      "event_name" => event_name,
-      "event_id" => "evt_#{SecureRandom.hex(12)}",
-      "occurred_at" => occurred_at.utc.iso8601,
-      "organization_code" => organization.id.to_s,
-      "payload" => payload
-    }
-    signature_value = OpenSSL::HMAC.hexdigest("SHA256", secret, CanonicalJson.generate(envelope))
-    envelope.merge(
-      "signature" => {
-        "algorithm" => "hmac-sha256",
-        "key_id" => key_id,
-        "value" => signature_value
-      }
+    IntegrationEventSigner.build(
+      event_name: event_name,
+      organization: organization,
+      payload: payload,
+      secret: secret,
+      key_id: key_id,
+      occurred_at: occurred_at
     )
   end
 end

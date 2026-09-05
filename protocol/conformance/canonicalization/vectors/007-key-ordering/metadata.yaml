@@ -1,0 +1,3 @@
+id: 007-key-ordering
+description: RFC 8785 property sorting uses UTF-16 code units.
+canonicalization: agevidence.canonical.jcs.v1

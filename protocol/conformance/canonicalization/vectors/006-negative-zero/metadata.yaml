@@ -1,0 +1,3 @@
+id: 006-negative-zero
+description: Negative zero canonicalizes to zero.
+canonicalization: agevidence.canonical.jcs.v1

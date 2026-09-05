@@ -1,18 +1,13 @@
-use agevidence_bundle::{EvidenceBundle, InkReceipt};
-use agevidence_canonical::canonicalize;
-use agevidence_core::{HashAlgorithm, IssuerId, VerificationStatus};
-use agevidence_crypto::hash_bytes;
-use agevidence_domain::{validate_payload, AgEvidenceSchema};
-use agevidence_schema::DecisionRecord;
-use agevidence_verify::verify_bundle;
-use anyhow::{Context, Result};
+use agevidence::{
+    canonicalize_value, load_bundle, sha256_typed, verify_path, AgEvidenceError, CheckStatus,
+};
 use clap::{Parser, Subcommand};
 use serde_json::{json, Value};
-use std::fs;
 use std::path::PathBuf;
+use std::process::ExitCode;
 
 #[derive(Parser)]
-#[command(author, version, about, long_about = None)]
+#[command(author, version, about = "AgEvidence portable verifier", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -20,489 +15,216 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Initialize a new AgEvidence verifier workspace
-    Init,
-    /// Hash a decision record
-    Hash {
-        /// Path to the record JSON file
-        record: PathBuf,
-    },
-    /// Emit canonical JSON for any JSON payload
-    Canonicalize {
-        /// Path to the payload JSON file
-        payload: PathBuf,
-    },
-    /// Generate a receipt for a decision record
-    Receipt {
-        /// Path to the record JSON file
-        record: PathBuf,
-    },
-    /// Issue a generic receipt projection for any JSON payload
-    Issue {
-        /// Path to the payload JSON file
-        payload: PathBuf,
-        /// Issuer identifier
-        #[arg(long)]
-        issuer: String,
-        /// Receipt type
-        #[arg(long = "receipt-type")]
-        receipt_type: String,
-        /// Schema identifier
-        #[arg(long)]
-        schema: Option<String>,
-        /// Lifecycle state
-        #[arg(long, default_value = "observed")]
-        lifecycle: String,
-        /// AVSA identifier
-        #[arg(long)]
-        avsa: Option<String>,
-        /// Signer key identifier
-        #[arg(long)]
-        signer: Option<String>,
-        /// Parent digest
-        #[arg(long = "parent")]
-        parents: Vec<String>,
-    },
-    /// Create an evidence bundle
-    Bundle {
-        /// Path to the record JSON file
-        record: PathBuf,
-        /// Output path for the bundle
-        #[arg(long)]
-        out: PathBuf,
-    },
-    /// Verify an evidence bundle
+    /// Verify an AgEvidence JSON or ZIP bundle
     Verify {
-        /// Path to the bundle JSON file
+        /// Path to a bundle JSON file or ZIP archive
         bundle: PathBuf,
-        /// Emit machine-readable JSON report
+        /// Emit machine-readable JSON
         #[arg(long)]
         json: bool,
     },
-    /// Export a generic receipt graph from a JSON receipt projection list
-    Graph {
-        /// Path to a JSON file with a receipts array
-        payload: PathBuf,
-    },
-    /// Generate a methodology migration delta receipt projection
-    Migrate {
-        /// Path to the AVSA/migration JSON payload
-        payload: PathBuf,
-        /// Old methodology label
-        #[arg(long = "old-methodology")]
-        old_methodology: String,
-        /// New methodology label
-        #[arg(long = "new-methodology")]
-        new_methodology: String,
-    },
-    /// Generate a verification report
-    Report {
-        /// Path to the bundle JSON file
+    /// Inspect a bundle without deciding validity
+    Inspect {
+        /// Path to a bundle JSON file or ZIP archive
         bundle: PathBuf,
-        /// Output format (e.g., markdown)
-        #[arg(long, default_value = "markdown")]
-        format: String,
     },
-    /// Validate and issue AgEvidence domain payloads
-    Agevidence {
-        /// AgEvidence subcommand
-        #[command(subcommand)]
-        command: AgevidenceCommands,
+    /// Hash a JSON payload with RFC 8785/JCS canonicalization
+    Hash {
+        /// Path to the JSON payload
+        payload: PathBuf,
+        /// Digest domain
+        #[arg(long, default_value = "app")]
+        domain: String,
     },
-}
-
-#[derive(Subcommand)]
-enum AgevidenceCommands {
-    /// Validate an AgEvidence payload and emit JSON
-    Validate {
-        /// AgEvidence schema name or schema id
-        #[arg(long)]
-        schema: String,
-        /// Path to the payload JSON file
+    /// Emit canonical JSON for a payload
+    Canonicalize {
+        /// Path to the JSON payload
         payload: PathBuf,
     },
-    /// Validate and issue an AgEvidence receipt projection
-    Issue {
-        /// AgEvidence schema name or schema id
-        #[arg(long)]
-        schema: String,
-        /// Path to the payload JSON file
-        payload: PathBuf,
-        /// Issuer identifier
-        #[arg(long)]
-        issuer: String,
-        /// Signer key identifier
-        #[arg(long)]
-        signer: String,
-        /// Lifecycle state
-        #[arg(long, default_value = "sealed")]
-        lifecycle: String,
-        /// AVSA identifier
-        #[arg(long)]
-        avsa: Option<String>,
-        /// Parent digest
-        #[arg(long = "parent")]
-        parents: Vec<String>,
-    },
+    /// Run bundled protocol conformance checks
+    Conformance,
+    /// Print verifier and protocol version
+    Version,
 }
 
-fn main() -> Result<()> {
+fn main() -> ExitCode {
+    match run() {
+        Ok(code) => code,
+        Err(error) => {
+            eprintln!("{error}");
+            error_exit_code(&error)
+        }
+    }
+}
+
+fn run() -> Result<ExitCode, AgEvidenceError> {
     let cli = Cli::parse();
-
     match cli.command {
-        Commands::Init => {
-            println!("Initialized empty AgEvidence verifier workspace.");
+        Commands::Verify { bundle, json } => verify_command(bundle, json),
+        Commands::Inspect { bundle } => inspect_command(bundle),
+        Commands::Hash { payload, domain } => hash_command(payload, domain),
+        Commands::Canonicalize { payload } => canonicalize_command(payload),
+        Commands::Conformance => conformance_command(),
+        Commands::Version => {
+            println!(
+                "agevidence {} protocol {}",
+                env!("CARGO_PKG_VERSION"),
+                agevidence::verify::PROTOCOL_VERSION
+            );
+            Ok(ExitCode::SUCCESS)
         }
-        Commands::Hash { record } => {
-            let record_str = fs::read_to_string(&record).context("Failed to read record file")?;
-            let record: DecisionRecord =
-                serde_json::from_str(&record_str).context("Failed to parse record JSON")?;
-            let canonical = canonicalize(&record).context("Failed to canonicalize record")?;
-            let hash = hash_bytes(canonical.as_bytes(), HashAlgorithm::Sha256);
-            println!("sha256:{}", hash.value);
-        }
-        Commands::Canonicalize { payload } => {
-            let payload = read_json_payload(&payload).context("Failed to read payload")?;
-            let canonical = canonicalize(&payload).context("Failed to canonicalize payload")?;
-            let canonical = canonical
-                .as_str()
-                .context("Canonical payload was not valid UTF-8")?;
-            println!("{}", canonical);
-        }
-        Commands::Receipt { record } => {
-            let record_str = fs::read_to_string(&record).context("Failed to read record file")?;
-            let record: DecisionRecord =
-                serde_json::from_str(&record_str).context("Failed to parse record JSON")?;
-            let canonical = canonicalize(&record).context("Failed to canonicalize record")?;
-            let record_hash = hash_bytes(canonical.as_bytes(), HashAlgorithm::Sha256);
-            // Dummy bundle hash for now
-            let bundle_hash = hash_bytes(b"dummy_bundle", HashAlgorithm::Sha256);
-            let receipt = InkReceipt::issue(record_hash, bundle_hash, IssuerId("local".into()))
-                .map_err(|e| anyhow::anyhow!(e))?;
-            let receipt_json =
-                serde_json::to_string_pretty(&receipt).context("Failed to serialize receipt")?;
-            println!("{}", receipt_json);
-        }
-        Commands::Issue {
-            payload,
-            issuer,
-            receipt_type,
-            schema,
-            lifecycle,
-            avsa,
-            signer,
-            parents,
-        } => {
-            let payload_str =
-                fs::read_to_string(&payload).context("Failed to read payload file")?;
-            let value: Value =
-                serde_json::from_str(&payload_str).context("Failed to parse payload JSON")?;
-            let receipt = issue_projection(
-                value,
-                issuer,
-                receipt_type,
-                schema,
-                lifecycle,
-                avsa,
-                signer,
-                parents,
-            )
-            .context("Failed to issue receipt projection")?;
-            println!("{}", serde_json::to_string_pretty(&receipt)?);
-        }
-        Commands::Bundle { record, out } => {
-            let record_str = fs::read_to_string(&record).context("Failed to read record file")?;
-            let record: DecisionRecord =
-                serde_json::from_str(&record_str).context("Failed to parse record JSON")?;
-            let canonical = canonicalize(&record).context("Failed to canonicalize record")?;
-            let record_hash = hash_bytes(canonical.as_bytes(), HashAlgorithm::Sha256);
-            let bundle_hash = hash_bytes(b"dummy_bundle", HashAlgorithm::Sha256);
-            let receipt = InkReceipt::issue(record_hash, bundle_hash, IssuerId("local".into()))
-                .map_err(|e| anyhow::anyhow!(e))?;
-            let bundle = EvidenceBundle::new(record, receipt).map_err(|e| anyhow::anyhow!(e))?;
-            let bundle_json =
-                serde_json::to_string_pretty(&bundle).context("Failed to serialize bundle")?;
-            fs::write(&out, bundle_json).context("Failed to write bundle file")?;
-            println!("Bundle written to {}", out.display());
-        }
-        Commands::Verify { bundle, json } => {
-            let bundle_str = fs::read_to_string(&bundle).context("Failed to read bundle file")?;
-            let bundle: EvidenceBundle =
-                serde_json::from_str(&bundle_str).context("Failed to parse bundle JSON")?;
-            let report = verify_bundle(&bundle).map_err(|e| anyhow::anyhow!(e))?;
-            if json {
+    }
+}
+
+fn verify_command(bundle: PathBuf, json_output: bool) -> Result<ExitCode, AgEvidenceError> {
+    match verify_path(&bundle) {
+        Ok(report) => {
+            if json_output {
                 println!("{}", serde_json::to_string_pretty(&report)?);
-            } else if report.status == VerificationStatus::Pass {
-                println!("Verification PASS");
             } else {
                 println!("Verification {:?}", report.status);
+                println!("Bundle commitment: {}", report.bundle_commitment);
             }
+            Ok(status_exit_code(report.status))
         }
-        Commands::Graph { payload } => {
-            let payload_str =
-                fs::read_to_string(&payload).context("Failed to read graph payload")?;
-            let value: Value =
-                serde_json::from_str(&payload_str).context("Failed to parse graph payload JSON")?;
-            let graph = graph_projection(&value);
-            println!("{}", serde_json::to_string_pretty(&graph)?);
-        }
-        Commands::Migrate {
-            payload,
-            old_methodology,
-            new_methodology,
-        } => {
-            let payload_str =
-                fs::read_to_string(&payload).context("Failed to read migration payload")?;
-            let value: Value =
-                serde_json::from_str(&payload_str).context("Failed to parse migration JSON")?;
-            let receipt = issue_projection(
-                json!({
-                    "payload": value,
-                    "old_methodology": old_methodology,
-                    "new_methodology": new_methodology,
-                }),
-                "Athian Methodology Migration".into(),
-                "methodology_delta_receipt".into(),
-                Some("athian.methodology_delta.v1".into()),
-                "sealed".into(),
-                None,
-                Some("did:key:athian-methodology-demo".into()),
-                vec![],
-            )
-            .context("Failed to generate migration receipt")?;
-            println!(
-                "{}",
-                serde_json::to_string_pretty(&json!({
-                    "receipt": receipt,
-                    "status": "impact_review",
-                    "old_methodology": old_methodology,
-                    "new_methodology": new_methodology,
-                }))?
-            );
-        }
-        Commands::Report { bundle, format } => {
-            let bundle_str = fs::read_to_string(&bundle).context("Failed to read bundle file")?;
-            let bundle: EvidenceBundle =
-                serde_json::from_str(&bundle_str).context("Failed to parse bundle JSON")?;
-            let report = verify_bundle(&bundle).map_err(|e| anyhow::anyhow!(e))?;
-
-            if format == "markdown" {
-                println!("AGEVIDENCE VERIFY REPORT\n");
-                println!("Status: {:?}\n", report.status);
-                println!("Checks:");
-                for check in report.checks {
-                    let status_str = match check.status {
-                        VerificationStatus::Pass => "PASS",
-                        VerificationStatus::Warning => "WARNING",
-                        VerificationStatus::Fail => "FAIL",
-                        VerificationStatus::Skipped => "SKIPPED",
-                    };
-                    println!("[{}] {}", status_str, check.name);
-                }
-                println!("\nRecord Hash:");
-                if let Some(hash) = report.record_hash {
-                    println!("sha256:{}", hash.value);
-                }
-                println!("\nBundle Hash:");
-                if let Some(hash) = report.bundle_hash {
-                    println!("sha256:{}", hash.value);
-                }
+        Err(error) => {
+            if json_output {
+                let payload = json!({
+                    "verifier_version": env!("CARGO_PKG_VERSION"),
+                    "protocol_version": agevidence::verify::PROTOCOL_VERSION,
+                    "status": error_status(&error),
+                    "cryptographic_status": error_status(&error),
+                    "checks": [],
+                    "warnings": [],
+                    "errors": [{"code": error_code(&error), "message": error.to_string()}]
+                });
+                println!("{}", serde_json::to_string_pretty(&payload)?);
             } else {
-                println!("Unsupported format: {}", format);
+                eprintln!("{error}");
             }
+            Ok(error_exit_code(&error))
         }
-        Commands::Agevidence { command } => match command {
-            AgevidenceCommands::Validate { schema, payload } => {
-                let schema = AgEvidenceSchema::parse(&schema)
-                    .map_err(|error| anyhow::anyhow!(error.to_string()))?;
-                let payload = read_json_payload(&payload).context("Failed to read payload")?;
-                let validated = validate_payload(schema, &payload)
-                    .map_err(|error| anyhow::anyhow!(error.to_string()))?;
-                println!("{}", serde_json::to_string_pretty(&validated)?);
-            }
-            AgevidenceCommands::Issue {
-                schema,
-                payload,
-                issuer,
-                signer,
-                lifecycle,
-                avsa,
-                parents,
-            } => {
-                let schema = AgEvidenceSchema::parse(&schema)
-                    .map_err(|error| anyhow::anyhow!(error.to_string()))?;
-                if schema.requires_parent() && parents.is_empty() {
-                    return Err(anyhow::anyhow!(
-                        "schema {} requires at least one parent",
-                        schema.schema_id()
-                    ));
-                }
-                let payload = read_json_payload(&payload).context("Failed to read payload")?;
-                let _validated = validate_payload(schema, &payload)
-                    .map_err(|error| anyhow::anyhow!(error.to_string()))?;
-                let receipt = issue_projection(
-                    payload,
-                    issuer,
-                    schema.receipt_type().to_owned(),
-                    Some(schema.schema_id().to_owned()),
-                    lifecycle,
-                    avsa,
-                    Some(signer),
-                    parents,
-                )
-                .context("Failed to issue AgEvidence receipt projection")?;
-                println!("{}", serde_json::to_string_pretty(&receipt)?);
-            }
-        },
     }
-
-    Ok(())
 }
 
-fn read_json_payload(path: &PathBuf) -> Result<Value> {
-    let payload_str = fs::read_to_string(path).context("Failed to read JSON payload file")?;
-    serde_json::from_str(&payload_str).context("Failed to parse JSON payload")
-}
-
-fn issue_projection(
-    payload: Value,
-    issuer: String,
-    receipt_type: String,
-    schema: Option<String>,
-    lifecycle: String,
-    avsa: Option<String>,
-    signer: Option<String>,
-    parents: Vec<String>,
-) -> Result<Value> {
-    let envelope = json!({
-        "payload": payload,
-        "issuer": issuer,
-        "receipt_type": receipt_type,
-        "schema": schema,
-        "lifecycle": lifecycle,
-        "avsa": avsa,
-        "signer": signer,
-        "parents": parents,
-    });
-    let canonical = canonicalize(&envelope).context("Failed to canonicalize payload")?;
-    let body_hash = hash_bytes(canonical.as_bytes(), HashAlgorithm::Sha256);
-    let schema_id = schema.unwrap_or_else(|| format!("athian.{}.v1", receipt_type));
-    let schema_hash = hash_bytes(schema_id.as_bytes(), HashAlgorithm::Sha256);
-    let evidence_hash = hash_bytes(
-        format!("evidence:{}", body_hash.value).as_bytes(),
-        HashAlgorithm::Sha256,
+fn inspect_command(bundle: PathBuf) -> Result<ExitCode, AgEvidenceError> {
+    let bundle = load_bundle(&bundle)?;
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&json!({
+            "format": bundle.format,
+            "path": bundle.path,
+            "records": bundle.records.len(),
+            "receipts": bundle.receipts.len(),
+            "keys": bundle.keys.len(),
+            "trust_policy_present": bundle.trust_policy.is_some(),
+            "bundle_commitment": bundle.computed_bundle_commitment,
+            "declared_bundle_commitment": bundle.declared_bundle_commitment,
+            "file_commitments": bundle.file_commitments,
+        }))?
     );
-    let policy_hash = hash_bytes(b"athian.ink.trust-policy.demo.v1", HashAlgorithm::Sha256);
-    let trace_hash = hash_bytes(
-        format!(
-            "trace:{}:{}",
-            avsa.unwrap_or_else(|| receipt_type.clone()),
-            body_hash.value
-        )
-        .as_bytes(),
-        HashAlgorithm::Sha256,
-    );
-    let signer_key_id = signer.unwrap_or_else(|| "did:key:athian-demo".into());
-
-    Ok(json!({
-        "receipt_version": "athian.ink.receipt.v1",
-        "receipt_type": receipt_type,
-        "schema_id": schema_id,
-        "schema_digest": schema_hash.value,
-        "lifecycle_state": lifecycle,
-        "issuer": issuer,
-        "signer_key_id": signer_key_id.clone(),
-        "parent_digests": parents,
-        "body_digest": body_hash.value,
-        "evidence_commitment": evidence_hash.value,
-        "policy_commitment": policy_hash.value,
-        "trace_commitment": trace_hash.value,
-        "canonical_encoding_hex": hex_encode(canonical.as_bytes()),
-        "public_key": format!("{}#public-key", signer_key_id),
-        "trust_policy": "athian.ink.trust-policy.demo.v1",
-        "signature": null,
-        "integrity_status": "valid"
-    }))
+    Ok(ExitCode::SUCCESS)
 }
 
-fn graph_projection(value: &Value) -> Value {
-    let receipts = value
-        .get("receipts")
-        .and_then(Value::as_array)
-        .or_else(|| value.as_array())
-        .cloned()
-        .unwrap_or_default();
-
-    let nodes: Vec<Value> = receipts
-        .iter()
-        .map(|receipt| {
-            json!({
-                "id": receipt.get("id").cloned().unwrap_or(Value::Null),
-                "label": receipt.get("title").cloned().unwrap_or(Value::Null),
-                "receipt_type": receipt.get("receipt_type").cloned().unwrap_or(Value::Null),
-                "lifecycle": receipt.get("lifecycle_state").cloned().unwrap_or(Value::Null),
-                "digest": receipt.get("body_digest").cloned().unwrap_or(Value::Null),
-            })
-        })
-        .collect();
-
-    let edges: Vec<Value> = receipts
-        .iter()
-        .flat_map(|receipt| {
-            let target = receipt.get("id").cloned().unwrap_or(Value::Null);
-            receipt
-                .get("parent_receipt_ids")
-                .and_then(Value::as_array)
-                .cloned()
-                .unwrap_or_default()
-                .into_iter()
-                .map(move |source| json!({ "source": source, "target": target }))
-        })
-        .collect();
-
-    json!({ "nodes": nodes, "edges": edges })
+fn hash_command(payload: PathBuf, domain: String) -> Result<ExitCode, AgEvidenceError> {
+    let value = read_json(payload)?;
+    let canonical = canonicalize_value(&value)?;
+    println!("{}", sha256_typed(&domain, canonical.as_bytes()));
+    Ok(ExitCode::SUCCESS)
 }
 
-fn hex_encode(bytes: &[u8]) -> String {
-    bytes.iter().map(|byte| format!("{:02x}", byte)).collect()
+fn canonicalize_command(payload: PathBuf) -> Result<ExitCode, AgEvidenceError> {
+    let value = read_json(payload)?;
+    let canonical = canonicalize_value(&value)?;
+    println!("{}", canonical.as_str()?);
+    Ok(ExitCode::SUCCESS)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn issue_projection_emits_parseable_receipt() {
-        let receipt = match issue_projection(
-            json!({ "avsa": "AVSA-1", "event": "practice" }),
-            "Athian Test".into(),
-            "practice_receipt".into(),
-            Some("athian.practice_receipt.v1".into()),
-            "sealed".into(),
-            Some("AVSA-1".into()),
-            Some("did:key:test".into()),
-            vec!["parent-digest".into()],
-        ) {
-            Ok(receipt) => receipt,
-            Err(error) => panic!("{}", error),
-        };
-
-        assert_eq!(receipt["receipt_type"], "practice_receipt");
-        assert_eq!(receipt["lifecycle_state"], "sealed");
-        assert!(receipt["body_digest"].as_str().is_some());
-        assert!(receipt["canonical_encoding_hex"].as_str().is_some());
+fn conformance_command() -> Result<ExitCode, AgEvidenceError> {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../../protocol/conformance/canonicalization/vectors");
+    let mut failures = Vec::new();
+    for entry in std::fs::read_dir(root)? {
+        let entry = entry?;
+        if !entry.file_type()?.is_dir() {
+            continue;
+        }
+        let vector = entry.path();
+        let metadata = std::fs::read_to_string(vector.join("metadata.yaml"))?;
+        let input = std::fs::read_to_string(vector.join("input.json"))?;
+        if metadata.contains("expected_error:") {
+            if serde_json::from_str::<Value>(&input)
+                .ok()
+                .and_then(|value| canonicalize_value(&value).ok())
+                .is_some()
+            {
+                failures.push(format!("{} should fail", vector.display()));
+            }
+            continue;
+        }
+        let value: Value = serde_json::from_str(&input)?;
+        let mut expected = std::fs::read(vector.join("expected.json"))?;
+        if expected.ends_with(b"\n") {
+            expected.pop();
+        }
+        let canonical = canonicalize_value(&value)?;
+        if canonical.as_bytes() != expected {
+            failures.push(format!("{} mismatch", vector.display()));
+        }
     }
+    if failures.is_empty() {
+        println!("AgEvidence Rust canonicalization conformance passed");
+        Ok(ExitCode::SUCCESS)
+    } else {
+        for failure in failures {
+            eprintln!("{failure}");
+        }
+        Ok(ExitCode::from(1))
+    }
+}
 
-    #[test]
-    fn graph_projection_emits_parent_edges() {
-        let graph = graph_projection(&json!({
-            "receipts": [
-                { "id": 1, "title": "Practice", "receipt_type": "practice_receipt", "lifecycle_state": "sealed", "body_digest": "a", "parent_receipt_ids": [] },
-                { "id": 2, "title": "Measurement", "receipt_type": "measurement_receipt", "lifecycle_state": "sealed", "body_digest": "b", "parent_receipt_ids": [1] }
-            ]
-        }));
+fn read_json(path: PathBuf) -> Result<Value, AgEvidenceError> {
+    Ok(serde_json::from_slice(&std::fs::read(path)?)?)
+}
 
-        assert_eq!(graph["nodes"].as_array().map(Vec::len), Some(2));
-        assert_eq!(graph["edges"].as_array().map(Vec::len), Some(1));
+fn status_exit_code(status: CheckStatus) -> ExitCode {
+    match status {
+        CheckStatus::Pass | CheckStatus::Warning | CheckStatus::Skipped => ExitCode::SUCCESS,
+        CheckStatus::Fail => ExitCode::from(1),
+        CheckStatus::Indeterminate => ExitCode::from(2),
+    }
+}
+
+fn error_exit_code(error: &AgEvidenceError) -> ExitCode {
+    match error {
+        AgEvidenceError::Json(_) | AgEvidenceError::Zip(_) | AgEvidenceError::Malformed(_) => {
+            ExitCode::from(3)
+        }
+        AgEvidenceError::UnsupportedProtocol(_) => ExitCode::from(4),
+        AgEvidenceError::Io(_) | AgEvidenceError::Canonical(_) | AgEvidenceError::Crypto(_) => {
+            ExitCode::from(5)
+        }
+    }
+}
+
+fn error_status(error: &AgEvidenceError) -> &'static str {
+    match error {
+        AgEvidenceError::UnsupportedProtocol(_) => "unsupported",
+        AgEvidenceError::Json(_) | AgEvidenceError::Zip(_) | AgEvidenceError::Malformed(_) => {
+            "malformed"
+        }
+        _ => "error",
+    }
+}
+
+fn error_code(error: &AgEvidenceError) -> &'static str {
+    match error {
+        AgEvidenceError::Json(_) => "JSON_MALFORMED",
+        AgEvidenceError::Zip(_) => "ZIP_MALFORMED",
+        AgEvidenceError::Malformed(_) => "INPUT_MALFORMED",
+        AgEvidenceError::UnsupportedProtocol(_) => "UNSUPPORTED_PROTOCOL",
+        AgEvidenceError::Io(_) => "IO_ERROR",
+        AgEvidenceError::Canonical(_) => "CANONICALIZATION_FAILED",
+        AgEvidenceError::Crypto(_) => "CRYPTO_ERROR",
     }
 }

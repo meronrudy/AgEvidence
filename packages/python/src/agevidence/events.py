@@ -10,8 +10,12 @@ import copy
 import hashlib
 import hmac
 import json
+import math
 from pathlib import Path
 from typing import Any, Iterable
+
+
+MAX_SAFE_JSON_INTEGER = 9_007_199_254_740_991
 
 
 def canonical_value(value: Any) -> Any:
@@ -23,7 +27,7 @@ def canonical_value(value: Any) -> Any:
 
 
 def canonical_json(value: Any) -> str:
-    return json.dumps(canonical_value(value), separators=(",", ":"), ensure_ascii=False)
+    return _jcs_dumps(value)
 
 
 def canonical_event_payload(event: dict[str, Any], source: str | None = None) -> str:
@@ -63,3 +67,73 @@ def project_4030_event_files(root: str | Path | None = None) -> list[Path]:
 def load_project_4030_events(root: str | Path | None = None) -> Iterable[dict[str, Any]]:
     for path in project_4030_event_files(root):
         yield load_event(path)
+
+
+def _jcs_dumps(value: Any) -> str:
+    if value is None:
+        return "null"
+    if value is True:
+        return "true"
+    if value is False:
+        return "false"
+    if isinstance(value, str):
+        return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+    if isinstance(value, int) and not isinstance(value, bool):
+        if abs(value) > MAX_SAFE_JSON_INTEGER:
+            raise ValueError("integer is outside the RFC 8785 interoperable JSON number range")
+        return str(value)
+    if isinstance(value, float):
+        return _format_float_jcs(value)
+    if isinstance(value, list):
+        return "[" + ",".join(_jcs_dumps(item) for item in value) + "]"
+    if isinstance(value, dict):
+        items = []
+        for key in sorted(value, key=lambda item: str(item).encode("utf-16-be")):
+            if not isinstance(key, str):
+                raise TypeError("JCS object keys must be strings")
+            items.append(f"{_jcs_dumps(key)}:{_jcs_dumps(value[key])}")
+        return "{" + ",".join(items) + "}"
+    raise TypeError(f"unsupported JSON value: {type(value).__name__}")
+
+
+def _format_float_jcs(value: float) -> str:
+    if not math.isfinite(value):
+        raise ValueError("NaN and Infinity are not valid RFC 8785 JSON numbers")
+    if value == 0:
+        return "0"
+
+    sign = "-" if value < 0 else ""
+    text = repr(abs(value)).lower()
+    coefficient, exponent_text = text.split("e") if "e" in text else (text, "0")
+    exponent = int(exponent_text)
+    if "." in coefficient:
+        integer, fraction = coefficient.split(".", 1)
+        decimal_point = len(integer) + exponent
+        digits = integer + fraction
+    else:
+        decimal_point = len(coefficient) + exponent
+        digits = coefficient
+
+    leading_zeroes = len(digits) - len(digits.lstrip("0"))
+    digits = digits.lstrip("0") or "0"
+    decimal_point -= leading_zeroes
+    digits = digits.rstrip("0") or "0"
+    adjusted_exponent = decimal_point - 1
+
+    if -6 <= adjusted_exponent < 21:
+        if decimal_point <= 0:
+            rendered = "0." + ("0" * -decimal_point) + digits
+        elif decimal_point >= len(digits):
+            rendered = digits + ("0" * (decimal_point - len(digits)))
+        else:
+            rendered = digits[:decimal_point] + "." + digits[decimal_point:]
+        if "." in rendered:
+            rendered = rendered.rstrip("0").rstrip(".")
+        return sign + rendered
+
+    if len(digits) == 1:
+        mantissa = digits
+    else:
+        mantissa = digits[0] + "." + digits[1:]
+    exponent_sign = "+" if adjusted_exponent >= 0 else ""
+    return f"{sign}{mantissa}e{exponent_sign}{adjusted_exponent}"

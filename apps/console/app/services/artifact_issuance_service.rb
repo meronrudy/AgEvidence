@@ -23,7 +23,7 @@ class ArtifactIssuanceService
     Artifact.transaction do
       validate_issueable!
       @artifact.issue!(issued_by: @actor)
-      ArtifactVerifierPlaceholder.record!(artifact: @artifact, actor: @actor, status: "locally_consistent", metadata: @metadata)
+      Trust::Verifier.record_artifact!(artifact: @artifact, actor: @actor, metadata: @metadata)
 
       if @recipient
         ResourceGrant.grant_artifact_access(

@@ -15,6 +15,8 @@ This directory contains human-facing documentation for the monorepo.
 - [Current endpoints](api/sdk-contract/endpoints.md)
 - [Request and response examples](api/sdk-contract/request_response_examples.md)
 - [Error contract](api/sdk-contract/error_contract.md)
+- [Trust boundary](architecture/trust_boundary.md)
+- [Independent verification release](release/independent_verification.md)
 
 The canonical machine-readable OpenAPI document lives at
 `../protocol/openapi/agevidence-v1.yaml`.

@@ -13,8 +13,8 @@ module EvidencePlane
 
     def call
       project = evidence_workspace
-      payload = CanonicalJson.normalize(@attributes)
-      digest = CanonicalJson.digest(payload)
+      payload = StableJson.normalize(@attributes)
+      digest = ApplicationDigest.sha256(payload)
       primitive = @attributes.fetch("type")
       schema = @attributes.fetch("schema")
       external_id = @attributes["external_id"].presence || @attributes["id"].presence

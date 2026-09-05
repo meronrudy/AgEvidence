@@ -43,7 +43,7 @@ def test_client_constructs_full_developer_flow_requests():
         if request.url.path == "/v1/artifact-orders/order_1/checkout":
             return json_response({"order_id": "order_1", "quote_id": "quote_1", "status": "paid"})
         if request.url.path == "/v1/developer/projects/42/artifacts":
-            return json_response({"order_id": "order_1", "quote_id": "quote_1", "status": "fulfilled", "artifact": {"artifact_id": "artifact_1", "verification_command": "verify-bundle demo.zip"}}, 201)
+            return json_response({"order_id": "order_1", "quote_id": "quote_1", "status": "fulfilled", "artifact": {"artifact_id": "artifact_1", "verification_command": "agevidence verify demo.zip --json"}}, 201)
         raise AssertionError(request.url.path)
 
     client = Client(base_url="http://testserver", transport=transport_for(handler))
@@ -60,7 +60,7 @@ def test_client_constructs_full_developer_flow_requests():
     assert source.document_id == "trial"
     assert run.status == "completed"
     assert candidate.review_status == "accepted"
-    assert artifact.artifact.verification_command == "verify-bundle demo.zip"
+    assert artifact.artifact.verification_command == "agevidence verify demo.zip --json"
     assert ("POST", "/v1/developer/projects/42/artifacts", {"order_id": "order_1", "sandbox_checkout": False}) in seen
 
 

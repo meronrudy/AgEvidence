@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import shlex
 import subprocess
+import json
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -24,7 +25,7 @@ class Verifier:
                 code="VERIFIER_COMMAND_MISSING",
             )
 
-        command = shlex.split(configured) + ["verify-bundle", str(bundle)]
+        command = shlex.split(configured) + ["verify", str(bundle), "--json"]
         try:
             completed = subprocess.run(command, capture_output=True, text=True, check=False)
         except FileNotFoundError as exc:
@@ -33,7 +34,14 @@ class Verifier:
                 code="VERIFIER_COMMAND_NOT_FOUND",
             ) from exc
 
-        if completed.returncode != 0:
+        parsed: dict[str, object] | None = None
+        if completed.stdout.strip():
+            try:
+                parsed = json.loads(completed.stdout)
+            except json.JSONDecodeError:
+                parsed = None
+
+        if completed.returncode == 5 or (completed.returncode != 0 and parsed is None):
             raise AgEvidenceError(
                 "Verifier command failed.",
                 status_code=completed.returncode,
@@ -41,4 +49,6 @@ class Verifier:
                 response_body={"stdout": completed.stdout, "stderr": completed.stderr, "command": command},
             )
 
-        return VerifyResult(status="delegated", command=command, returncode=completed.returncode, stdout=completed.stdout, stderr=completed.stderr)
+        payload = parsed or {"status": "pass"}
+        payload.update(command=command, returncode=completed.returncode, stdout=completed.stdout, stderr=completed.stderr)
+        return VerifyResult.model_validate(payload)

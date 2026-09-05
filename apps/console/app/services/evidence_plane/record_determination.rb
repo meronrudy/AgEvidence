@@ -19,7 +19,7 @@ module EvidencePlane
           evaluation: evaluation,
           outcome: decision,
           adapter: "#{profile.code} #{profile.profile_version}",
-          digest: CanonicalJson.digest({
+          digest: ApplicationDigest.sha256({
             "review_decision" => review_decision.decision_code,
             "decision" => decision,
             "qualification" => qualification

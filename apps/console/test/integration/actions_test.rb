@@ -30,7 +30,7 @@ class ActionsTest < ActionDispatch::IntegrationTest
     artifact.update!(issued: false, issued_at: nil, status: "ready_with_qualification")
 
     assert_difference -> { AuditEvent.where(action: "artifact_issued").count }, 1 do
-      assert_difference -> { VerifierResult.where(status: "locally_consistent").count }, 1 do
+      assert_difference -> { VerifierResult.count }, 1 do
         post artifact_issue_project_path("dit-production")
       end
     end

@@ -1,0 +1,3 @@
+id: 003-unicode
+description: Unicode scalar preservation and UTF-16 property sorting.
+canonicalization: agevidence.canonical.jcs.v1

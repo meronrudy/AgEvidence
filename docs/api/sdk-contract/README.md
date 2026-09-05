@@ -10,7 +10,7 @@
 - JSON schemas served by Rails from: `protocol/schemas`
 
 The active Rails console API is the `/api/v1` partner surface for source
-intake, artifact access, placeholder verification results, reliance events, and
+intake, artifact access, delegated verifier results, reliance events, and
 checked-in contract schemas.
 
 The older source-only `/v1` Developer OS contract is preserved as an archive at

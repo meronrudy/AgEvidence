@@ -4,6 +4,7 @@ module Api
       CONTRACTS = {
         "artifact-manifest.v0" => "artifact-manifest.v0.json",
         "verifier-result.v0" => "verifier-result.v0.json",
+        "verifier-report.v1" => "verifier-report.v1.json",
         "webhook-envelope.v0" => "webhook-envelope.v0.json",
         "error-response.v0" => "error-response.v0.json"
       }.freeze

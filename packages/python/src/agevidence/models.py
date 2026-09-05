@@ -248,7 +248,14 @@ class WebhookEndpoint(AgEvidenceModel):
 
 
 class VerifyResult(AgEvidenceModel):
-    status: Literal["delegated", "failed"]
+    status: str
+    cryptographic_status: str | None = None
+    trust_policy_status: str | None = None
+    verifier_version: str | None = None
+    protocol_version: str | None = None
+    checks: list[dict[str, Any]] = Field(default_factory=list)
+    warnings: list[Any] = Field(default_factory=list)
+    errors: list[Any] = Field(default_factory=list)
     command: list[str]
     returncode: int | None = None
     stdout: str = ""

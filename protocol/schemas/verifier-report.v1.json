@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agevidence.example/contracts/verifier-report.v1.json",
+  "contract_version": "verifier-report.v1",
+  "title": "AgEvidence Verifier Report v1",
+  "type": "object",
+  "required": [
+    "verifier_version",
+    "protocol_version",
+    "status",
+    "cryptographic_status",
+    "checks",
+    "warnings",
+    "errors"
+  ],
+  "properties": {
+    "verifier_version": { "type": "string" },
+    "protocol_version": { "const": "agevidence.trust.v1" },
+    "status": {
+      "type": "string",
+      "enum": ["pass", "fail", "indeterminate", "warning", "skipped", "malformed", "unsupported", "error"]
+    },
+    "cryptographic_status": {
+      "type": "string",
+      "enum": ["pass", "fail", "indeterminate", "warning", "skipped", "malformed", "unsupported", "error"]
+    },
+    "trust_policy_status": {
+      "type": "string",
+      "enum": ["pass", "fail", "indeterminate", "warning", "skipped", "malformed", "unsupported", "error"]
+    },
+    "bundle_format": { "type": "string", "enum": ["json", "zip"] },
+    "bundle_commitment": { "type": "string", "pattern": "^bundle:sha256:[a-f0-9]{64}$" },
+    "receipt_commitments": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^receipt:sha256:[a-f0-9]{64}$" }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "status"],
+        "properties": {
+          "name": { "type": "string" },
+          "status": { "type": "string" },
+          "detail": { "type": "string" }
+        }
+      }
+    },
+    "warnings": { "type": "array" },
+    "errors": { "type": "array" }
+  },
+  "examples": [
+    {
+      "verifier_version": "0.1.0",
+      "protocol_version": "agevidence.trust.v1",
+      "status": "indeterminate",
+      "cryptographic_status": "indeterminate",
+      "trust_policy_status": "indeterminate",
+      "bundle_format": "json",
+      "bundle_commitment": "bundle:sha256:e4b7a0912cd83f6415aa27de90bb35c1f8027ae64d139b0cc7521ea83f4d6610",
+      "receipt_commitments": [],
+      "checks": [{ "name": "receipt.present", "status": "indeterminate" }],
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "x-negative_examples": [
+    { "description": "Missing status", "payload": { "verifier_version": "0.1.0" } },
+    { "description": "Untyped bundle commitment", "payload": { "status": "pass", "bundle_commitment": "sha256:e4b7a0912cd83f6415aa27de90bb35c1f8027ae64d139b0cc7521ea83f4d6610" } }
+  ]
+}

@@ -27,7 +27,7 @@ class ProjectEvaluationService
       "evidence" => accepted_evidence.map { |record| { "record_code" => record.record_code, "digest" => record.digest } },
       "review_decisions" => @project.reviews.includes(:review_decisions).flat_map(&:review_decisions).map(&:decision_code).sort
     }
-    input_digest = CanonicalJson.digest(input)
+    input_digest = ApplicationDigest.sha256(input)
     outcome = unsatisfied_codes.empty? ? "Eligible" : "Eligible with conditions"
 
     Evaluation.transaction do

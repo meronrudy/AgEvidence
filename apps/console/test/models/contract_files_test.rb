@@ -4,6 +4,7 @@ class ContractFilesTest < ActiveSupport::TestCase
   CONTRACTS = %w[
     artifact-manifest.v0.json
     verifier-result.v0.json
+    verifier-report.v1.json
     webhook-envelope.v0.json
     error-response.v0.json
   ].freeze
@@ -20,11 +21,11 @@ class ContractFilesTest < ActiveSupport::TestCase
     end
   end
 
-  test "webhook signer produces versioned signed envelope" do
+  test "integration event signer produces versioned signed envelope" do
     seed_demo!
     organization = Organization.find_by!(name: "DIT AgTech")
 
-    envelope = WebhookEnvelopeSigner.build(
+    envelope = IntegrationEventSigner.build(
       event_name: "statement.issued",
       organization: organization,
       payload: { "statement_code" => "AE-AU-000184" },

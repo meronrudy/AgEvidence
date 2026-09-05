@@ -1,0 +1,3 @@
+id: 009-empty-values
+description: Empty arrays, objects, and strings.
+canonicalization: agevidence.canonical.jcs.v1

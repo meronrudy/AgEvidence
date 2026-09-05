@@ -1,10 +1,9 @@
 module EvidencePlane
   class VerifyStatement
     def self.call(statement:, actor: nil, metadata: {})
-      ArtifactVerifierPlaceholder.record!(
+      Trust::Verifier.record_artifact!(
         artifact: statement,
         actor: actor,
-        status: "locally_consistent",
         metadata: metadata
       )
     end

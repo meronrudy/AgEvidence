@@ -30,12 +30,12 @@
     "evidence_records": { "type": "array" },
     "limitations": { "type": "array" },
     "receipt_chain": { "type": "array" },
-    "digest": { "type": "string", "pattern": "^sha256:" }
+    "digest": { "type": "string", "pattern": "^(app:)?sha256:" }
   },
   "examples": [
     {
       "contract_version": "artifact-manifest.v0",
-      "canonicalization": "Rails JSON object keys sorted recursively before SHA-256 digest; not a cross-runtime verifier claim.",
+      "canonicalization": "Rails StableJson object keys sorted recursively before app:sha256 digest; not a receipt commitment or cross-runtime verifier claim.",
       "artifact_code": "RA-AU-000184",
       "project": { "project_code": "PRJ-AU-00041" },
       "determination": { "determination_code": "DET-002", "digest": "sha256:det002" },
@@ -45,7 +45,7 @@
       "evidence_records": [],
       "limitations": [],
       "receipt_chain": [],
-      "digest": "sha256:e4b7a0912cd83f6415aa27de90bb35c1f8027ae64d139b0cc7521ea83f4d6610"
+      "digest": "app:sha256:e4b7a0912cd83f6415aa27de90bb35c1f8027ae64d139b0cc7521ea83f4d6610"
     }
   ],
   "x-negative_examples": [

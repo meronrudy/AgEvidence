@@ -23,12 +23,12 @@ class EvidenceNormalizationService
 
   def create!
     EvidenceRecord.transaction do
-      normalized_payload = CanonicalJson.normalize(@payload.merge(
+      normalized_payload = StableJson.normalize(@payload.merge(
         "source_record_code" => @source_record.record_code,
         "source_commitment" => @source_record.commitment,
         "contract_version" => "evidence-record.v0"
       ))
-      digest = CanonicalJson.digest(normalized_payload)
+      digest = ApplicationDigest.sha256(normalized_payload)
 
       evidence_record = @source_record.project.evidence_records.create!(
         source_record: @source_record,
@@ -51,7 +51,7 @@ class EvidenceNormalizationService
         payload: normalized_payload,
         integrity: [
           { "label" => "Source commitment recorded", "ok" => true },
-          { "label" => "Canonical projection digest", "ok" => true },
+          { "label" => "Application projection digest", "ok" => true },
           { "label" => "Project boundary matched", "ok" => true }
         ],
         processing: [

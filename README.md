@@ -319,7 +319,9 @@ DATABASE_URL=postgres://postgres:postgres@127.0.0.1:5432/agevidence_development
 
 ```bash
 bash protocol/conformance/scripts/agevidence_check_all.sh
+cd packages/rust && cargo run -p agevidence-cli -- conformance
 python3 -m pytest packages/python/tests
+cd packages/ruby && bundle exec rake
 python3 -m pytest research/tests
 python3 research/studies/kebreab/roque-2021/run.py
 python3 research/studies/kebreab/methane-database-2024/run.py

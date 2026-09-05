@@ -1,0 +1,3 @@
+id: 004-small-exponent
+description: JCS decimal/exponent boundary for small numbers.
+canonicalization: agevidence.canonical.jcs.v1

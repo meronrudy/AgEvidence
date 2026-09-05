@@ -1,0 +1,3 @@
+id: 008-escaped-control
+description: Control-character escaping and unescaped solidus.
+canonicalization: agevidence.canonical.jcs.v1

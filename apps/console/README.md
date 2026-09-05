@@ -95,5 +95,5 @@ Production and staging URLs are intentionally not listed until DNS and deploy ta
 - Evaluations apply a versioned program profile to accepted evidence.
 - Determinations are bounded statements AgEvidence is prepared to publish.
 - Artifacts are immutable issued reliance packages.
-- Verifier results are currently AgEvidence placeholders, not independent cryptographic verification.
+- Verifier results are delegated to the Rust verifier; unavailable trust material is recorded as indeterminate.
 - Reliance events are distinct from artifact issuance and access grants.

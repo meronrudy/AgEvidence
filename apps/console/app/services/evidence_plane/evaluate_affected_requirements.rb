@@ -20,7 +20,7 @@ module EvidencePlane
 
       evaluation.update!(
         evaluated_at: Time.current,
-        input_digest: CanonicalJson.digest({
+        input_digest: ApplicationDigest.sha256({
           "evaluation_code" => evaluation.evaluation_code,
           "trigger" => @evidence_record.record_code,
           "evidence_digest" => @evidence_record.digest

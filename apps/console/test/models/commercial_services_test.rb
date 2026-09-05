@@ -39,7 +39,7 @@ class CommercialServicesTest < ActiveSupport::TestCase
     )
 
     assert_equal source, evidence.source_record
-    assert_match(/\Asha256:/, evidence.digest)
+    assert_match(/\Aapp:sha256:/, evidence.digest)
     assert_equal "EV-", evidence.record_code.first(3)
   end
 
